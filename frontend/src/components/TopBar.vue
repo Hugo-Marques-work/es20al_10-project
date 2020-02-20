@@ -85,6 +85,25 @@
           </v-list>
         </v-menu>
 
+        <v-menu offset-y v-if="isStudent" open-on-hover>
+          <template v-slot:activator="{ on }">
+            <v-btn v-on="on" text dark>
+              Tournaments
+              <v-icon>fas fa-trophy</v-icon>
+            </v-btn>
+          </template>
+          <v-list dense>
+            <v-list-item to="/tournament/create">
+              <v-list-item-action>
+                <v-icon>create</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>Create</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+
         <v-menu offset-y v-if="isStudent && currentCourse" open-on-hover>
           <template v-slot:activator="{ on }">
             <v-btn v-on="on" text dark>
