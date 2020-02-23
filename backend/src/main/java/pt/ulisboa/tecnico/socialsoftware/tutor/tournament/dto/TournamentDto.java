@@ -7,18 +7,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class TournamentDto {
-    private String availableDate;
     private String startingDate;
+    private String conclusionDate;
     private int numberOfQuestions;
     private Set<Topic> topics = new HashSet<>();
 
     public TournamentDto() {}
-
-    public String getAvailableDate() { return availableDate; }
-
-    public void setAvailableDate(String availableDate) {
-        this.availableDate = availableDate;
-    }
 
     public String getStartingDate() {
         return startingDate;
@@ -26,6 +20,14 @@ public class TournamentDto {
 
     public void setStartingDate(String startingDate) {
         this.startingDate = startingDate;
+    }
+
+    public String getConclusionDate() {
+        return conclusionDate;
+    }
+
+    public void setConclusionDate(String conclusionDate) {
+        this.conclusionDate = conclusionDate;
     }
 
     public int getNumberOfQuestions() {
