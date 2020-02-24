@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.question.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuestionAnswer;
+import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.Domain.Clarification;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.Importable;
@@ -69,6 +70,9 @@ public class Question {
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "question", orphanRemoval=true)
+    private Set<Clarification> clarification = new HashSet<>();
 
     public Question() {
     }
@@ -333,4 +337,10 @@ public class Question {
     public boolean belongsToAssessment(Assessment chosenAssessment) {
         return chosenAssessment.getTopicConjunctions().stream().map(TopicConjunction::getTopics).collect(Collectors.toList()).contains(this.topics);
     }
+
+    public Set<Clarification> getClarification() { return clarification; }
+
+    public void setClarification(Set<Clarification> clarification) { this.clarification = clarification; }
+
+    public void addClarification(Clarification clarification) {this.clarification.add(clarification);}
 }
