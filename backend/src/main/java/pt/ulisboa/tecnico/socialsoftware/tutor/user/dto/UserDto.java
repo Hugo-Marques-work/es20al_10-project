@@ -1,9 +1,14 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.user.dto;
 
+import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.domain.Clarification;
+import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.dto.ClarificationDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import java.io.Serializable;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class UserDto implements Serializable {
     private int id;
@@ -11,6 +16,7 @@ public class UserDto implements Serializable {
     private String name;
     private User.Role role;
     private String creationDate;
+    private List<ClarificationDto> clarifications;
 
     public UserDto(User user) {
         this.id = user.getId();
@@ -19,7 +25,9 @@ public class UserDto implements Serializable {
         this.role = user.getRole();
 
         if (user.getCreationDate() != null)
-            this.creationDate = user.getCreationDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));;
+            this.creationDate = user.getCreationDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        if (user.getClarifications() != null)
+            this.clarifications = user.getClarifications().stream().sorted(Comparator.comparing(Clarification::getId)).map(ClarificationDto::new).collect(Collectors.toList());
     }
 
     public int getId() {
@@ -62,6 +70,10 @@ public class UserDto implements Serializable {
         this.creationDate = creationDate;
     }
 
+    public List<ClarificationDto> getClarifications() { return clarifications; }
+
+    public void setClarifications(List<ClarificationDto> clarifications) { this.clarifications = clarifications; }
+
     @Override
     public String toString() {
         return "UserDto{" +
@@ -69,7 +81,8 @@ public class UserDto implements Serializable {
                 ", username='" + username + '\'' +
                 ", name='" + name + '\'' +
                 ", role=" + role +
-                ", creationDate=" + creationDate +
+                ", creationDate='" + creationDate + '\'' +
+                ", clarifications=" + clarifications +
                 '}';
     }
 }

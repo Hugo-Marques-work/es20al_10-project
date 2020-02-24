@@ -1,7 +1,8 @@
-package pt.ulisboa.tecnico.socialsoftware.tutor.clarification.Domain;
+package pt.ulisboa.tecnico.socialsoftware.tutor.clarification.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.dto.ClarificationDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import javax.persistence.*;
 
@@ -12,10 +13,12 @@ public class Clarification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    private String username;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "question_id")
@@ -23,10 +26,11 @@ public class Clarification {
 
     public Clarification() {}
 
-    public Clarification(ClarificationDto clarification) {
+    public Clarification(ClarificationDto clarification, Question question, User user) {
         this.content = clarification.getContent();
         this.id = clarification.getId();
-        this.username = clarification.getUsername();
+        this.user = user;
+        this.question = question;
     }
 
     public Integer getId() { return id; }
@@ -35,7 +39,7 @@ public class Clarification {
 
     public Question getQuestion() { return question; }
 
-    public String getUsername() { return username; }
+    public User getUser() { return user; }
 
     public void setId(Integer id) { this.id = id; }
 
@@ -43,14 +47,14 @@ public class Clarification {
 
     public void setQuestion(Question question) { this.question = question; }
 
-    public void setUsername(String username) { this.username = username; }
+    public void setUser(User user) { this.user = user; }
 
     @Override
     public String toString() {
         return "Clarification{" +
                 "id=" + id +
                 ", content='" + content + '\'' +
-                ", username='" + username + '\'' +
+                ", user=" + user +
                 ", question=" + question +
                 '}';
     }
