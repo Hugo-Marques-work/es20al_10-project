@@ -11,7 +11,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto
@@ -20,6 +20,7 @@ import spock.lang.Specification
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.stream.Collectors
 
 @DataJpaTest
 class CreateTournamentSpockTest extends Specification {
@@ -50,7 +51,7 @@ class CreateTournamentSpockTest extends Specification {
     def tournamentDto
     def startingDate
     def conclusionDate
-    def topics
+    def topicDtos
 
     def setup() {
         formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
@@ -65,8 +66,8 @@ class CreateTournamentSpockTest extends Specification {
         topicDto.setName(TOPIC_NAME)
 
         topicDto = topicService.createTopic(course.getId(), topicDto)
-        topics = new HashSet<TopicDto>()
-        topics.add(topicDto)
+        topicDtos = new HashSet<TopicDto>()
+        topicDtos.add(topicDto)
 
         tournamentDto = new TournamentDto()
 
@@ -75,13 +76,24 @@ class CreateTournamentSpockTest extends Specification {
         tournamentDto.setStartingDate(startingDate.format(formatter))
         tournamentDto.setConclusionDate(conclusionDate.format(formatter))
         tournamentDto.setNumberOfQuestions(NUMBER_QUESTIONS)
+        tournamentDto.addTopics(topicDtos)
     }
 
     def "create a tournament"() {
-        when:
-        tournamentService.createTournament(courseExecution.getId(), tournamentDto)
+        given: "a tournament dto with a topic set similar to the topic dto set"
+        def topics = tournamentDto.getTopics().stream()
+                .map({ topicDto -> new Topic(course, topicDto) })
+                .collect(Collectors.toSet());
 
-        then:
+        when:
+        def resultDto = tournamentService.createTournament(courseExecution.getId(), tournamentDto)
+
+        then: "the correct quiz is in the repository and the resulting dto matches"
+        resultDto.topics.size() == tournamentDto.topics.size()
+        resultDto.numberOfQuestions == NUMBER_QUESTIONS
+        resultDto.startingDate == startingDate.format(formatter)
+        resultDto.conclusionDate == conclusionDate.format(formatter)
+
         tournamentRepository.count() == 1L
         def result = tournamentRepository.findAll().get(0)
         result.getId() == 1
@@ -102,9 +114,9 @@ class CreateTournamentSpockTest extends Specification {
         thrown(TutorException)
     }
 
-    def "starting date is invalid"() {
-        given: "an invalid starting date"
-        tournamentDto.setStartingDate("")
+    def "starting date is null"() {
+        given: "a null starting date"
+        tournamentDto.setStartingDate(null)
 
         when:
         tournamentService.createTournament(courseExecution.getId(), tournamentDto)
@@ -116,17 +128,6 @@ class CreateTournamentSpockTest extends Specification {
     def "conclusion date is null"() {
         given: "a null conclusion date"
         tournamentDto.setConclusionDate(null)
-
-        when:
-        tournamentService.createTournament(courseExecution.getId(), tournamentDto)
-
-        then:
-        thrown(TutorException)
-    }
-
-    def "conclusion date is invalid"() {
-        given: "an invalid conclusion date"
-        tournamentDto.setConclusionDate(" ")
 
         when:
         tournamentService.createTournament(courseExecution.getId(), tournamentDto)
