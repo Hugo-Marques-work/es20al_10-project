@@ -5,6 +5,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
@@ -21,7 +23,9 @@ import java.time.format.DateTimeFormatter
 
 @DataJpaTest
 class CreateTournamentSpockTest extends Specification {
-    static final String COURSE_NAME = "Software Engineering"
+    public static final String COURSE_NAME = "Software Architecture"
+    public static final String ACRONYM = "AS1"
+    public static final String ACADEMIC_TERM = "1 SEM"
     static final String TOPIC_NAME = "Risk Management"
     static final Integer NUMBER_QUESTIONS = 1
 
@@ -35,9 +39,13 @@ class CreateTournamentSpockTest extends Specification {
     CourseRepository courseRepository
 
     @Autowired
+    CourseExecutionRepository courseExecutionRepository
+
+    @Autowired
     TopicService topicService
 
     def course
+    def courseExecution
     def formatter
     def tournamentDto
     def startingDate
@@ -49,6 +57,9 @@ class CreateTournamentSpockTest extends Specification {
 
         course = new Course(COURSE_NAME, Course.Type.TECNICO)
         courseRepository.save(course)
+
+        courseExecution = new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
+        courseExecutionRepository.save(courseExecution)
 
         TopicDto topicDto = new TopicDto()
         topicDto.setName(TOPIC_NAME)
@@ -68,7 +79,7 @@ class CreateTournamentSpockTest extends Specification {
 
     def "create a tournament"() {
         when:
-        tournamentService.createTournament(tournamentDto)
+        tournamentService.createTournament(courseExecution.getId(), tournamentDto)
 
         then:
         tournamentRepository.count() == 1L
@@ -85,7 +96,7 @@ class CreateTournamentSpockTest extends Specification {
         tournamentDto.clearTopicList();
 
         when:
-        tournamentService.createTournament(tournamentDto)
+        tournamentService.createTournament(courseExecution.getId(), tournamentDto)
 
         then:
         thrown(TutorException)
@@ -96,7 +107,7 @@ class CreateTournamentSpockTest extends Specification {
         tournamentDto.setStartingDate("")
 
         when:
-        tournamentService.createTournament(tournamentDto)
+        tournamentService.createTournament(courseExecution.getId(), tournamentDto)
 
         then:
         thrown(TutorException)
@@ -107,7 +118,7 @@ class CreateTournamentSpockTest extends Specification {
         tournamentDto.setConclusionDate(null)
 
         when:
-        tournamentService.createTournament(tournamentDto)
+        tournamentService.createTournament(courseExecution.getId(), tournamentDto)
 
         then:
         thrown(TutorException)
@@ -118,7 +129,7 @@ class CreateTournamentSpockTest extends Specification {
         tournamentDto.setConclusionDate(" ")
 
         when:
-        tournamentService.createTournament(tournamentDto)
+        tournamentService.createTournament(courseExecution.getId(), tournamentDto)
 
         then:
         thrown(TutorException)
@@ -129,7 +140,7 @@ class CreateTournamentSpockTest extends Specification {
         tournamentDto.setConclusionDate(startingDate.minusDays(1).format(formatter))
 
         when:
-        tournamentService.createTournament(tournamentDto)
+        tournamentService.createTournament(courseExecution.getId(), tournamentDto)
 
         then:
         thrown(TutorException)
@@ -140,7 +151,15 @@ class CreateTournamentSpockTest extends Specification {
         tournamentDto.setNumberOfQuestions(0)
 
         when:
-        tournamentService.createTournament(tournamentDto)
+        tournamentService.createTournament(courseExecution.getId(), tournamentDto)
+
+        then:
+        thrown(TutorException)
+    }
+
+    def "invalid course execution id"() {
+        when:
+        tournamentService.createTournament(courseExecution.getId() - 10, tournamentDto)
 
         then:
         thrown(TutorException)

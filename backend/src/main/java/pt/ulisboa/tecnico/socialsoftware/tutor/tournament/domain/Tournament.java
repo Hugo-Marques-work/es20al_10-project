@@ -1,7 +1,9 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz;
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.QuizQuestion;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 
 import javax.persistence.*;
@@ -30,6 +32,10 @@ public class Tournament {
     @JoinColumn(name = "quiz_id")
     private Quiz quiz;
 
+    @ManyToOne
+    @JoinColumn(name = "course_execution_id")
+    private CourseExecution courseExecution;
+
     public Tournament() {}
 
     public Integer getId() { return id; }
@@ -43,4 +49,12 @@ public class Tournament {
     public LocalDateTime getConclusionDate() { return conclusionDate; }
 
     public Quiz getQuiz() { return quiz; }
+
+    public CourseExecution getCourseExecution() {
+        return courseExecution;
+    }
+
+    public void setCourseExecution(CourseExecution courseExecution) {
+        this.courseExecution = courseExecution;
+    }
 }
