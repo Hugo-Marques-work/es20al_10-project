@@ -1,18 +1,27 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto;
 
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 public class TournamentDto {
+    private Integer id;
     private String startingDate;
     private String conclusionDate;
     private int numberOfQuestions;
-    private Set<Topic> topics = new HashSet<>();
+    private Set<TopicDto> topics = new HashSet<>();
 
     public TournamentDto() {}
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public String getStartingDate() {
         return startingDate;
@@ -38,15 +47,23 @@ public class TournamentDto {
         this.numberOfQuestions = numberOfQuestions;
     }
 
-    public Set<Topic> getTopics() {
+    public Set<TopicDto> getTopics() {
         return topics;
     }
 
-    public void addTopics(Collection<Topic> topics) {
+    public void addTopics(Collection<TopicDto> topics) {
         this.topics.addAll(topics);
     }
 
-    public void addTopic(Topic topic) {
+    public void addTopic(TopicDto topic) {
         this.topics.add(topic);
+    }
+
+    public void removeTopic(TopicDto topic) {
+        this.topics.remove(topic);
+    }
+
+    public void clearTopicList() {
+        this.topics.clear();
     }
 }

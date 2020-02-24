@@ -17,7 +17,7 @@ public class Tournament {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "tournament", fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Topic> topics = new HashSet<>();
 
     private Integer numberOfQuestions;
@@ -26,7 +26,7 @@ public class Tournament {
 
     private LocalDateTime conclusionDate;
 
-    @OneToOne(mappedBy = "tournament")
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quiz_id")
     private Quiz quiz;
 
@@ -36,7 +36,11 @@ public class Tournament {
 
     public Set<Topic> getTopics() { return topics; }
 
+    public Integer getNumberOfQuestions() { return numberOfQuestions; }
+
     public LocalDateTime getStartingDate() { return startingDate; }
 
     public LocalDateTime getConclusionDate() { return conclusionDate; }
+
+    public Quiz getQuiz() { return quiz; }
 }
