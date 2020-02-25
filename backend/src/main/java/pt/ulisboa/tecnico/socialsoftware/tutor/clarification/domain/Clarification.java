@@ -1,10 +1,13 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.clarification.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.dto.ClarificationDto;
+import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import javax.persistence.*;
+
+import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.CLARIFICATION_IS_EMPTY;
 
 @Entity
 @Table(name = "clarifications")
@@ -27,10 +30,23 @@ public class Clarification {
     public Clarification() {}
 
     public Clarification(ClarificationDto clarification, Question question, User user) {
-        this.content = clarification.getContent();
-        this.id = clarification.getId();
         this.user = user;
         this.question = question;
+
+        if (clarification.getContent() == null || clarification.getContent().isEmpty() || clarification.getContent().isBlank())
+            throw new TutorException(CLARIFICATION_IS_EMPTY);
+        else
+            this.content = clarification.getContent();
+    }
+
+    public Clarification(String content, Question question, User user) {
+        this.user = user;
+        this.question = question;
+
+        if (content == null || content.isEmpty() || content.isBlank())
+            throw new TutorException(CLARIFICATION_IS_EMPTY);
+        else
+            this.content = content;
     }
 
     public Integer getId() { return id; }

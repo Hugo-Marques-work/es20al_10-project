@@ -1,9 +1,10 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.clarification.service
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean;
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.ClarificationService
-import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.domain.Clarification
-import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.dto.ClarificationDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository;
@@ -11,6 +12,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
 import spock.lang.Specification;
 
+@DataJpaTest
 class CreateClarificationServiceSpockTest extends Specification {
     static final String NAME = "test user"
     static final String USERNAME = "test_user"
@@ -19,14 +21,13 @@ class CreateClarificationServiceSpockTest extends Specification {
     static final String CONTENT = "I want a clarification in this question."
 
     @Autowired
+    ClarificationService clarificationService
+
+    @Autowired
     UserRepository userRepository
 
     @Autowired
     QuestionRepository questionRepository
-
-    def clarificationService
-
-    def setup() {clarificationService = new ClarificationService()}
 
     def "question and user exists and creates clarification"() {
         given: "a user"
@@ -34,17 +35,11 @@ class CreateClarificationServiceSpockTest extends Specification {
         userRepository.save(user)
         and: "a question"
         def question = new Question()
+        question.setKey(1000)
         questionRepository.save(question)
-        and: "a clarification"
-        def clarification = new Clarification()
-        clarification.setQuestion(question)
-        clarification.setUser(user)
-        and: "a clarificationDto"
-        def clarificationDto = new ClarificationDto((clarification))
-        clarificationDto.setContent(CONTENT)
 
         when:
-        def result = clarificationService.createClarification(clarificationDto)
+        def result = clarificationService.createClarification(question, user, CONTENT)
 
         then: "the returned data are correct"
         result.content == CONTENT
@@ -60,8 +55,6 @@ class CreateClarificationServiceSpockTest extends Specification {
         questionClarification != null
         and: "has the correct value"
         questionClarification.content == CONTENT
-
-        expect: false
     }
 
     def "question does not exist"() {
@@ -70,21 +63,13 @@ class CreateClarificationServiceSpockTest extends Specification {
         userRepository.save(user)
         and: "a question"
         def question = new Question()
-        and: "a clarification"
-        def clarification = new Clarification()
-        clarification.setQuestion(question)
-        clarification.setUser(user)
-        and: "a clarificationDto"
-        def clarificationDto = new ClarificationDto((clarification))
-        clarificationDto.setContent(CONTENT)
+        question.setKey(1000)
 
         when:
-        clarificationService.createClarification(clarificationDto)
+        clarificationService.createClarification(question, user, CONTENT)
 
         then: "the returned data is incorrect"
         thrown(TutorException)
-
-        expect: false
     }
 
     def "user does not exist"() {
@@ -92,22 +77,15 @@ class CreateClarificationServiceSpockTest extends Specification {
         def user = new User(NAME, USERNAME, USER_KEY, ROLE)
         and: "a question"
         def question = new Question()
+        question.setKey(1000)
         questionRepository.save(question)
         and: "a clarification"
-        def clarification = new Clarification()
-        clarification.setQuestion(question)
-        clarification.setUser(user)
-        and: "a clarificationDto"
-        def clarificationDto = new ClarificationDto((clarification))
-        clarificationDto.setContent(CONTENT)
 
         when:
-        clarificationService.createClarification(clarificationDto)
+        clarificationService.createClarification(question, user, CONTENT)
 
         then: "the returned data is incorrect"
         thrown(TutorException)
-
-        expect: false
     }
 
     def "content is empty"() {
@@ -116,22 +94,14 @@ class CreateClarificationServiceSpockTest extends Specification {
         userRepository.save(user)
         and: "a question"
         def question = new Question()
+        question.setKey(1000)
         questionRepository.save(question)
-        and: "a clarification"
-        def clarification = new Clarification()
-        clarification.setQuestion(question)
-        clarification.setUser(user)
-        and: "a clarificationDto"
-        def clarificationDto = new ClarificationDto((clarification))
-        clarificationDto.setContent(null)
 
         when:
-        clarificationService.createClarification(clarificationDto)
+        clarificationService.createClarification(question, user, null)
 
         then: "the returned data is incorrect"
         thrown(TutorException)
-
-        expect: false
     }
 
     def "content is blank"() {
@@ -140,21 +110,21 @@ class CreateClarificationServiceSpockTest extends Specification {
         userRepository.save(user)
         and: "a question"
         def question = new Question()
+        question.setKey(1000)
         questionRepository.save(question)
-        and: "a clarification"
-        def clarification = new Clarification()
-        clarification.setQuestion(question)
-        clarification.setUser(user)
-        and: "a clarificationDto"
-        def clarificationDto = new ClarificationDto((clarification))
-        clarificationDto.setContent("   ")
 
         when:
-        clarificationService.createClarification(clarificationDto)
+        clarificationService.createClarification(question, user, "    ")
 
         then: "the returned data is incorrect"
         thrown(TutorException)
+    }
 
-        expect: false
+    @TestConfiguration
+    static class ClarificationServiceImplTestContextConfiguration {
+        @Bean
+        ClarificationService clarificationService() {
+            return new ClarificationService()
+        }
     }
 }
