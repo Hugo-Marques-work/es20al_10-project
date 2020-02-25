@@ -26,7 +26,7 @@ public class UserDto implements Serializable {
 
         if (user.getCreationDate() != null)
             this.creationDate = user.getCreationDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-        if (user.getClarifications() != null)
+        if (!user.getClarifications().isEmpty())
             this.clarifications = user.getClarifications().stream().sorted(Comparator.comparing(Clarification::getId)).map(ClarificationDto::new).collect(Collectors.toList());
     }
 

@@ -52,7 +52,7 @@ public class QuestionDto implements Serializable {
             this.image = new ImageDto(question.getImage());
         if (question.getCreationDate() != null)
             this.creationDate = question.getCreationDate().format(formatter);
-        if (question.getClarification() != null)
+        if (!question.getClarification().isEmpty())
             this.clarification = question.getClarification().stream().sorted(Comparator.comparing(Clarification::getId)).map(ClarificationDto::new).collect(Collectors.toList());
 
     }
