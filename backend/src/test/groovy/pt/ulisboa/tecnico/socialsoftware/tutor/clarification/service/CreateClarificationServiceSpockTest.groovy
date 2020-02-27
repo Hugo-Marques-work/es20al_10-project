@@ -5,6 +5,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean;
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.ClarificationService
+import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.repository.ClarificationRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository;
@@ -28,6 +29,9 @@ class CreateClarificationServiceSpockTest extends Specification {
 
     @Autowired
     QuestionRepository questionRepository
+
+    @Autowired
+    ClarificationRepository clarificationRepository
 
     def "question and user exists and creates clarification"() {
         given: "a user"
@@ -55,6 +59,8 @@ class CreateClarificationServiceSpockTest extends Specification {
         questionClarification != null
         and: "has the correct value"
         questionClarification.content == CONTENT
+        and: "clarification was added to the repository"
+        clarificationRepository.count() == 1
     }
 
     def "user is not a student and clarification is not created"() {
