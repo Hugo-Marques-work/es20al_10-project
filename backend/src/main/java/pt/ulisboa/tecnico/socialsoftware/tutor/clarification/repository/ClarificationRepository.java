@@ -10,6 +10,5 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 @Repository
 @Transactional
 public interface ClarificationRepository extends JpaRepository<Clarification, Integer> {
-    @Query(value = "SELECT * FROM users u WHERE u.key = userKey", nativeQuery = true)
-    User getUser();
+
 }

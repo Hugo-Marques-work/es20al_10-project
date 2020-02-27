@@ -16,7 +16,7 @@ import spock.lang.Specification;
 class CreateClarificationServiceSpockTest extends Specification {
     static final String NAME = "test user"
     static final String USERNAME = "test_user"
-    static final Integer USER_KEY = 1000
+    static final Integer KEY = 1
     static final User.Role ROLE = User.Role.STUDENT
     static final String CONTENT = "I want a clarification in this question."
 
@@ -31,11 +31,11 @@ class CreateClarificationServiceSpockTest extends Specification {
 
     def "question and user exists and creates clarification"() {
         given: "a user"
-        def user = new User(NAME, USERNAME, USER_KEY, ROLE)
+        def user = new User(NAME, USERNAME, KEY, ROLE)
         userRepository.save(user)
         and: "a question"
         def question = new Question()
-        question.setKey(1000)
+        question.setKey(KEY)
         questionRepository.save(question)
 
         when:
@@ -57,13 +57,29 @@ class CreateClarificationServiceSpockTest extends Specification {
         questionClarification.content == CONTENT
     }
 
-    def "question does not exist"() {
+    def "user is not a student and clarification is not created"() {
         given: "a user"
-        def user = new User(NAME, USERNAME, USER_KEY, ROLE)
+        def user = new User(NAME, USERNAME, KEY, User.Role.TEACHER)
         userRepository.save(user)
         and: "a question"
         def question = new Question()
-        question.setKey(1000)
+        question.setKey(KEY)
+        questionRepository.save(question)
+
+        when:
+        clarificationService.createClarification(question, user, CONTENT)
+
+        then: "the returned data is incorrect"
+        thrown(TutorException)
+    }
+
+    def "question does not exist"() {
+        given: "a user"
+        def user = new User(NAME, USERNAME, KEY, ROLE)
+        userRepository.save(user)
+        and: "a question"
+        def question = new Question()
+        question.setKey(KEY)
 
         when:
         clarificationService.createClarification(question, user, CONTENT)
@@ -74,10 +90,10 @@ class CreateClarificationServiceSpockTest extends Specification {
 
     def "user does not exist"() {
         given: "a user"
-        def user = new User(NAME, USERNAME, USER_KEY, ROLE)
+        def user = new User(NAME, USERNAME, KEY, ROLE)
         and: "a question"
         def question = new Question()
-        question.setKey(1000)
+        question.setKey(KEY)
         questionRepository.save(question)
         and: "a clarification"
 
@@ -90,11 +106,11 @@ class CreateClarificationServiceSpockTest extends Specification {
 
     def "content is empty"() {
         given: "a user"
-        def user = new User(NAME, USERNAME, USER_KEY, ROLE)
+        def user = new User(NAME, USERNAME, KEY, ROLE)
         userRepository.save(user)
         and: "a question"
         def question = new Question()
-        question.setKey(1000)
+        question.setKey(KEY)
         questionRepository.save(question)
 
         when:
@@ -106,11 +122,11 @@ class CreateClarificationServiceSpockTest extends Specification {
 
     def "content is blank"() {
         given: "a user"
-        def user = new User(NAME, USERNAME, USER_KEY, ROLE)
+        def user = new User(NAME, USERNAME, KEY, ROLE)
         userRepository.save(user)
         and: "a question"
         def question = new Question()
-        question.setKey(1000)
+        question.setKey(KEY)
         questionRepository.save(question)
 
         when:
