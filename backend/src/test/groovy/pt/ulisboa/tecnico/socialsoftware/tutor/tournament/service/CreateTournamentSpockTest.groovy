@@ -49,13 +49,13 @@ class CreateTournamentSpockTest extends Specification {
     @Autowired
     TopicService topicService
 
-    def course
-    def courseExecution
-    def formatter
-    def tournamentDto
-    def startingDate
-    def conclusionDate
-    def topicDtos
+    Course course
+    CourseExecution courseExecution
+    DateTimeFormatter formatter
+    TournamentDto tournamentDto
+    Set<TopicDto> topicDtos
+    LocalDateTime startingDate
+    LocalDateTime conclusionDate
 
     def setup() {
         formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
@@ -106,7 +106,7 @@ class CreateTournamentSpockTest extends Specification {
     }
 
     def "create a tournament"() {
-        given: "a tournament dto with a topic set similar to the topic dto set"
+        given: "a tournament dto"
         def topics = tournamentDto.getTopics().stream()
                 .map({ topicDto -> new Topic(course, topicDto) })
                 .collect(Collectors.toSet());
@@ -128,7 +128,7 @@ class CreateTournamentSpockTest extends Specification {
         result.getStartingDate().format(formatter) == startingDate.format(formatter)
         result.getConclusionDate().format(formatter) == conclusionDate.format(formatter)
         result.getNumberOfQuestions() == NUMBER_QUESTIONS
-        result.getTopics().equals(topics)
+        result.getTopics() == topics
     }
 
     def "topic list is empty"() {
@@ -169,7 +169,8 @@ class CreateTournamentSpockTest extends Specification {
         tournamentService.createTournament(courseExecution.getId(), tournamentDto)
 
         then:
-        thrown(TutorException)
+        def error = thrown(TutorException)
+        error.errorMessage == TOURNAMENT_NOT_CONSISTENT
     }
 
     def "conclusion date is null"() {
@@ -180,7 +181,8 @@ class CreateTournamentSpockTest extends Specification {
         tournamentService.createTournament(courseExecution.getId(), tournamentDto)
 
         then:
-        thrown(TutorException)
+        def error = thrown(TutorException)
+        error.errorMessage == TOURNAMENT_NOT_CONSISTENT
     }
 
     def "dates overlap"() {
@@ -191,7 +193,8 @@ class CreateTournamentSpockTest extends Specification {
         tournamentService.createTournament(courseExecution.getId(), tournamentDto)
 
         then:
-        thrown(TutorException)
+        def error = thrown(TutorException)
+        error.errorMessage == TOURNAMENT_NOT_CONSISTENT
     }
 
     def "number of questions smaller than 1"() {
@@ -202,15 +205,17 @@ class CreateTournamentSpockTest extends Specification {
         tournamentService.createTournament(courseExecution.getId(), tournamentDto)
 
         then:
-        thrown(TutorException)
+        def error = thrown(TutorException)
+        error.errorMessage == TOURNAMENT_NOT_CONSISTENT
     }
 
     def "invalid course execution id"() {
         when:
-        tournamentService.createTournament(courseExecution.getId() - 10, tournamentDto)
+        tournamentService.createTournament(-1 , tournamentDto)
 
         then:
-        thrown(TutorException)
+        def error = thrown(TutorException)
+        error.errorMessage == COURSE_EXECUTION_NOT_FOUND
     }
 
     @TestConfiguration

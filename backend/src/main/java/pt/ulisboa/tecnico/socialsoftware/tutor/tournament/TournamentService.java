@@ -13,8 +13,8 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
+import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository;
 
-import javax.persistence.EntityManager;
 import java.sql.SQLException;
 import java.util.Set;
 
@@ -28,24 +28,30 @@ public class TournamentService {
     private TopicRepository topicRepository;
 
     @Autowired
-    private EntityManager entityManager;
+    private TournamentRepository tournamentRepository;
 
     @Retryable(
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public TournamentDto createTournament(int executionId, TournamentDto tournamentDto) {
-        CourseExecution courseExecution = courseExecutionRepository.findById(executionId)
-                .orElseThrow(() -> new TutorException(COURSE_EXECUTION_NOT_FOUND, executionId));
+        CourseExecution courseExecution = getCourseExecution(executionId);
 
         Tournament tournament = new Tournament(tournamentDto);
         tournament.setCourseExecution(courseExecution);
 
-        if (tournamentDto.getNumberOfQuestions() < 1) {
-            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Number of questions"
-                    + tournamentDto.getNumberOfQuestions());
-        }
+        checkTopics(tournamentDto, tournament);
 
+        tournamentRepository.save(tournament);
+        return new TournamentDto(tournament, true);
+    }
+
+    private CourseExecution getCourseExecution(int executionId) {
+        return courseExecutionRepository.findById(executionId)
+                    .orElseThrow(() -> new TutorException(COURSE_EXECUTION_NOT_FOUND, executionId));
+    }
+
+    private void checkTopics(TournamentDto tournamentDto, Tournament tournament) {
         if (tournamentDto.getTopics() != null) {
             Set<TopicDto> topics = tournamentDto.getTopics();
             if (topics.size() == 0) {
@@ -59,9 +65,5 @@ public class TournamentService {
                 tournament.addTopic(topic);
             }
         }
-
-        entityManager.persist(tournament);
-
-        return new TournamentDto(tournament, true);
     }
 }
