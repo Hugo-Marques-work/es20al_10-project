@@ -8,6 +8,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.StudentQuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.StudentQuestion
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.OptionDto
@@ -18,6 +19,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
 import spock.lang.Specification
 
+@DataJpaTest
 class CreateStudentQuestionServiceSpockTest extends Specification{
     public static final String COURSE_NAME = "Software Architecture"
     public static final String ACRONYM = "AS1"
@@ -97,6 +99,15 @@ class CreateStudentQuestionServiceSpockTest extends Specification{
         resOption.getContent() == OPTION_CONTENT
         resOption.getCorrect()
 
+    }
+
+    @TestConfiguration
+    static class StudentQuestionServiceImplTestContextConfiguration {
+
+        @Bean
+        StudentQuestionService squestionService() {
+            return new StudentQuestionService()
+        }
     }
 
 }
