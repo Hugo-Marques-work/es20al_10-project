@@ -61,7 +61,7 @@ public class StudentQuestion {
     public StudentQuestion() {
     }
 
-    public StudentQuestion(Course course, User user,StudentQuestionDto ssquestionDto) {
+    public StudentQuestion(Course course, User student,StudentQuestionDto ssquestionDto) {
         checkConsistentStudentQuestion(ssquestionDto);
         this.title = ssquestionDto.getTitle();
         this.content = ssquestionDto.getContent();
@@ -70,7 +70,7 @@ public class StudentQuestion {
         this.course = course;
         //course.addStudentQuestion(this);
 
-        this.user = user;
+        this.user = student;
         //course.addStudentQuestion(this);
         
         if (ssquestionDto.getImage() != null) {
