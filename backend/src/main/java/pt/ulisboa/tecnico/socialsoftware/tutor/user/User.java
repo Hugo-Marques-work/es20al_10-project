@@ -4,6 +4,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuizAnswer;
+import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.domain.Clarification;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.Importable;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "users")
 public class User implements UserDetails, Importable {
-    public enum Role {STUDENT, TEACHER, ADMIN}
+    public enum Role {STUDENT, TEACHER, ADMIN, DEMO_ADMIN}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,6 +57,9 @@ public class User implements UserDetails, Importable {
 
     @ManyToMany
     private Set<CourseExecution> courseExecutions = new HashSet<>();
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval=true)
+    private Set<Clarification> clarifications = new HashSet<>();
 
     public User() {
     }
@@ -157,6 +161,7 @@ public class User implements UserDetails, Importable {
     public Integer getNumberOfTeacherQuizzes() {
         if (this.numberOfTeacherQuizzes == null)
             this.numberOfTeacherQuizzes = (int) getQuizAnswers().stream()
+                    .filter(quizAnswer -> quizAnswer.getCompleted())
                     .filter(quizAnswer -> quizAnswer.getQuiz().getType().equals(Quiz.QuizType.PROPOSED))
                     .count();
 
@@ -170,6 +175,7 @@ public class User implements UserDetails, Importable {
     public Integer getNumberOfStudentQuizzes() {
         if(this.numberOfStudentQuizzes == null)
             this.numberOfStudentQuizzes = (int) getQuizAnswers().stream()
+                    .filter(quizAnswer -> quizAnswer.getCompleted())
                     .filter(quizAnswer -> quizAnswer.getQuiz().getType().equals(Quiz.QuizType.GENERATED))
                     .count();
 
@@ -183,6 +189,7 @@ public class User implements UserDetails, Importable {
     public Integer getNumberOfInClassQuizzes() {
         if (this.numberOfInClassQuizzes == null)
             this.numberOfInClassQuizzes = (int) getQuizAnswers().stream()
+                    .filter(quizAnswer -> quizAnswer.getCompleted())
                     .filter(quizAnswer -> quizAnswer.getQuiz().getType().equals(Quiz.QuizType.IN_CLASS))
                     .count();
 
@@ -196,6 +203,7 @@ public class User implements UserDetails, Importable {
     public Integer getNumberOfTeacherAnswers() {
         if (this.numberOfTeacherAnswers == null)
             this.numberOfTeacherAnswers = getQuizAnswers().stream()
+                    .filter(quizAnswer -> quizAnswer.getCompleted())
                     .filter(quizAnswer -> quizAnswer.getQuiz().getType().equals(Quiz.QuizType.PROPOSED))
                     .mapToInt(quizAnswer -> quizAnswer.getQuiz().getQuizQuestions().size())
                     .sum();
@@ -210,6 +218,7 @@ public class User implements UserDetails, Importable {
     public Integer getNumberOfInClassAnswers() {
         if (this.numberOfInClassAnswers == null)
             this.numberOfInClassAnswers = getQuizAnswers().stream()
+                    .filter(quizAnswer -> quizAnswer.getCompleted())
                     .filter(quizAnswer -> quizAnswer.getQuiz().getType().equals(Quiz.QuizType.IN_CLASS))
                     .mapToInt(quizAnswer -> quizAnswer.getQuiz().getQuizQuestions().size())
                     .sum();
@@ -223,6 +232,7 @@ public class User implements UserDetails, Importable {
     public Integer getNumberOfStudentAnswers() {
         if (this.numberOfStudentAnswers == null) {
             this.numberOfStudentAnswers = getQuizAnswers().stream()
+                    .filter(quizAnswer -> quizAnswer.getCompleted())
                     .filter(quizAnswer -> quizAnswer.getQuiz().getType().equals(Quiz.QuizType.GENERATED))
                     .mapToInt(quizAnswer -> quizAnswer.getQuiz().getQuizQuestions().size())
                     .sum();
@@ -238,6 +248,7 @@ public class User implements UserDetails, Importable {
     public Integer getNumberOfCorrectTeacherAnswers() {
         if (this.numberOfCorrectTeacherAnswers == null)
             this.numberOfCorrectTeacherAnswers = (int) this.getQuizAnswers().stream()
+                    .filter(quizAnswer -> quizAnswer.getCompleted())
                     .filter(quizAnswer -> quizAnswer.getQuiz().getType().equals(Quiz.QuizType.PROPOSED))
                     .flatMap(quizAnswer -> quizAnswer.getQuestionAnswers().stream())
                     .filter(questionAnswer -> questionAnswer.getOption() != null &&
@@ -254,11 +265,12 @@ public class User implements UserDetails, Importable {
     public Integer getNumberOfCorrectInClassAnswers() {
         if (this.numberOfCorrectInClassAnswers == null)
             this.numberOfCorrectInClassAnswers = (int) this.getQuizAnswers().stream()
-                .filter(quizAnswer -> quizAnswer.getQuiz().getType().equals(Quiz.QuizType.IN_CLASS))
-                .flatMap(quizAnswer -> quizAnswer.getQuestionAnswers().stream())
-                .filter(questionAnswer -> questionAnswer.getOption() != null &&
+                    .filter(quizAnswer -> quizAnswer.getCompleted())
+                    .filter(quizAnswer -> quizAnswer.getQuiz().getType().equals(Quiz.QuizType.IN_CLASS))
+                    .flatMap(quizAnswer -> quizAnswer.getQuestionAnswers().stream())
+                    .filter(questionAnswer -> questionAnswer.getOption() != null &&
                         questionAnswer.getOption().getCorrect())
-                .count();
+                    .count();
 
         return numberOfCorrectInClassAnswers;
     }
@@ -270,11 +282,12 @@ public class User implements UserDetails, Importable {
     public Integer getNumberOfCorrectStudentAnswers() {
         if (this.numberOfCorrectStudentAnswers == null)
             this.numberOfCorrectStudentAnswers = (int) this.getQuizAnswers().stream()
-                .filter(quizAnswer -> quizAnswer.getQuiz().getType().equals(Quiz.QuizType.GENERATED))
-                .flatMap(quizAnswer -> quizAnswer.getQuestionAnswers().stream())
-                .filter(questionAnswer -> questionAnswer.getOption() != null &&
+                    .filter(quizAnswer -> quizAnswer.getCompleted())
+                    .filter(quizAnswer -> quizAnswer.getQuiz().getType().equals(Quiz.QuizType.GENERATED))
+                    .flatMap(quizAnswer -> quizAnswer.getQuestionAnswers().stream())
+                    .filter(questionAnswer -> questionAnswer.getOption() != null &&
                         questionAnswer.getOption().getCorrect())
-                .count();
+                    .count();
 
         return numberOfCorrectStudentAnswers;
     }
@@ -282,6 +295,12 @@ public class User implements UserDetails, Importable {
     public void setNumberOfCorrectStudentAnswers(Integer numberOfCorrectStudentAnswers) {
         this.numberOfCorrectStudentAnswers = numberOfCorrectStudentAnswers;
     }
+
+    public Set<Clarification> getClarifications() { return clarifications; }
+
+    public void setClarifications(Set<Clarification> clarifications) { this.clarifications = clarifications; }
+
+    public void addClarification(Clarification clarification) {this.clarifications.add(clarification);}
 
     public void increaseNumberOfQuizzes(Quiz.QuizType type) {
         switch (type) {
@@ -337,22 +356,25 @@ public class User implements UserDetails, Importable {
     public String toString() {
         return "User{" +
                 "id=" + id +
+                ", key=" + key +
                 ", role=" + role +
-                ", id=" + id +
                 ", username='" + username + '\'' +
                 ", name='" + name + '\'' +
-                ", courseAcronyms='" + enrolledCoursesAcronyms + '\'' +
+                ", enrolledCoursesAcronyms='" + enrolledCoursesAcronyms + '\'' +
                 ", numberOfTeacherQuizzes=" + numberOfTeacherQuizzes +
-                ", numberOfInClassQuizzes=" + numberOfInClassQuizzes +
                 ", numberOfStudentQuizzes=" + numberOfStudentQuizzes +
+                ", numberOfInClassQuizzes=" + numberOfInClassQuizzes +
                 ", numberOfTeacherAnswers=" + numberOfTeacherAnswers +
-                ", numberOfCorrectTeacherAnswers=" + numberOfCorrectTeacherAnswers +
                 ", numberOfInClassAnswers=" + numberOfInClassAnswers +
-                ", numberOfCorrectInClassAnswers=" + numberOfCorrectInClassAnswers +
                 ", numberOfStudentAnswers=" + numberOfStudentAnswers +
+                ", numberOfCorrectTeacherAnswers=" + numberOfCorrectTeacherAnswers +
+                ", numberOfCorrectInClassAnswers=" + numberOfCorrectInClassAnswers +
                 ", numberOfCorrectStudentAnswers=" + numberOfCorrectStudentAnswers +
                 ", creationDate=" + creationDate +
+                ", lastAccess=" + lastAccess +
+                ", quizAnswers=" + quizAnswers +
                 ", courseExecutions=" + courseExecutions +
+                ", clarifications=" + clarifications +
                 '}';
     }
 
