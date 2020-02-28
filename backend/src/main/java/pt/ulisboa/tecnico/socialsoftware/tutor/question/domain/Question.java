@@ -71,7 +71,7 @@ public class Question {
     private Course course;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "question", orphanRemoval=true)
-    private Set<Clarification> clarification = new HashSet<>();
+    private Set<Clarification> clarifications = new HashSet<>();
 
     public Question() {
     }
@@ -230,7 +230,7 @@ public class Question {
                 ", quizQuestions=" + quizQuestions +
                 ", topics=" + topics +
                 ", course=" + course +
-                ", clarification=" + clarification +
+                ", clarification=" + clarifications +
                 '}';
     }
 
@@ -345,9 +345,9 @@ public class Question {
         return chosenAssessment.getTopicConjunctions().stream().map(TopicConjunction::getTopics).collect(Collectors.toList()).contains(this.topics);
     }
 
-    public Set<Clarification> getClarification() { return clarification; }
+    public Set<Clarification> getClarifications() { return clarifications; }
 
-    public void setClarification(Set<Clarification> clarification) { this.clarification = clarification; }
+    public void setClarifications(Set<Clarification> clarification) { this.clarifications = clarification; }
 
-    public void addClarification(Clarification clarification) {this.clarification.add(clarification);}
+    public void addClarification(Clarification clarification) {this.clarifications.add(clarification);}
 }
