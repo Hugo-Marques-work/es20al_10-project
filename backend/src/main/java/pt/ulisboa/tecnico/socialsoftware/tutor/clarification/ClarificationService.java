@@ -34,6 +34,8 @@ public class ClarificationService {
         User usr = userRepository.findByKey(user.getKey());
         if (usr == null)
             throw new TutorException(ErrorMessage.USER_NOT_FOUND, user.getKey());
+        else if (usr.getRole() != User.Role.STUDENT)
+            throw new TutorException(ErrorMessage.CLARIFICATION_WRONG_USER);
 
         if (content == null || content.isBlank() || content.isEmpty())
             throw new TutorException(ErrorMessage.CLARIFICATION_IS_EMPTY);

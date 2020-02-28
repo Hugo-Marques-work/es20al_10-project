@@ -5,6 +5,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean;
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.ClarificationService
+import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.repository.ClarificationRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository;
@@ -16,7 +17,7 @@ import spock.lang.Specification;
 class CreateClarificationServiceSpockTest extends Specification {
     static final String NAME = "test user"
     static final String USERNAME = "test_user"
-    static final Integer USER_KEY = 1000
+    static final Integer KEY = 1
     static final User.Role ROLE = User.Role.STUDENT
     static final String CONTENT = "I want a clarification in this question."
 
@@ -29,13 +30,16 @@ class CreateClarificationServiceSpockTest extends Specification {
     @Autowired
     QuestionRepository questionRepository
 
+    @Autowired
+    ClarificationRepository clarificationRepository
+
     def "question and user exists and creates clarification"() {
         given: "a user"
-        def user = new User(NAME, USERNAME, USER_KEY, ROLE)
+        def user = new User(NAME, USERNAME, KEY, ROLE)
         userRepository.save(user)
         and: "a question"
         def question = new Question()
-        question.setKey(1000)
+        question.setKey(KEY)
         questionRepository.save(question)
 
         when:
@@ -55,15 +59,33 @@ class CreateClarificationServiceSpockTest extends Specification {
         questionClarification != null
         and: "has the correct value"
         questionClarification.content == CONTENT
+        and: "clarification was added to the repository"
+        clarificationRepository.count() == 1
+    }
+
+    def "user is not a student and clarification is not created"() {
+        given: "a user"
+        def user = new User(NAME, USERNAME, KEY, User.Role.TEACHER)
+        userRepository.save(user)
+        and: "a question"
+        def question = new Question()
+        question.setKey(KEY)
+        questionRepository.save(question)
+
+        when:
+        clarificationService.createClarification(question, user, CONTENT)
+
+        then: "the returned data is incorrect"
+        thrown(TutorException)
     }
 
     def "question does not exist"() {
         given: "a user"
-        def user = new User(NAME, USERNAME, USER_KEY, ROLE)
+        def user = new User(NAME, USERNAME, KEY, ROLE)
         userRepository.save(user)
         and: "a question"
         def question = new Question()
-        question.setKey(1000)
+        question.setKey(KEY)
 
         when:
         clarificationService.createClarification(question, user, CONTENT)
@@ -74,10 +96,10 @@ class CreateClarificationServiceSpockTest extends Specification {
 
     def "user does not exist"() {
         given: "a user"
-        def user = new User(NAME, USERNAME, USER_KEY, ROLE)
+        def user = new User(NAME, USERNAME, KEY, ROLE)
         and: "a question"
         def question = new Question()
-        question.setKey(1000)
+        question.setKey(KEY)
         questionRepository.save(question)
         and: "a clarification"
 
@@ -90,11 +112,11 @@ class CreateClarificationServiceSpockTest extends Specification {
 
     def "content is empty"() {
         given: "a user"
-        def user = new User(NAME, USERNAME, USER_KEY, ROLE)
+        def user = new User(NAME, USERNAME, KEY, ROLE)
         userRepository.save(user)
         and: "a question"
         def question = new Question()
-        question.setKey(1000)
+        question.setKey(KEY)
         questionRepository.save(question)
 
         when:
@@ -106,11 +128,11 @@ class CreateClarificationServiceSpockTest extends Specification {
 
     def "content is blank"() {
         given: "a user"
-        def user = new User(NAME, USERNAME, USER_KEY, ROLE)
+        def user = new User(NAME, USERNAME, KEY, ROLE)
         userRepository.save(user)
         and: "a question"
         def question = new Question()
-        question.setKey(1000)
+        question.setKey(KEY)
         questionRepository.save(question)
 
         when:
