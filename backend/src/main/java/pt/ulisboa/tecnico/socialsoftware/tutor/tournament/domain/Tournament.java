@@ -1,5 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain;
 
+import net.bytebuddy.implementation.bytecode.Throw;
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
@@ -46,10 +48,13 @@ public class Tournament {
     public Tournament() {}
 
     public Tournament(TournamentDto tournamentDto) {
-        checkTopics(tournamentDto.getTopics());
         setStartingDate(tournamentDto.getStartingDateDate());
         setConclusionDate(tournamentDto.getConclusionDateDate());
+
         this.numberOfQuestions = tournamentDto.getNumberOfQuestions();
+        if (this.numberOfQuestions < 1) {
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Number of questions" + this.numberOfQuestions);
+        }
     }
 
     public Integer getId() { return id; }
@@ -57,6 +62,11 @@ public class Tournament {
     public Set<Topic> getTopics() { return topics; }
 
     public void addTopic(Topic topic) {
+        Set<Topic> validTopics = courseExecution.getCourse().getTopics();
+
+        if (!validTopics.stream().anyMatch(other -> topic == other)) {
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Invalid topic" + topic);
+        }
         topics.add(topic);
     }
 
@@ -84,14 +94,6 @@ public class Tournament {
 
     public void setCourseExecution(CourseExecution courseExecution) {
         this.courseExecution = courseExecution;
-    }
-
-    void checkTopics(Set<TopicDto> topics) {
-        if (topics != null) {
-            for (TopicDto topicDto : topics) {
-                //TODO: Deve-se verificar que os topicos pertencem ao course execution?
-            }
-        }
     }
 
     void checkStartingDate(LocalDateTime startingDate) {
