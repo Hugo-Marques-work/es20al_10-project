@@ -54,8 +54,8 @@ class CreateClarificationServiceSpockTest extends Specification {
         and: "has the correct value"
         userClarifications.content == CONTENT
         and: "the clarification was added to the question"
-        question.getClarification().size() == 1
-        def questionClarification = new ArrayList<>(question.getClarification()).get(0)
+        question.getClarifications().size() == 1
+        def questionClarification = new ArrayList<>(question.getClarifications()).get(0)
         questionClarification != null
         and: "has the correct value"
         questionClarification.content == CONTENT

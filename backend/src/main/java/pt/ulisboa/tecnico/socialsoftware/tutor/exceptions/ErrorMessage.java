@@ -15,16 +15,17 @@ public enum ErrorMessage {
 
     COURSE_NOT_FOUND("Course not found with id %s"),
     COURSE_NAME_IS_EMPTY("The course name is empty"),
-    CLARIFICATION_IS_EMPTY("The clarification content is empty"),
-    CLARIFICATION_WRONG_USER("The user has to be associated with a student."),
     COURSE_TYPE_NOT_DEFINED("The course type is not defined"),
     COURSE_EXECUTION_ACRONYM_IS_EMPTY("The course execution acronym is empty"),
     COURSE_EXECUTION_ACADEMIC_TERM_IS_EMPTY("The course execution academic term is empty"),
     USERNAME_NOT_FOUND("Username %s not found"),
 
+    CLARIFICATION_IS_EMPTY("The clarification content is empty"),
+    CLARIFICATION_WRONG_USER("The user has to be associated with a student."),
+
     QUIZ_USER_MISMATCH("Quiz %s is not assigned to student %s"),
     QUIZ_MISMATCH("Quiz Answer Quiz %d does not match Quiz Question Quiz %d"),
-    QUIZ_OPTION_MISMATCH("Quiz Question %d does not have option %d"),
+    QUESTION_OPTION_MISMATCH("Question %d does not have option %d"),
     COURSE_EXECUTION_MISMATCH("Course Execution %d does not have quiz %d"),
 
     DUPLICATE_TOPIC("Duplicate topic: %s"),

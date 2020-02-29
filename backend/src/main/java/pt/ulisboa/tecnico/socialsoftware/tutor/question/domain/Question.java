@@ -71,7 +71,7 @@ public class Question {
     private Course course;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "question", orphanRemoval=true)
-    private Set<Clarification> clarification = new HashSet<>();
+    private Set<Clarification> clarifications = new HashSet<>();
 
     public Question() {
     }
@@ -230,7 +230,7 @@ public class Question {
                 ", quizQuestions=" + quizQuestions +
                 ", topics=" + topics +
                 ", course=" + course +
-                ", clarification=" + clarification +
+                ", clarification=" + clarifications +
                 '}';
     }
 
@@ -254,10 +254,14 @@ public class Question {
         // required because the import is done directly in the database
         if (numberOfAnswers == null || numberOfAnswers == 0) {
             numberOfAnswers = getQuizQuestions().stream()
-                    .flatMap(quizQuestion -> quizQuestion.getQuestionAnswers().stream()).map(e -> 1).reduce(0, Integer::sum);
+                    .flatMap(quizQuestion -> quizQuestion.getQuestionAnswers().stream())
+                    .filter(questionAnswer -> questionAnswer.getQuizAnswer().getCompleted())
+                    .map(e -> 1).reduce(0, Integer::sum);
             numberOfCorrect = getQuizQuestions().stream()
                     .flatMap(quizQuestion -> quizQuestion.getQuestionAnswers().stream())
-                    .filter(questionAnswer -> questionAnswer.getOption() != null && questionAnswer.getOption().getCorrect()).map(e -> 1).reduce(0, Integer::sum);
+                    .filter(questionAnswer -> questionAnswer.getQuizAnswer().getCompleted())
+                    .filter(questionAnswer -> questionAnswer.getOption() != null && questionAnswer.getOption().getCorrect())
+                    .map(e -> 1).reduce(0, Integer::sum);
         }
 
         if (numberOfAnswers == 0) {
@@ -341,9 +345,9 @@ public class Question {
         return chosenAssessment.getTopicConjunctions().stream().map(TopicConjunction::getTopics).collect(Collectors.toList()).contains(this.topics);
     }
 
-    public Set<Clarification> getClarification() { return clarification; }
+    public Set<Clarification> getClarifications() { return clarifications; }
 
-    public void setClarification(Set<Clarification> clarification) { this.clarification = clarification; }
+    public void setClarifications(Set<Clarification> clarification) { this.clarifications = clarification; }
 
-    public void addClarification(Clarification clarification) {this.clarification.add(clarification);}
+    public void addClarification(Clarification clarification) {this.clarifications.add(clarification);}
 }
