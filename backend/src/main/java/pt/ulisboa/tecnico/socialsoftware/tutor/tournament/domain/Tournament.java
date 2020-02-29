@@ -9,6 +9,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.QuizQuestion;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -34,6 +35,10 @@ public class Tournament {
     private LocalDateTime startingDate;
 
     private LocalDateTime conclusionDate;
+
+    @ManyToMany
+    @JoinColumn(name = "user_id")
+    private Set<User> signedUpUsers;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quiz_id")
@@ -110,5 +115,9 @@ public class Tournament {
         if (startingDate != null && conclusionDate.isBefore(startingDate)) {
             throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Conclusion date " + conclusionDate + startingDate);
         }
+    }
+
+    public void signUpUser(User user) {
+        this.signedUpUsers.add(user);
     }
 }
