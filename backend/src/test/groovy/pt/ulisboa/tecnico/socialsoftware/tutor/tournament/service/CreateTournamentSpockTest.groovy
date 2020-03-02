@@ -106,7 +106,7 @@ class CreateTournamentSpockTest extends Specification {
     }
 
     def "create a tournament"() {
-        given: "a tournament dto"
+        given: "a tournament dto with a valid topic list"
         def topics = tournamentDto.getTopics().stream()
                 .map({ topicDto -> new Topic(course, topicDto) })
                 .collect(Collectors.toSet());

@@ -1,20 +1,13 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain;
 
-import net.bytebuddy.implementation.bytecode.Throw;
-import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto;
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz;
-import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.QuizQuestion;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -64,8 +57,8 @@ public class Tournament {
     public void addTopic(Topic topic) {
         Set<Topic> validTopics = courseExecution.getCourse().getTopics();
 
-        if (!validTopics.stream().anyMatch(other -> topic == other)) {
-            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Invalid topic" + topic);
+        if (validTopics.stream().noneMatch(other -> topic == other)) {
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Topic" + topic);
         }
         topics.add(topic);
     }

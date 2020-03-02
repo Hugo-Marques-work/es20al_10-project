@@ -52,7 +52,7 @@ public enum ErrorMessage {
     AUTHENTICATION_ERROR("Authentication Error"),
     FENIX_CONFIGURATION_ERROR("Incorrect server configuration files for fenix"),
 
-    TOURNAMENT_NOT_CONSISTENT("Field $s of tournament is not consistent"),
+    TOURNAMENT_NOT_CONSISTENT("Field %s of tournament is not consistent"),
 
 
     ACCESS_DENIED("You do not have permission to view this resource");

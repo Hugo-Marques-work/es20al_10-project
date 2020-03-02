@@ -40,7 +40,7 @@ public class TournamentService {
         Tournament tournament = new Tournament(tournamentDto);
         tournament.setCourseExecution(courseExecution);
 
-        checkTopics(tournamentDto, tournament);
+        checkAndAddTopics(tournamentDto, tournament);
 
         tournamentRepository.save(tournament);
         return new TournamentDto(tournament, true);
@@ -51,11 +51,11 @@ public class TournamentService {
                     .orElseThrow(() -> new TutorException(COURSE_EXECUTION_NOT_FOUND, executionId));
     }
 
-    private void checkTopics(TournamentDto tournamentDto, Tournament tournament) {
+    private void checkAndAddTopics(TournamentDto tournamentDto, Tournament tournament) {
         if (tournamentDto.getTopics() != null) {
             Set<TopicDto> topics = tournamentDto.getTopics();
-            if (topics.size() == 0) {
-                throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Topic list is empty"
+            if (topics.isEmpty()) {
+                throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "topic list (empty)"
                         + tournamentDto.getTopics());
             }
 
