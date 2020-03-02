@@ -27,24 +27,34 @@ public class ClarificationService {
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public ClarificationDto createClarification(Question question, User user, String content) {
+        CheckQuestion(question);
+        CheckUser(user);
+        CheckContent(content);
+
+        Clarification clarification = new Clarification(content, question, user);
+        clarificationRepository.save(clarification);
+        question.addClarification(clarification);
+        user.addClarification(clarification);
+
+        return new ClarificationDto(clarification);
+    }
+
+    private void CheckQuestion(Question question) {
         Question qtn = questionRepository.findByKey(question.getKey()).orElse(null);
         if (qtn == null)
             throw new TutorException(ErrorMessage.QUESTION_NOT_FOUND, question.getKey());
+    }
 
+    private void CheckUser(User user) {
         User usr = userRepository.findByKey(user.getKey());
         if (usr == null)
             throw new TutorException(ErrorMessage.USER_NOT_FOUND, user.getKey());
         else if (usr.getRole() != User.Role.STUDENT)
             throw new TutorException(ErrorMessage.CLARIFICATION_WRONG_USER);
+    }
 
+    private void CheckContent(String content) {
         if (content == null || content.isBlank() || content.isEmpty())
             throw new TutorException(ErrorMessage.CLARIFICATION_IS_EMPTY);
-
-        Clarification clarification = new Clarification(content, qtn, usr);
-        clarificationRepository.save(clarification);
-        qtn.addClarification(clarification);
-        usr.addClarification(clarification);
-
-        return new ClarificationDto(clarification);
     }
 }
