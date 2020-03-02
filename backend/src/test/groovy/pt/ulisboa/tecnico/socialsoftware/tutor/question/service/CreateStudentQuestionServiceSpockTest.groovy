@@ -101,6 +101,14 @@ class CreateStudentQuestionServiceSpockTest extends Specification{
 
     }
 
+    def "create a student question with image and two options"() {
+        expect:false
+    }
+
+    def "create two student question"(){
+        expect:false
+    }
+    
     @TestConfiguration
     static class StudentQuestionServiceImplTestContextConfiguration {
 
