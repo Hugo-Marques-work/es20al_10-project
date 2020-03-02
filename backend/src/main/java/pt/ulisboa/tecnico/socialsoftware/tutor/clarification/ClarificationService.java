@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.dto.ClarificationAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.domain.Clarification;
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.dto.ClarificationDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.repository.ClarificationRepository;
@@ -56,5 +57,9 @@ public class ClarificationService {
     private void CheckContent(String content) {
         if (content == null || content.isBlank() || content.isEmpty())
             throw new TutorException(ErrorMessage.CLARIFICATION_IS_EMPTY);
+    }
+
+    public ClarificationAnswerDto createClarificationAnswer(){
+        return new ClarificationAnswerDto();
     }
 }

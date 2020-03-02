@@ -6,10 +6,8 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.ClarificationAnswer;
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuestionAnswer;
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuizAnswer;
-import pt.ulisboa.tecnico.socialsoftware.tutor.answer.dto.ClarificationAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.dto.CorrectAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.dto.QuizAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.repository.QuestionAnswerRepository;
@@ -191,9 +189,5 @@ public class AnswerService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void importAnswers(String answersXml) {
         xmlImporter.importAnswers(answersXml, this, questionRepository, quizRepository, quizAnswerRepository, userRepository);
-    }
-
-    public ClarificationAnswerDto createClarificationAnswer(){
-        return new ClarificationAnswerDto();
     }
 }
