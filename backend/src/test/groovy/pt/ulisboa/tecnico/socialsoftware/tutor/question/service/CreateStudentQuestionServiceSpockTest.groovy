@@ -108,6 +108,22 @@ class CreateStudentQuestionServiceSpockTest extends Specification{
     def "create two student question"(){
         expect:false
     }
+
+    def "title is null"(){
+        expect:false
+    }
+
+    def "content is null"(){
+        expect:false
+    }
+
+    def "option is null"(){
+        expect:false
+    }
+
+    def "not only 1 correct option"(){
+        expect:false
+    }
     
     @TestConfiguration
     static class StudentQuestionServiceImplTestContextConfiguration {
