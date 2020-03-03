@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_NOT_CONSISTENT;
+import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 
 @Entity
 @Table(name = "tournaments")
@@ -52,11 +52,12 @@ public class Tournament {
 
     public Tournament() {}
 
-    public Tournament(TournamentDto tournamentDto) {
-        setStartingDate(tournamentDto.getStartingDateDate());
-        setConclusionDate(tournamentDto.getConclusionDateDate());
+    public Tournament(LocalDateTime startDate, LocalDateTime concludeDate,
+        int nQuestions) {
+        setStartingDate( startDate );
+        setConclusionDate( concludeDate );
 
-        this.numberOfQuestions = tournamentDto.getNumberOfQuestions();
+        this.numberOfQuestions = nQuestions;
         if (this.numberOfQuestions < 1) {
             throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Number of questions" + this.numberOfQuestions);
         }
@@ -119,7 +120,28 @@ public class Tournament {
         }
     }
 
+    public void checkReadyForSignUp() {
+        LocalDateTime currentTime = LocalDateTime.now();
+        if(currentTime.isBefore(startingDate)) {
+            throw new TutorException(TOURNAMENT_SIGN_UP_NOT_READY, this.id);
+        }
+        else if(currentTime.isAfter(this.conclusionDate)) {
+            throw new TutorException(TOURNAMENT_SIGN_UP_OVER, this.id);
+        }
+    }
     public void signUpUser(User user) {
         this.signedUpUsers.add(user);
+    }
+
+    public Set<User> getSignedUpUsers() {
+        return signedUpUsers;
+    }
+
+    public void setSignedUpUsers(Set<User> signedUpUsers) {
+        this.signedUpUsers = signedUpUsers;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }

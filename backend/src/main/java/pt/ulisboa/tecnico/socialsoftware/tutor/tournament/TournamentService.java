@@ -9,6 +9,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuizAnswer;
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.dto.QuizAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository;
+import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
@@ -20,6 +21,8 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
@@ -44,7 +47,8 @@ public class TournamentService {
     public TournamentDto createTournament(int executionId, TournamentDto tournamentDto) {
         CourseExecution courseExecution = getCourseExecution(executionId);
 
-        Tournament tournament = new Tournament(tournamentDto);
+        Tournament tournament = new Tournament(tournamentDto.getStartingDateDate(),
+                tournamentDto.getConclusionDateDate(), tournamentDto.getNumberOfQuestions());
         tournament.setCourseExecution(courseExecution);
 
         checkTopics(tournamentDto, tournament);
@@ -79,6 +83,16 @@ public class TournamentService {
 
         Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
 
+        if( ! user.getCourseExecutions().contains(tournament.getCourseExecution()))
+        {
+            throw new TutorException(USER_NOT_ENROLLED,userId.toString());
+        }
+
+        tournament.checkReadyForSignUp();
+
+        if(user.getSignUpTournaments().contains(tournament)) {
+            throw new TutorException(USER_DUPLICATE_SIGN_UP, tournamentId.toString());
+        }
         //FIXME maybe only one is necessary
         tournament.signUpUser(user);
         user.signUpForTournament(tournament);

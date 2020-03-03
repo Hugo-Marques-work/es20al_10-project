@@ -57,7 +57,7 @@ public class User implements UserDetails, Importable {
     private Set<QuizAnswer> quizAnswers = new HashSet<>();
 
     @ManyToMany
-    private Set<Tournament> signUpTournaments;
+    private Set<Tournament> signUpTournaments = new HashSet<>();
 
     @ManyToMany
     private Set<CourseExecution> courseExecutions = new HashSet<>();
@@ -455,6 +455,14 @@ public class User implements UserDetails, Importable {
         }
 
         return result;
+    }
+
+    public Set<Tournament> getSignUpTournaments() {
+        return signUpTournaments;
+    }
+
+    public void setSignUpTournaments(Set<Tournament> signUpTournaments) {
+        this.signUpTournaments = signUpTournaments;
     }
 
     public void signUpForTournament(Tournament tournament) {
