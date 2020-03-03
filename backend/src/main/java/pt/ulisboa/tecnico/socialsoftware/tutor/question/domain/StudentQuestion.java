@@ -45,13 +45,13 @@ public class StudentQuestion {
 
     private String title;
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "question")
+    @OneToOne(cascade = CascadeType.ALL)
     private Image image;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "question", fetch = FetchType.EAGER, orphanRemoval=true)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Option> options = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "questions")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Topic> topics = new HashSet<>();
 
     @ManyToOne
