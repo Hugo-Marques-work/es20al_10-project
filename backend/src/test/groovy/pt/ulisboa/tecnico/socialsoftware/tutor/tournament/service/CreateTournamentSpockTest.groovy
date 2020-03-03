@@ -84,6 +84,10 @@ class CreateTournamentSpockTest extends Specification {
     }
 
     def topicDtosMatch(set1, set2) {
+        if (set1.size() != set2.size()) {
+            return false
+        }
+
         def tmpSet = new HashSet<TopicDto>(set2)
         def failed
         for (TopicDto tDto : set1) {
