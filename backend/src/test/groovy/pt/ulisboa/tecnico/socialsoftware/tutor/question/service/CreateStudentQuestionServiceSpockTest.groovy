@@ -10,14 +10,21 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.StudentQuestionService
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.StudentQuestion
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.ImageDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.OptionDto
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.StudentQuestionDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.StudentQuestionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import spock.lang.Specification
+
+import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.STUDENT_QUESTION_MISSING_DATA
+import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.STUDENT_QUESTION_MULTIPLE_CORRECT_OPTIONS
 
 @DataJpaTest
 class CreateStudentQuestionServiceSpockTest extends Specification{
@@ -93,8 +100,9 @@ class CreateStudentQuestionServiceSpockTest extends Specification{
         result.getImage() == null
         result.getOptions().size() == 1
         result.getCourse().getName() == COURSE_NAME
-        //course.getQuestions().contains(result)
-        //user.getQuestions().contains(result)
+        course.getStudentQuestions().contains(result)
+        result.getUser().getName() == NAME
+        user.getStudentQuestions().contains(result)
         def resOption = result.getOptions().get(0)
         resOption.getContent() == OPTION_CONTENT
         resOption.getCorrect()
@@ -102,27 +110,136 @@ class CreateStudentQuestionServiceSpockTest extends Specification{
     }
 
     def "create a student question with image and two options"() {
-        expect:false
+        given: "a studentquestionDto"
+        def squestionDto = new StudentQuestionDto()
+        squestionDto.setTitle(QUESTION_TITLE)
+        squestionDto.setContent(QUESTION_CONTENT)
+        squestionDto.setStatus(StudentQuestion.Status.TOAPPROVE.name())
+
+        and: 'an image'
+        def image = new ImageDto()
+        image.setUrl(URL)
+        image.setWidth(20)
+        squestionDto.setImage(image)
+        and: 'two options'
+        def optionDto = new OptionDto()
+        optionDto.setContent(OPTION_CONTENT)
+        optionDto.setCorrect(true)
+        def options = new ArrayList<OptionDto>()
+        options.add(optionDto)
+        optionDto = new OptionDto()
+        optionDto.setContent(OPTION_CONTENT)
+        optionDto.setCorrect(false)
+        options.add(optionDto)
+        squestionDto.setOptions(options)
+
+        when:
+        squestionService.createStudentQuestion(course.getId(),user.getId(), squestionDto)
+
+        then: "the correct question is inside the repository"
+        studentquestionRepository.count() == 1L
+        def result = studentquestionRepository.findAll().get(0)
+        result.getId() != null
+        result.getStatus() == StudentQuestion.Status.TOAPPROVE
+        result.getTitle() == QUESTION_TITLE
+        result.getContent() == QUESTION_CONTENT
+        result.getImage().getId() != null
+        result.getImage().getUrl() == URL
+        result.getImage().getWidth() == 20
+        result.getOptions().size() == 2
     }
 
-    def "create two student question"(){
-        expect:false
+    def "title is blank"(){
+        given: "a studentquestionDto"
+        def squestionDto = new StudentQuestionDto()
+        squestionDto.setTitle("")
+        squestionDto.setContent(QUESTION_CONTENT)
+        squestionDto.setStatus(StudentQuestion.Status.TOAPPROVE.name())
+        and: 'a optionId'
+        def optionDto = new OptionDto()
+        optionDto.setContent(OPTION_CONTENT)
+        optionDto.setCorrect(true)
+        def options = new ArrayList<OptionDto>()
+        options.add(optionDto)
+        squestionDto.setOptions(options)
+
+        when:
+        squestionService.createStudentQuestion(course.getId(), user.getId(),squestionDto)
+
+        then:
+        def error = thrown(TutorException)
+        error.errorMessage == STUDENT_QUESTION_MISSING_DATA
     }
 
-    def "title is null"(){
-        expect:false
+    def "content is blank"(){
+        given: "a studentquestionDto"
+        def squestionDto = new StudentQuestionDto()
+        squestionDto.setTitle(QUESTION_TITLE)
+        squestionDto.setContent("")
+        squestionDto.setStatus(StudentQuestion.Status.TOAPPROVE.name())
+        and: 'a optionId'
+        def optionDto = new OptionDto()
+        optionDto.setContent(OPTION_CONTENT)
+        optionDto.setCorrect(true)
+        def options = new ArrayList<OptionDto>()
+        options.add(optionDto)
+        squestionDto.setOptions(options)
+
+        when:
+        squestionService.createStudentQuestion(course.getId(), user.getId(),squestionDto)
+
+        then:
+        def error = thrown(TutorException)
+        error.errorMessage == STUDENT_QUESTION_MISSING_DATA
     }
 
-    def "content is null"(){
-        expect:false
-    }
+    def "option content is blank"(){
+        given: "a studentquestionDto"
+        def squestionDto = new StudentQuestionDto()
+        squestionDto.setTitle(QUESTION_TITLE)
+        squestionDto.setContent(QUESTION_CONTENT)
+        squestionDto.setStatus(StudentQuestion.Status.TOAPPROVE.name())
+        and: 'a optionId'
+        def optionDto = new OptionDto()
+        optionDto.setContent("")
+        optionDto.setCorrect(true)
+        def options = new ArrayList<OptionDto>()
+        options.add(optionDto)
+        squestionDto.setOptions(options)
 
-    def "option is null"(){
-        expect:false
+        when:
+        squestionService.createStudentQuestion(course.getId(), user.getId(),squestionDto)
+
+        then:
+        def error = thrown(TutorException)
+        error.errorMessage == STUDENT_QUESTION_MISSING_DATA
     }
 
     def "not only 1 correct option"(){
-        expect:false
+        given: "a studentquestionDto"
+        def squestionDto = new StudentQuestionDto()
+        squestionDto.setTitle(QUESTION_TITLE)
+        squestionDto.setContent(QUESTION_CONTENT)
+        squestionDto.setStatus(StudentQuestion.Status.TOAPPROVE.name())
+
+        and: 'two options'
+        def optionDto = new OptionDto()
+        optionDto.setContent(OPTION_CONTENT)
+        optionDto.setCorrect(true)
+        def options = new ArrayList<OptionDto>()
+        options.add(optionDto)
+        optionDto = new OptionDto()
+        optionDto.setContent(OPTION_CONTENT)
+        optionDto.setCorrect(true)
+        options.add(optionDto)
+        squestionDto.setOptions(options)
+
+        when:
+        squestionService.createStudentQuestion(course.getId(),user.getId(), squestionDto)
+
+        then:
+        def error = thrown(TutorException)
+        error.errorMessage == STUDENT_QUESTION_MULTIPLE_CORRECT_OPTIONS
     }
     
     @TestConfiguration

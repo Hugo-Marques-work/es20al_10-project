@@ -48,7 +48,7 @@ public class StudentQuestion {
     @OneToOne(cascade = CascadeType.ALL)
     private Image image;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Option> options = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -68,15 +68,14 @@ public class StudentQuestion {
         this.status = StudentQuestion.Status.valueOf(ssquestionDto.getStatus());
 
         this.course = course;
-        //course.addStudentQuestion(this);
+        course.addStudentQuestion(this);
 
         this.user = student;
-        //course.addStudentQuestion(this);
+        user.addStudentQuestion(this);
         
         if (ssquestionDto.getImage() != null) {
             Image img = new Image(ssquestionDto.getImage());
             setImage(img);
-            //img.setStudentQuestion(this);
         }
 
         int index = 0;
@@ -84,7 +83,6 @@ public class StudentQuestion {
             optionDto.setSequence(index++);
             Option option = new Option(optionDto);
             this.options.add(option);
-            //option.setStudentQuestion(this);
         }
     }
     
@@ -123,7 +121,6 @@ public class StudentQuestion {
 
     public void setImage(Image image) {
         this.image = image;
-        //image.setStudentQuestion(this);
     }
 
     public String getTitle() {
@@ -155,11 +152,16 @@ public class StudentQuestion {
         topics.add(topic);
     }
 
+    public User getUser() {
+        return user;
+    }
+
     public void remove() {
-        //getCourse().getStudentQuestions().remove(this);
+        getCourse().getStudentQuestions().remove(this);
         course = null;
-        //getTopics().forEach(topic -> topic.getStudentQuestions().remove(this));
-        //getTopics().clear();
+        getUser().getStudentQuestions().remove(this);
+        user = null;
+        getTopics().clear();
     }
 
     private void checkConsistentStudentQuestion(StudentQuestionDto squestionDto) {

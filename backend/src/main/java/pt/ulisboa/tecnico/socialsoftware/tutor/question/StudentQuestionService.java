@@ -36,11 +36,11 @@ public class StudentQuestionService {
 
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public StudentQuestionDto createStudentQuestion(int courseId, int userId,StudentQuestionDto questionDto) {
+    public StudentQuestionDto createStudentQuestion(int courseId, int userId,StudentQuestionDto squestionDto) {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new TutorException(COURSE_NOT_FOUND, courseId));
         User student = userRepository.findById(userId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, userId));
 
-        StudentQuestion squestion = new StudentQuestion(course, student,questionDto);
+        StudentQuestion squestion = new StudentQuestion(course, student,squestionDto);
 
         studentquestionRepository.save(squestion);
         return new StudentQuestionDto(squestion);
