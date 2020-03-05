@@ -96,5 +96,7 @@ public class TournamentService {
         //FIXME maybe only one is necessary
         tournament.signUpUser(user);
         user.signUpForTournament(tournament);
+        userRepository.save(user);
+        tournamentRepository.save(tournament);
     }
 }

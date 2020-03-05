@@ -43,7 +43,7 @@ public class Tournament {
     private Set<User> signedUpUsers = new HashSet<>();
 
     @OneToOne(fetch = FetchType.LAZY)
-    //@JoinColumn(name = "quiz_id")
+    @JoinColumn(name = "quiz_id")
     private Quiz quiz;
 
     @ManyToOne
