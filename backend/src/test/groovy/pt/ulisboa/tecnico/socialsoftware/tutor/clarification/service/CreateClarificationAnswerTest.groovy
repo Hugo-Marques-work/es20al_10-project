@@ -2,6 +2,8 @@ package pt.ulisboa.tecnico.socialsoftware.tutor.clarification.service
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.ClarificationService
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.domain.Clarification
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.repository.ClarificationAnswerRepository
@@ -11,6 +13,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
+import spock.lang.Shared
 import spock.lang.Specification
 
 @DataJpaTest
@@ -36,10 +39,13 @@ class CreateClarificationAnswerTest extends Specification {
     @Autowired
     ClarificationAnswerRepository clarificationAnswerRepository
 
+    @Shared
+    Clarification clarification
+
     def setup(){
-        def question = new Question()
-        question.setKey( questionRepository.getMaxQuestionNumber()+1 );
-        questionRepository.save(question)
+        clarification = new Clarification()
+        clarification.setId(1)
+        clarification.setContent("")
     }
 
 
@@ -48,18 +54,17 @@ class CreateClarificationAnswerTest extends Specification {
         def user = new User(NAME, USERNAME, USER_KEY, ROLE)
         userRepository.save(user)
         and: "a clarification"
-        def clarification = new Clarification();
         clarificationRepository.save(clarification)
 
         when:
-        clarificationService.createClarificationAnswer(user, clarification, CONTENT)
+        clarificationService.createClarificationAnswer(clarification, user, CONTENT)
 
         then: "the correct clarification answer is inside the repository"
         clarificationAnswerRepository.count() == 1
         def result = clarificationAnswerRepository.findAll().get(0)
         result.content == CONTENT
         and: "the clarification answer was added to the clarification"
-        clarification.getAnswers().size() == 1
+        clarification.getClarificationAnswers().size() == 1
     }
 
     def "clarification doesn't exist"(){
@@ -67,10 +72,9 @@ class CreateClarificationAnswerTest extends Specification {
         def user = new User(NAME, USERNAME, USER_KEY, ROLE)
         userRepository.save(user)
         and: "a clarification"
-        def clarification = new Clarification();
 
         when:
-        clarificationService.createClarificationAnswer(user, clarification, CONTENT)
+        clarificationService.createClarificationAnswer(clarification, user, CONTENT)
 
         then: "an exception is thrown"
         thrown(TutorException)
@@ -80,11 +84,10 @@ class CreateClarificationAnswerTest extends Specification {
         given: "a user"
         def user = new User(NAME, USERNAME, USER_KEY, ROLE)
         and: "a clarification"
-        def clarification = new Clarification();
         clarificationRepository.save(clarification)
 
         when:
-        clarificationService.createClarificationAnswer(user, clarification, CONTENT)
+        clarificationService.createClarificationAnswer(clarification, user, CONTENT)
 
         then: "an exception is thrown"
         thrown(TutorException)
@@ -95,11 +98,10 @@ class CreateClarificationAnswerTest extends Specification {
         def user = new User(NAME, USERNAME, USER_KEY, User.Role.STUDENT)
         userRepository.save(user)
         and: "a clarification"
-        def clarification = new Clarification();
         clarificationRepository.save(clarification)
 
         when:
-        clarificationService.createClarificationAnswer(user, clarification, CONTENT)
+        clarificationService.createClarificationAnswer(clarification, user, CONTENT)
 
         then: "an exception is thrown"
         thrown(TutorException)
@@ -110,11 +112,10 @@ class CreateClarificationAnswerTest extends Specification {
         def user = new User(NAME, USERNAME, USER_KEY, User.Role.STUDENT)
         userRepository.save(user)
         and: "a clarification"
-        def clarification = new Clarification();
         clarificationRepository.save(clarification)
 
         when:
-        clarificationService.createClarificationAnswer(user, clarification, null)
+        clarificationService.createClarificationAnswer(clarification, user, null)
 
         then: "an exception is thrown"
         thrown(TutorException)
@@ -125,13 +126,20 @@ class CreateClarificationAnswerTest extends Specification {
         def user = new User(NAME, USERNAME, USER_KEY, User.Role.STUDENT)
         userRepository.save(user)
         and: "a clarification"
-        def clarification = new Clarification();
         clarificationRepository.save(clarification)
 
         when:
-        clarificationService.createClarificationAnswer(user, clarification, "   ")
+        clarificationService.createClarificationAnswer(clarification, user, "   ")
 
         then: "an exception is thrown"
         thrown(TutorException)
+    }
+
+    @TestConfiguration
+    static class ClarificationServiceImplTestContextConfiguration {
+        @Bean
+        ClarificationService clarificationService() {
+            return new ClarificationService()
+        }
     }
 }
