@@ -57,6 +57,7 @@ public class User implements UserDetails, Importable {
     private Set<QuizAnswer> quizAnswers = new HashSet<>();
 
     @ManyToMany
+    @Column(name="signUpTournaments")
     private Set<Tournament> signUpTournaments = new HashSet<>();
 
     @ManyToMany

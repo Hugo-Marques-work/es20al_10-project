@@ -39,6 +39,8 @@ class SignUpForTournamentSpockTest extends Specification{
     TournamentRepository tournamentRepository
 
     @Autowired
+    CourseExecutionRepository courseExecutionRepository
+    @Autowired
     UserRepository userRepository
 
     Tournament tournament
@@ -58,7 +60,7 @@ class SignUpForTournamentSpockTest extends Specification{
 
         CourseExecution courseExe = new CourseExecution();
         courseExe.setId(1)
-
+        courseExecutionRepository.save(courseExe)
         LocalDateTime startingDate = LocalDateTime.now().plusDays(1)
         LocalDateTime conclusionDate = LocalDateTime.now().plusDays(3)
         tournament = new Tournament(startingDate, conclusionDate, 10)

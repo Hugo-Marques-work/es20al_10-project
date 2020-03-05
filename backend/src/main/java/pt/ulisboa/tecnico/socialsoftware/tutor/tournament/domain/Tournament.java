@@ -39,11 +39,11 @@ public class Tournament {
     private LocalDateTime conclusionDate;
 
     @ManyToMany
-    @JoinColumn(name = "user_id")
-    private Set<User> signedUpUsers;
+    @Column(name = "user_id")
+    private Set<User> signedUpUsers = new HashSet<>();
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "quiz_id")
+    //@JoinColumn(name = "quiz_id")
     private Quiz quiz;
 
     @ManyToOne
@@ -52,11 +52,17 @@ public class Tournament {
 
     public Tournament() {}
 
+    public Tournament(TournamentDto tournamentDto) {
+        this(tournamentDto.getStartingDateDate(), tournamentDto.getConclusionDateDate(),
+                tournamentDto.getNumberOfQuestions());
+    }
+
     public Tournament(LocalDateTime startDate, LocalDateTime concludeDate,
         int nQuestions) {
         setStartingDate( startDate );
         setConclusionDate( concludeDate );
 
+        System.out.println("\n\n\n\n\n\nooo\n\n\n\n");
         this.numberOfQuestions = nQuestions;
         if (this.numberOfQuestions < 1) {
             throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Number of questions" + this.numberOfQuestions);
