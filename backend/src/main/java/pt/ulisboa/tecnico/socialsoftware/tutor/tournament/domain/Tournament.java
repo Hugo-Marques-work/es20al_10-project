@@ -1,21 +1,14 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain;
 
-import net.bytebuddy.implementation.bytecode.Throw;
-import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto;
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz;
-import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.QuizQuestion;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -62,7 +55,6 @@ public class Tournament {
         setStartingDate( startDate );
         setConclusionDate( concludeDate );
 
-        System.out.println("\n\n\n\n\n\nooo\n\n\n\n");
         this.numberOfQuestions = nQuestions;
         if (this.numberOfQuestions < 1) {
             throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Number of questions" + this.numberOfQuestions);
@@ -76,7 +68,7 @@ public class Tournament {
     public void addTopic(Topic topic) {
         Set<Topic> validTopics = courseExecution.getCourse().getTopics();
 
-        if (!validTopics.stream().anyMatch(other -> topic == other)) {
+        if (validTopics.stream().noneMatch(other -> topic == other)) {
             throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Invalid topic" + topic);
         }
         topics.add(topic);
@@ -108,6 +100,22 @@ public class Tournament {
         this.courseExecution = courseExecution;
     }
 
+    public void addSignUp(User user) {
+        this.signedUpUsers.add(user);
+    }
+
+    public Set<User> getSignedUpUsers() {
+        return signedUpUsers;
+    }
+
+    public void setSignedUpUsers(Set<User> signedUpUsers) {
+        this.signedUpUsers = signedUpUsers;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     void checkStartingDate(LocalDateTime startingDate) {
         if (startingDate == null) {
             throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Starting date" + startingDate);
@@ -128,26 +136,16 @@ public class Tournament {
 
     public void checkReadyForSignUp() {
         LocalDateTime currentTime = LocalDateTime.now();
+
+        checkValidTimeForSignUp(currentTime);
+    }
+
+    private void checkValidTimeForSignUp(LocalDateTime currentTime) {
         if(currentTime.isBefore(startingDate)) {
             throw new TutorException(TOURNAMENT_SIGN_UP_NOT_READY, this.id);
         }
         else if(currentTime.isAfter(this.conclusionDate)) {
             throw new TutorException(TOURNAMENT_SIGN_UP_OVER, this.id);
         }
-    }
-    public void signUpUser(User user) {
-        this.signedUpUsers.add(user);
-    }
-
-    public Set<User> getSignedUpUsers() {
-        return signedUpUsers;
-    }
-
-    public void setSignedUpUsers(Set<User> signedUpUsers) {
-        this.signedUpUsers = signedUpUsers;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 }

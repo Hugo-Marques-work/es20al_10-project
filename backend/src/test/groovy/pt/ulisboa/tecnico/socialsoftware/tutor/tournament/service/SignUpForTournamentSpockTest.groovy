@@ -82,9 +82,7 @@ class SignUpForTournamentSpockTest extends Specification{
         tournamentService.signUp(userId, tournamentId);
 
         then: "tournament has user registered"
-        System.out.println(userRepository.findAll());
-        /*tournament.getSignedUpUsers().size() == 1
-        def userSignedTournament = new ArrayList<>(tournament.getSignedUpUsers()).get(0)*/
+
         tournamentRepository.findAll().size() == 1
         def updatedTournament = tournamentRepository.findAll().get(0)
         def userSignedTournament = new ArrayList<>(updatedTournament.getSignedUpUsers()).get(0)
@@ -94,8 +92,6 @@ class SignUpForTournamentSpockTest extends Specification{
         userSignedTournament.getId() ==  userRepository.findAll().get(0).getId()
 
         and: "user has tournament registered"
-        /*user.getSignUpTournaments().size() == 1
-        def tournamentSignedUser = new ArrayList<>(user.getSignUpTournaments()).get(0)*/
         userRepository.findAll().size() == 1
         def updatedUser = userRepository.findAll().get(0)
         def tournamentSignedUser = new ArrayList<>(updatedUser.getSignUpTournaments()).get(0)
