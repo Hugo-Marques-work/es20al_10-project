@@ -52,14 +52,13 @@ class SignUpForTournamentSpockTest extends Specification{
 
     def setup() {
         formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-
-
-
+        LocalDateTime startingDate = LocalDateTime.now().minusDays(1)
+        LocalDateTime conclusionDate = LocalDateTime.now().plusDays(3)
+        currentDate = LocalDateTime.now();
+        
         CourseExecution courseExe = new CourseExecution();
         courseExecutionRepository.save(courseExe)
 
-        LocalDateTime startingDate = LocalDateTime.now().minusDays(1)
-        LocalDateTime conclusionDate = LocalDateTime.now().plusDays(3)
         def tournament = new Tournament(startingDate, conclusionDate, 10)
         tournament.setId(1)
         tournament.setCourseExecution(courseExe)
@@ -70,10 +69,7 @@ class SignUpForTournamentSpockTest extends Specification{
         HashSet<CourseExecution> courseExes = new HashSet<CourseExecution>(1)
         courseExes.add(courseExe)
         user.setCourseExecutions(courseExes)
-
         userRepository.save(user)
-
-        currentDate = LocalDateTime.now();
     }
 
     def "sign up for a tournament"() {
@@ -94,6 +90,7 @@ class SignUpForTournamentSpockTest extends Specification{
         def userSignedTournament = new ArrayList<>(updatedTournament.getSignedUpUsers()).get(0)
 
         userSignedTournament != null
+        userRepository.findAll().size() == 1
         userSignedTournament.getId() ==  userRepository.findAll().get(0).getId()
 
         and: "user has tournament registered"
@@ -103,6 +100,7 @@ class SignUpForTournamentSpockTest extends Specification{
         def updatedUser = userRepository.findAll().get(0)
         def tournamentSignedUser = new ArrayList<>(updatedUser.getSignUpTournaments()).get(0)
         tournamentSignedUser != null
+        tournamentRepository.findAll().size() == 1
         tournamentSignedUser.getId() ==  tournamentRepository.findAll().get(0).getId()
     }
 
@@ -110,8 +108,8 @@ class SignUpForTournamentSpockTest extends Specification{
         given: "a tournament id"
         def tournamentId = tournamentRepository.findAll().get(0).getId()
         and: "a user id"
-        def userId = userRepository.findAll().get(0).getId()
         def user = userRepository.findAll().get(0)
+        def userId = user.getId()
         user.setCourseExecutions(new HashSet<CourseExecution>())
         userRepository.save(user)
 
@@ -126,13 +124,12 @@ class SignUpForTournamentSpockTest extends Specification{
 
     def "tournament signup is not ready"() {
         given: "a tournament id"
-        def tournamentId = tournamentRepository.findAll().get(0).getId()
+        def tournament = tournamentRepository.findAll().get(0)
+        def tournamentId = tournament.getId()
         and: "a user id"
         def userId = userRepository.findAll().get(0).getId()
         and: "a starting date later than the current date"
-        def startingDate = currentDate.plusDays(1).format(formatter)
-        def tournament = tournamentRepository.findAll().get(0)
-        tournament.setStartingDate(startingDate)
+        tournament.setStartingDate(currentDate.plusDays(1))
         tournamentRepository.save(tournament)
 
         when:
@@ -146,12 +143,12 @@ class SignUpForTournamentSpockTest extends Specification{
 
     def "tournament signup is finished"() {
         given: "a tournament id"
-        def tournamentId = tournamentRepository.findAll().get(0).getId()
+        def tournament = tournamentRepository.findAll().get(0)
+        def tournamentId = tournament.getId()
         and: "a user id"
         def userId = userRepository.findAll().get(0).getId()
         and: "a starting date later than the current date"
-        def conclusionDate = currentDate.minusDays(1).format(formatter)
-        tournamentRepository.findAll().get(0).setConclusionDate(conclusionDate)
+        tournament.setConclusionDate(currentDate.minusDays(1))
 
         when:
         tournamentService.signUp(userId, tournamentId)
@@ -163,10 +160,13 @@ class SignUpForTournamentSpockTest extends Specification{
 
     def "already signed up"() {
         given: "a tournament id"
-        def tournamentId = tournamentRepository.findAll().get(0).getId()
+        def tournament = tournamentRepository.findAll().get(0)
+        def tournamentId = tournament.getId()
         and: "a user id"
-        def userId = userRepository.findAll().get(0).getId()
-        userRepository.findAll().get(0).setSignUpTournaments(new HashSet<Tournament>(tournament))
+        def user = userRepository.findAll().get(0)
+        def userId = user.getId()
+        user.signUpForTournament(tournament)
+        userRepository.save(user)
 
         when:
         tournamentService.signUp(userId, tournamentId)
