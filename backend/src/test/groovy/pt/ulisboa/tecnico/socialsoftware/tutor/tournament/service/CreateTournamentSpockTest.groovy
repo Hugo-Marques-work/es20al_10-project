@@ -17,6 +17,9 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserService
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto
 import spock.lang.Specification
 
 import java.time.LocalDateTime
@@ -49,6 +52,9 @@ class CreateTournamentSpockTest extends Specification {
     @Autowired
     TopicService topicService
 
+    @Autowired
+    UserService userService
+
     Course course
     CourseExecution courseExecution
     DateTimeFormatter formatter
@@ -73,6 +79,8 @@ class CreateTournamentSpockTest extends Specification {
         topicDtos = new HashSet<TopicDto>()
         topicDtos.add(topicDto)
 
+        def userDtos = new HashSet<UserDto>()
+
         tournamentDto = new TournamentDto()
 
         startingDate = LocalDateTime.now()
@@ -81,6 +89,7 @@ class CreateTournamentSpockTest extends Specification {
         tournamentDto.setConclusionDate(conclusionDate.format(formatter))
         tournamentDto.setNumberOfQuestions(NUMBER_QUESTIONS)
         tournamentDto.addTopics(topicDtos)
+        tournamentDto.addUsers(userDtos)
     }
 
     def topicDtosMatch(set1, set2) {
@@ -132,6 +141,9 @@ class CreateTournamentSpockTest extends Specification {
         result.getConclusionDate().format(formatter) == conclusionDate.format(formatter)
         result.getNumberOfQuestions() == NUMBER_QUESTIONS
         result.getTopics() == topics
+
+        //FIXME does it need a new test?
+        result.getSignedUpUsers().size() == 0
     }
 
     def "topic list is empty"() {
@@ -155,6 +167,21 @@ class CreateTournamentSpockTest extends Specification {
         invalidTopicDto.setName("INVALID")
         invalidTopicDto = topicService.createTopic(newCourse.getId(), invalidTopicDto)
         tournamentDto.addTopic(invalidTopicDto)
+
+        when:
+        tournamentService.createTournament(courseExecution.getId(), tournamentDto)
+
+        then:
+        def error = thrown(TutorException)
+        error.errorMessage == TOURNAMENT_NOT_CONSISTENT
+    }
+
+    //FIXME check if it makes sense
+    def "user list is not empty"() {
+        given: "a null starting date"
+        def signUps = new HashSet<>();
+        signUps.add(new User())
+        tournamentDto.setSignedUpUsers(signUps)
 
         when:
         tournamentService.createTournament(courseExecution.getId(), tournamentDto)
@@ -237,6 +264,11 @@ class CreateTournamentSpockTest extends Specification {
         @Bean
         QuestionService questionService() {
             return new QuestionService()
+        }
+
+        @Bean
+        UserService userService() {
+            return new UserService()
         }
     }
 }

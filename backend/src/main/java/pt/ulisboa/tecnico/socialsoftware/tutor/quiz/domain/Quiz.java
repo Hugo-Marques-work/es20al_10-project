@@ -265,6 +265,9 @@ public class Quiz {
         this.setAvailableDate(LocalDateTime.now());
         this.setCreationDate(LocalDateTime.now());
         this.setType(QuizType.GENERATED);
+
+
+
         this.title = "Generated Quiz";
     }
 }

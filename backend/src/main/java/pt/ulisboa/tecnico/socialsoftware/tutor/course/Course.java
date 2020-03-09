@@ -101,4 +101,13 @@ public class Course {
     public void setType(Type type) {
         this.type = type;
     }
+
+    public boolean equals(Object obj) {
+        if (obj instanceof Course) {
+            return false;
+        }
+        Course course = (Course) obj;
+
+        return this.id == course.getId();
+    }
 }

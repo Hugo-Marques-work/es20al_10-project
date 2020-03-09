@@ -20,9 +20,12 @@ public enum ErrorMessage {
     COURSE_EXECUTION_ACADEMIC_TERM_IS_EMPTY("The course execution academic term is empty"),
     USERNAME_NOT_FOUND("Username %s not found"),
 
+    CLARIFICATION_IS_EMPTY("The clarification content is empty"),
+    CLARIFICATION_WRONG_USER("The user has to be associated with a student."),
+
     QUIZ_USER_MISMATCH("Quiz %s is not assigned to student %s"),
     QUIZ_MISMATCH("Quiz Answer Quiz %d does not match Quiz Question Quiz %d"),
-    QUIZ_OPTION_MISMATCH("Quiz Question %d does not have option %d"),
+    QUESTION_OPTION_MISMATCH("Question %d does not have option %d"),
     COURSE_EXECUTION_MISMATCH("Course Execution %d does not have quiz %d"),
 
     DUPLICATE_TOPIC("Duplicate topic: %s"),
@@ -53,7 +56,11 @@ public enum ErrorMessage {
     FENIX_CONFIGURATION_ERROR("Incorrect server configuration files for fenix"),
 
     TOURNAMENT_NOT_CONSISTENT("Field %s of tournament is not consistent"),
-
+    TOURNAMENT_NOT_FOUND("Tournament not found with id %s"),
+    TOURNAMENT_NOT_CONSISTENT("Field $s of tournament is not consistent"),
+    TOURNAMENT_SIGN_UP_OVER("Tournament sign up was over at %s"),
+    TOURNAMENT_SIGN_UP_NOT_READY("Tournament sign up is ready at %s"),
+    USER_DUPLICATE_SIGN_UP("The user has already signed up for tournament with id %s"),
 
     ACCESS_DENIED("You do not have permission to view this resource");
 

@@ -14,6 +14,9 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicReposito
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
 import java.sql.SQLException;
 import java.util.Set;
@@ -22,13 +25,16 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 
 public class TournamentService {
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private TournamentRepository tournamentRepository;
+
+    @Autowired
     private CourseExecutionRepository courseExecutionRepository;
 
     @Autowired
     private TopicRepository topicRepository;
-
-    @Autowired
-    private TournamentRepository tournamentRepository;
 
     @Retryable(
             value = { SQLException.class },
@@ -41,6 +47,7 @@ public class TournamentService {
         tournament.setCourseExecution(courseExecution);
 
         checkAndAddTopics(tournamentDto, tournament);
+        checkSignUp(tournamentDto);
 
         tournamentRepository.save(tournament);
         return new TournamentDto(tournament, true);
@@ -65,5 +72,45 @@ public class TournamentService {
                 tournament.addTopic(topic);
             }
         }
+    }
+
+    private void checkSignUp(TournamentDto tournamentDto) {
+        if (tournamentDto.getSignedUpUsers() != null) {
+            Set<UserDto> users = tournamentDto.getSignedUpUsers();
+            if (!users.isEmpty()) {
+                throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Sign up list is empty"
+                        + tournamentDto.getSignedUpUsers());
+            }
+        }
+    }
+
+
+    public void signUp(Integer userId, Integer tournamentId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, userId));
+
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
+
+        checkUserReadyForSignUp(userId, user, tournament);
+
+        tournament.checkReadyForSignUp();
+
+        executeSignUp(user, tournament);
+    }
+
+    private void checkUserReadyForSignUp(Integer userId, User user, Tournament tournament) {
+        if( ! user.getCourseExecutions().contains(tournament.getCourseExecution())) {
+            throw new TutorException(USER_NOT_ENROLLED,userId.toString());
+        }
+
+        if(user.getSignUpTournaments().contains(tournament)) {
+            throw new TutorException(USER_DUPLICATE_SIGN_UP, tournament.getId().toString());
+        }
+    }
+
+    private void executeSignUp(User user, Tournament tournament) {
+        tournament.addSignUp(user);
+        user.signUpForTournament(tournament);
+        userRepository.save(user);
+        tournamentRepository.save(tournament);
     }
 }

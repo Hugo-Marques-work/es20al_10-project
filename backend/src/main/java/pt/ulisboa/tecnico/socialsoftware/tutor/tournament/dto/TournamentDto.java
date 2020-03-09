@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto;
 import org.springframework.data.annotation.Transient;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -17,6 +18,7 @@ public class TournamentDto {
     private String conclusionDate = null;
     private int numberOfQuestions;
     private Set<TopicDto> topics = new HashSet<>();
+    private Set<UserDto> signedUpUsers = new HashSet<>();
 
     @Transient
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -35,6 +37,9 @@ public class TournamentDto {
         if (deepCopy) {
             this.topics = tournament.getTopics().stream()
                     .map(TopicDto::new)
+                    .collect(Collectors.toSet());
+            this.signedUpUsers = tournament.getSignedUpUsers().stream()
+                    .map(UserDto::new)
                     .collect(Collectors.toSet());
         }
     }
@@ -70,6 +75,18 @@ public class TournamentDto {
     public void setNumberOfQuestions(int numberOfQuestions) {
         this.numberOfQuestions = numberOfQuestions;
     }
+
+    public Set<UserDto> getSignedUpUsers() { return signedUpUsers; }
+
+    public void setSignedUpUsers(Set<UserDto> signedUpUsers) {
+        this.signedUpUsers = signedUpUsers;
+    }
+
+    public void addUser(UserDto user) { this.signedUpUsers.add(user); }
+
+    public void addUsers(Collection<UserDto> users) { this.signedUpUsers.addAll(users); }
+
+    public void removeUser(UserDto user) { this.signedUpUsers.remove(user); }
 
     public Set<TopicDto> getTopics() {
         return topics;
