@@ -65,6 +65,7 @@ public class Tournament {
         setStartingDate( startDate );
         setConclusionDate( concludeDate );
 
+        this.status = Status.OPEN;
         this.numberOfQuestions = nQuestions;
         if (this.numberOfQuestions < 1) {
             throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Number of questions" + this.numberOfQuestions);
@@ -81,6 +82,10 @@ public class Tournament {
 
     public User getCreator() {
         return creator;
+    }
+
+    public Status getStatus() {
+        return status;
     }
 
     public void setStatus(Status status) {
@@ -189,7 +194,7 @@ public class Tournament {
             return status;
 
         LocalDateTime currentTime = LocalDateTime.now();
-        if(currentTime.isBefore(startingDate)){
+        if(currentTime.isBefore(startingDate)) {
             setStatus(Status.OPEN);
         }
         else if(!currentTime.isBefore(startingDate) && currentTime.isBefore(conclusionDate)) {

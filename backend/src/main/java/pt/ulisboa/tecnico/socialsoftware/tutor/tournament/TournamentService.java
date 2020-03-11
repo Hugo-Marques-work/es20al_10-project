@@ -129,10 +129,11 @@ public class TournamentService {
 
     private void executeCancel(Tournament tournament) {
         tournament.setStatus(Tournament.Status.CANCELED);
+        tournamentRepository.save(tournament);
     }
 
     private void checkUserAbleToCancel(Integer userId, Tournament tournament) {
-        if(tournament.getCreator().getId().equals(userId)){
+        if(!tournament.getCreator().getId().equals(userId)){
             throw new TutorException(TOURNAMENT_NOT_THE_CREATOR,tournament.getId().toString());
         }
     }
