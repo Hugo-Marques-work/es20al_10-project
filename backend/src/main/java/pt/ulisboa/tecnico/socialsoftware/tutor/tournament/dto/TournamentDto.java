@@ -82,12 +82,6 @@ public class TournamentDto {
         this.signedUpUsers = signedUpUsers;
     }
 
-    public void addUser(UserDto user) { this.signedUpUsers.add(user); }
-
-    public void addUsers(Collection<UserDto> users) { this.signedUpUsers.addAll(users); }
-
-    public void removeUser(UserDto user) { this.signedUpUsers.remove(user); }
-
     public Set<TopicDto> getTopics() {
         return topics;
     }
@@ -98,10 +92,6 @@ public class TournamentDto {
 
     public void addTopic(TopicDto topic) {
         this.topics.add(topic);
-    }
-
-    public void removeTopic(TopicDto topic) {
-        this.topics.remove(topic);
     }
 
     public void clearTopicList() {

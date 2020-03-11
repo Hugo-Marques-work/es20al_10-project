@@ -17,11 +17,11 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import spock.lang.Shared
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserService
-import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -33,12 +33,21 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*
 
 @DataJpaTest
 class CreateTournamentSpockTest extends Specification {
+    public static final enum userType {
+        STUDENT,
+        TEACHER,
+        INEXISTENT
+    }
+
     public static final String COURSE_NAME = "Software Architecture"
     public static final String ACRONYM = "AS1"
     public static final String ACADEMIC_TERM = "1 SEM"
 
     static final String TOPIC_NAME = "Risk Management"
     static final Integer NUMBER_QUESTIONS = 1
+
+    @Autowired
+    UserRepository userRepository
 
     @Autowired
     TournamentService tournamentService
@@ -62,6 +71,7 @@ class CreateTournamentSpockTest extends Specification {
 
     Course course
     CourseExecution courseExecution
+    User student
 
     @Shared
     String START_DATE
@@ -74,6 +84,9 @@ class CreateTournamentSpockTest extends Specification {
 
         courseExecution = new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
         courseExecutionRepository.save(courseExecution)
+
+        student = new User("Joao", "joao", 1, User.Role.STUDENT)
+        userRepository.save(student)
 
         def topicDto = new TopicDto()
         topicDto.setName(TOPIC_NAME)
@@ -103,7 +116,7 @@ class CreateTournamentSpockTest extends Specification {
                 .collect(Collectors.toSet());
 
         when:
-        def resultDto = tournamentService.createTournament(courseExecution.getId(), tournamentDto)
+        def resultDto = tournamentService.createTournament(student.getId(), courseExecution.getId(), tournamentDto)
 
         then: "the returned data is correct"
         resultDto.topics.size() == 1
@@ -131,7 +144,7 @@ class CreateTournamentSpockTest extends Specification {
         tournamentDto.clearTopicList();
 
         when:
-        tournamentService.createTournament(courseExecution.getId(), tournamentDto)
+        tournamentService.createTournament(student.getId(), courseExecution.getId(), tournamentDto)
 
         then:
         def error = thrown(TutorException)
@@ -151,7 +164,7 @@ class CreateTournamentSpockTest extends Specification {
         tournamentDto.addTopic(invalidTopicDto)
 
         when:
-        tournamentService.createTournament(courseExecution.getId(), tournamentDto)
+        tournamentService.createTournament(student.getId(), courseExecution.getId(), tournamentDto)
 
         then:
         def error = thrown(TutorException)
@@ -159,15 +172,16 @@ class CreateTournamentSpockTest extends Specification {
     }
 
     //FIXME: Should we accept tournaments with pre-signedup users?
-    def "user list is not empty"() {
-        given: "a null starting date"
-        def signUps = new HashSet<>();
-        signUps.add(new User())
+    def "sign up list is not empty"() {
+        given: "a valid tournament Dto"
         def tournamentDto = createValidTournamentDto()
+        and: "a non empty sign up list"
+        def signUps = new HashSet<>()
+        signUps.add(new User())
         tournamentDto.setSignedUpUsers(signUps)
 
         when:
-        tournamentService.createTournament(courseExecution.getId(), tournamentDto)
+        tournamentService.createTournament(student.getId(), courseExecution.getId(), tournamentDto)
 
         then:
         def error = thrown(TutorException)
@@ -176,7 +190,7 @@ class CreateTournamentSpockTest extends Specification {
 
     @Unroll
     def "invalid arguments: startingDate=#startingDate | conclusionDate=#conclusionDate |\
-        numberOfQuestions=#numberOfQuestions | validCourseExecutionId=#validCourseExecutionId ||\
+        numberOfQuestions=#numberOfQuestions | validExecutionId=#validExecutionId ||\
         errorMessage=#errorMessage "() {
         given: "a course and a course execution"
         course = new Course(COURSE_NAME, Course.Type.TECNICO)
@@ -189,10 +203,10 @@ class CreateTournamentSpockTest extends Specification {
         tournamentDto.setStartingDate(startingDate)
         tournamentDto.setConclusionDate(conclusionDate)
         tournamentDto.setNumberOfQuestions(numberOfQuestions)
-        print(startingDate)
 
         when:
-        tournamentService.createTournament(getExecutionId(validExecutionId), tournamentDto)
+        tournamentService.createTournament(getCreatorId(userType.STUDENT), getExecutionId(validExecutionId),
+                tournamentDto)
 
         then:
         def error = thrown(TutorException)
@@ -207,8 +221,42 @@ class CreateTournamentSpockTest extends Specification {
         START_DATE      | CONCLUSION_DATE | NUMBER_QUESTIONS  | false            || COURSE_EXECUTION_NOT_FOUND
     }
 
+    @Unroll
+    def "invalid creator: creatorType=#creatorType"() {
+        given: "a valid tournament dto"
+        def tournamentDto = createValidTournamentDto()
+
+        when:
+        tournamentService.createTournament(getCreatorId(creatorType), getExecutionId(true), tournamentDto)
+
+        then:
+        def error = thrown(TutorException)
+        error.errorMessage == errorMessage
+
+        where:
+        creatorType         || errorMessage
+        userType.TEACHER    || TOURNAMENT_INVALID_CREATOR
+        userType.INEXISTENT || USER_NOT_FOUND
+
+    }
+
     def getExecutionId(valid) {
         return (valid) ? courseExecutionRepository.findAll().get(0).getId() : -1
+    }
+
+    def getCreatorId(type) {
+        switch (type) {
+            case userType.STUDENT:
+                def student = new User("student", "student", 1, User.Role.STUDENT)
+                userRepository.save(student)
+                return student.getId()
+            case userType.TEACHER:
+                def teacher = new User("prof", "prof", 2, User.Role.TEACHER)
+                userRepository.save(teacher)
+                return teacher.getId()
+            default:
+                return -1
+        }
     }
 
     @TestConfiguration

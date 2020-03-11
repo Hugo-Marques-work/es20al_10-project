@@ -56,9 +56,10 @@ public enum ErrorMessage {
     FENIX_CONFIGURATION_ERROR("Incorrect server configuration files for fenix"),
 
     TOURNAMENT_NOT_CONSISTENT("Field %s of tournament is not consistent"),
+    TOURNAMENT_INVALID_CREATOR("Invalid tournament creator, expected %s, got %s"),
     TOURNAMENT_NOT_FOUND("Tournament not found with id %s"),
     TOURNAMENT_SIGN_UP_OVER("Tournament sign up was over at %s"),
-    USER_DUPLICATE_SIGN_UP("The user %s has already signed up for tournament with id %s"),
+    TOURNAMENT_DUPLICATE_SIGN_UP("The user has already signed up for tournament with id %s"),
 
     ACCESS_DENIED("You do not have permission to view this resource");
 
