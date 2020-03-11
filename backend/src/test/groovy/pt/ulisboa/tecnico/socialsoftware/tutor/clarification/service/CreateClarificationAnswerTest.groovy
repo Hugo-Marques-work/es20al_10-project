@@ -26,6 +26,12 @@ class CreateClarificationAnswerTest extends Specification {
     static final User.Role ROLE = User.Role.TEACHER
     static final String CONTENT = "I explain your clarification."
 
+    static final enum unitType {
+        EXISTENT,
+        INEXISTENT,
+        NULL
+    }
+
     @Autowired
     ClarificationService clarificationService
 
@@ -68,45 +74,22 @@ class CreateClarificationAnswerTest extends Specification {
         clarification.getClarificationAnswers().size() == 1
     }
 
-    def "clarification doesn't exist"(){
-        given: "a user"
-        def user = new User(NAME, USERNAME, USER_KEY, ROLE)
-        userRepository.save(user)
-        and: "a clarification"
-        clarification.setId(1)
+    @Unroll("invalid user and clarification: #clarificationType | #userType || errorMessage")
+    def "invalid user and clarification"() {
 
         when:
-        clarificationService.createClarificationAnswer(clarification, user, CONTENT)
+        clarificationService.createClarificationAnswer(getClarification(clarificationType), getUser(userType), CONTENT)
 
         then: "an exception is thrown"
         def error = thrown(TutorException)
-        error.errorMessage == ErrorMessage.CLARIFICATION_NOT_FOUND
-    }
+        error.errorMessage == errorMessage
 
-    def "user doesn't exist"() {
-        given: "a user"
-        def user = new User(NAME, USERNAME, USER_KEY, ROLE)
-        and: "a clarification"
-        clarificationRepository.save(clarification)
-
-        when:
-        clarificationService.createClarificationAnswer(clarification, user, CONTENT)
-
-        then: "an exception is thrown"
-        def error = thrown(TutorException)
-        error.errorMessage == ErrorMessage.USER_NOT_FOUND
-    }
-
-    def "user is null"() {
-        given: "a clarification"
-        clarificationRepository.save(clarification)
-
-        when:
-        clarificationService.createClarificationAnswer(clarification, null, CONTENT)
-
-        then: "an exception is thrown"
-        def error = thrown(TutorException)
-        error.errorMessage == ErrorMessage.USER_NOT_FOUND
+        where:
+        clarificationType   | userType              ||  errorMessage
+        unitType.INEXISTENT | unitType.EXISTENT     ||  ErrorMessage.CLARIFICATION_NOT_FOUND
+        unitType.NULL       | unitType.EXISTENT     ||  ErrorMessage.CLARIFICATION_NOT_FOUND
+        unitType.EXISTENT   | unitType.INEXISTENT   ||  ErrorMessage.USER_NOT_FOUND
+        unitType.EXISTENT   | unitType.NULL         ||  ErrorMessage.USER_NOT_FOUND
     }
 
     @Unroll("invalid arguments: #content | #role || errorMessage")
@@ -129,6 +112,35 @@ class CreateClarificationAnswerTest extends Specification {
         null    |   User.Role.TEACHER   ||  ErrorMessage.CLARIFICATION_ANSWER_IS_EMPTY
         "  "    |   User.Role.TEACHER   ||  ErrorMessage.CLARIFICATION_ANSWER_IS_EMPTY
         CONTENT |   User.Role.STUDENT   ||  ErrorMessage.CLARIFICATION_WRONG_USER
+    }
+
+    def getUser(type) {
+        def user = new User(NAME, USERNAME, USER_KEY, ROLE)
+
+        switch (type) {
+            case unitType.EXISTENT:
+                userRepository.save(user)
+                return user
+            case unitType.INEXISTENT:
+                return user
+            case unitType.NULL:
+            default:
+                return null
+        }
+    }
+
+    def getClarification(type) {
+        switch (type) {
+            case unitType.EXISTENT:
+                clarificationRepository.save(clarification)
+                return clarification
+            case unitType.INEXISTENT:
+                clarification.setId(1)
+                return clarification
+            case unitType.NULL:
+            default:
+                return null
+        }
     }
 
     @TestConfiguration
