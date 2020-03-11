@@ -37,8 +37,8 @@ class CreateClarificationServiceSpockTest extends Specification {
     @Autowired
     ClarificationRepository clarificationRepository
 
-    def static user
-    def static question
+    def user
+    def question
 
     def setup() {
         user = new User(NAME, USERNAME, KEY, ROLE)

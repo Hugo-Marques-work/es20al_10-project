@@ -75,9 +75,7 @@ public class Clarification {
         return clarificationAnswers;
     }
 
-    public void setClarificationAnswers(Set<ClarificationAnswer> clarificationAnswers) {
-        this.clarificationAnswers = clarificationAnswers;
-    }
+    public void setClarificationAnswers(Set<ClarificationAnswer> clarificationAnswers) { this.clarificationAnswers = clarificationAnswers; }
 
     public void addClarificationAnswer(ClarificationAnswer clarificationAnswer) {this.clarificationAnswers.add(clarificationAnswer);}
 
