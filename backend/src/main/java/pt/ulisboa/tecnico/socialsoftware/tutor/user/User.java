@@ -60,6 +60,9 @@ public class User implements UserDetails, Importable {
     @Column(name="signUpTournaments")
     private Set<Tournament> signUpTournaments = new HashSet<>();
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "creator", orphanRemoval=true)
+    private Set<Tournament> createdTournaments = new HashSet<>();
+
     @ManyToMany
     private Set<CourseExecution> courseExecutions = new HashSet<>();
 

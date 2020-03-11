@@ -22,6 +22,10 @@ public class Tournament {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creator_id")
+    private User creator;
+
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Topic> topics = new HashSet<>();
 
@@ -45,13 +49,15 @@ public class Tournament {
 
     public Tournament() {}
 
-    public Tournament(TournamentDto tournamentDto) {
-        this(tournamentDto.getStartingDateDate(), tournamentDto.getConclusionDateDate(),
+    public Tournament(User creator, TournamentDto tournamentDto) {
+        this(creator, tournamentDto.getStartingDateDate(), tournamentDto.getConclusionDateDate(),
                 tournamentDto.getNumberOfQuestions());
     }
 
-    public Tournament(LocalDateTime startDate, LocalDateTime concludeDate,
-        int nQuestions) {
+    public Tournament(User creator,
+                      LocalDateTime startDate, LocalDateTime concludeDate,
+                      int nQuestions) {
+        setCreator(creator);
         setStartingDate( startDate );
         setConclusionDate( concludeDate );
 
@@ -59,6 +65,14 @@ public class Tournament {
         if (this.numberOfQuestions < 1) {
             throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Number of questions" + this.numberOfQuestions);
         }
+    }
+
+    private void setCreator(User creator) {
+        if (creator.getRole() != User.Role.STUDENT) {
+            throw new TutorException(TOURNAMENT_INVALID_CREATOR,
+                    User.Role.STUDENT.toString(), creator.getRole().toString());
+        }
+        this.creator = creator;
     }
 
     public Integer getId() { return id; }
@@ -147,5 +161,17 @@ public class Tournament {
         else if(currentTime.isAfter(this.conclusionDate)) {
             throw new TutorException(TOURNAMENT_SIGN_UP_OVER, this.id);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Tournament{" +
+                "id=" + id +
+                ", creator" + creator +
+                ", startingDate=" + startingDate +
+                ", conclusionDate=" + conclusionDate +
+                ", numberOfQuestions=" + numberOfQuestions +
+                ", topics=" + topics +
+                '}';
     }
 }

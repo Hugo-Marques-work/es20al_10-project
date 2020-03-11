@@ -1,8 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Isolation;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
@@ -18,7 +16,6 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
-import java.sql.SQLException;
 import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
@@ -36,14 +33,13 @@ public class TournamentService {
     @Autowired
     private TopicRepository topicRepository;
 
-    @Retryable(
-            value = { SQLException.class },
-            backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public TournamentDto createTournament(int executionId, TournamentDto tournamentDto) {
+    public TournamentDto createTournament(int creatorId, int executionId, TournamentDto tournamentDto) {
         CourseExecution courseExecution = getCourseExecution(executionId);
 
-        Tournament tournament = new Tournament(tournamentDto);
+        User creator = getTournamentCreator(creatorId);
+
+        Tournament tournament = new Tournament(creator, tournamentDto);
         tournament.setCourseExecution(courseExecution);
 
         checkAndAddTopics(tournamentDto, tournament);
@@ -51,6 +47,11 @@ public class TournamentService {
 
         tournamentRepository.save(tournament);
         return new TournamentDto(tournament, true);
+    }
+
+    private User getTournamentCreator(int creatorId) {
+        return userRepository.findById(creatorId)
+                .orElseThrow(() -> new TutorException(USER_NOT_FOUND, creatorId));
     }
 
     private CourseExecution getCourseExecution(int executionId) {
@@ -98,12 +99,12 @@ public class TournamentService {
     }
 
     private void checkUserReadyForSignUp(Integer userId, User user, Tournament tournament) {
-        if( ! user.getCourseExecutions().contains(tournament.getCourseExecution())) {
+        if(!user.getCourseExecutions().contains(tournament.getCourseExecution())) {
             throw new TutorException(USER_NOT_ENROLLED,userId.toString());
         }
 
         if(user.getSignUpTournaments().contains(tournament)) {
-            throw new TutorException(USER_DUPLICATE_SIGN_UP, tournament.getId().toString());
+            throw new TutorException(TOURNAMENT_DUPLICATE_SIGN_UP, tournament.getId().toString());
         }
     }
 
