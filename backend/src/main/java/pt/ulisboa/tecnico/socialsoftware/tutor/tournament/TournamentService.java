@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.socialsoftware.tutor.tournament;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Isolation;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
@@ -23,6 +24,7 @@ import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 
+@Service("TournamentService")
 public class TournamentService {
     @Autowired
     private UserRepository userRepository;
@@ -90,20 +92,20 @@ public class TournamentService {
 
         Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
 
-        checkUserReadyForSignUp(userId, user, tournament);
+        checkUserReadyForSignUp(user, tournament);
 
         tournament.checkReadyForSignUp();
 
         executeSignUp(user, tournament);
     }
 
-    private void checkUserReadyForSignUp(Integer userId, User user, Tournament tournament) {
+    private void checkUserReadyForSignUp(User user, Tournament tournament) {
         if( ! user.getCourseExecutions().contains(tournament.getCourseExecution())) {
-            throw new TutorException(USER_NOT_ENROLLED,userId.toString());
+            throw new TutorException(USER_NOT_ENROLLED,user.getUsername());
         }
 
         if(user.getSignUpTournaments().contains(tournament)) {
-            throw new TutorException(USER_DUPLICATE_SIGN_UP, tournament.getId().toString());
+            throw new TutorException(USER_DUPLICATE_SIGN_UP, user.getUsername(), tournament.getId().toString());
         }
     }
 

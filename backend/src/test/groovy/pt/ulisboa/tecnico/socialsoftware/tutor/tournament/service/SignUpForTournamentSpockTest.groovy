@@ -16,7 +16,9 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
+import spock.lang.Shared
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -34,28 +36,24 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.US
 class SignUpForTournamentSpockTest extends Specification{
     @Autowired
     TournamentService tournamentService
-
     @Autowired
     TournamentRepository tournamentRepository
-
     @Autowired
     CourseExecutionRepository courseExecutionRepository
     @Autowired
     UserRepository userRepository
 
-    DateTimeFormatter formatter
-    //LocalDateTime startingDate
-    //LocalDateTime conclusionDate
-
-    LocalDateTime currentDate
-
+    @Shared
+    LocalDateTime BAD_START_DATE
+    @Shared
+    LocalDateTime GOOD_START_DATE
 
     def setup() {
-        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
         LocalDateTime startingDate = LocalDateTime.now().plusDays(1)
         LocalDateTime conclusionDate = LocalDateTime.now().plusDays(3)
-        currentDate = LocalDateTime.now();
-        
+        def currentDate = LocalDateTime.now();
+        GOOD_START_DATE = currentDate.plusDays(1)
+        BAD_START_DATE = currentDate.minusDays(1)
         CourseExecution courseExe = new CourseExecution();
         courseExecutionRepository.save(courseExe)
 
@@ -70,6 +68,16 @@ class SignUpForTournamentSpockTest extends Specification{
         courseExes.add(courseExe)
         user.setCourseExecutions(courseExes)
         userRepository.save(user)
+    }
+
+    def getTournamentId(tournament, validTournamentId) {
+        if(validTournamentId) return tournament.getId();
+        return -1;
+    }
+
+    def getUserId(user, validUserId) {
+        if(validUserId) return user.getId();
+        return -1;
     }
 
     def "sign up for a tournament"() {
@@ -107,51 +115,13 @@ class SignUpForTournamentSpockTest extends Specification{
         def user = userRepository.findAll().get(0)
         def userId = user.getId()
         user.setCourseExecutions(new HashSet<CourseExecution>())
-        userRepository.save(user)
 
         when:
         tournamentService.signUp(userId, tournamentId)
 
         then:
         def error = thrown(TutorException)
-        //fixme user not enrolled?
         error.errorMessage == USER_NOT_ENROLLED
-    }
-/*
-    def "tournament signup is not ready"() {
-        given: "a tournament id"
-        def tournament = tournamentRepository.findAll().get(0)
-        def tournamentId = tournament.getId()
-        and: "a user id"
-        def userId = userRepository.findAll().get(0).getId()
-        and: "a starting date later than the current date"
-        tournament.setStartingDate(currentDate.plusDays(1))
-        tournamentRepository.save(tournament)
-
-        when:
-        tournamentService.signUp(userId, tournamentId)
-
-        then:
-        def error = thrown(TutorException)
-        error.errorMessage == TOURNAMENT_SIGN_UP_NOT_READY
-    }
- */
-
-    def "tournament signup is finished"() {
-        given: "a tournament id"
-        def tournament = tournamentRepository.findAll().get(0)
-        def tournamentId = tournament.getId()
-        and: "a user id"
-        def userId = userRepository.findAll().get(0).getId()
-        and: "a starting date later than the current date"
-        tournament.setStartingDate(currentDate.minusDays(1))
-
-        when:
-        tournamentService.signUp(userId, tournamentId)
-
-        then:
-        def error = thrown(TutorException)
-        error.errorMessage == TOURNAMENT_SIGN_UP_OVER
     }
 
     def "already signed up"() {
@@ -162,7 +132,6 @@ class SignUpForTournamentSpockTest extends Specification{
         def user = userRepository.findAll().get(0)
         def userId = user.getId()
         user.signUpForTournament(tournament)
-        userRepository.save(user)
 
         when:
         tournamentService.signUp(userId, tournamentId)
@@ -172,41 +141,18 @@ class SignUpForTournamentSpockTest extends Specification{
         error.errorMessage == USER_DUPLICATE_SIGN_UP
     }
 
-    def "user does not exist"() {
-        given: "a tournament id"
-        def tournamentId = tournamentRepository.findAll().get(0).getId()
-
-        when:
-        tournamentService.signUp(-1,tournamentId)
-
-        then:
-        def error = thrown(TutorException)
-        error.errorMessage == USER_NOT_FOUND
-    }
-
-    def "tournament does not exist"() {
-        given: "a user id"
-        def userId = userRepository.findAll().get(0).getId()
-
-        when:
-        tournamentService.signUp(userId, -1)
-
-        then:
-        def error = thrown(TutorException)
-        error.errorMessage == TOURNAMENT_NOT_FOUND
-    }
-
+    @Unroll
     def  "invalid arguments: startingDate=#startingDate | \
         userId=#userId | tournamentId=#tournamentId ||\
         errorMessage=#errorMessage "() {
         given: "a tournament id"
         def tournament = tournamentRepository.findAll().get(0)
-        def tournamentId = tournament.getId()
+        def tournamentId = getTournamentId(tournament, validTournamentId)
         and: "a user id"
         def user = userRepository.findAll().get(0)
-        def userId = user.getId()
+        def userId = getUserId(user, validUserId)
         and: "a starting date"
-        tournament.setStartingDate(currentDate.minusDays(1))
+        tournament.setStartingDate(startingDate)
 
         when:
         tournamentService.signUp(userId, tournamentId)
@@ -216,11 +162,10 @@ class SignUpForTournamentSpockTest extends Specification{
         error.errorMessage == errorMessage
 
         where:
-        startingDate    | userId  | tournamentId || errorMessage
-        null            |  | NUMBER_QUESTIONS  | true             || TOURNAMENT_NOT_CONSISTENT
-        START_DATE      | null            | NUMBER_QUESTIONS  | true             || TOURNAMENT_NOT_CONSISTENT
-        CONCLUSION_DATE | START_DATE      | NUMBER_QUESTIONS  | true             || TOURNAMENT_NOT_CONSISTENT
-        expect: true
+        startingDate    | validUserId  | validTournamentId || errorMessage
+        BAD_START_DATE  | true         | true              || TOURNAMENT_SIGN_UP_OVER
+        GOOD_START_DATE | false        | true              || USER_NOT_FOUND
+        GOOD_START_DATE | true         | false             || TOURNAMENT_NOT_FOUND
     }
 
     @TestConfiguration
