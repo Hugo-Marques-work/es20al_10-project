@@ -59,18 +59,6 @@ public class ClarificationService {
         return new ClarificationAnswerDto(clarificationAnswer);
     }
 
-    public ClarificationAnswerDto createClarificationAnswer(ClarificationAnswerDto clarificationAnswerDto){
-        ClarificationAnswer clarificationAnswer = new ClarificationAnswer(clarificationAnswerDto);
-        checkUser(clarificationAnswer.getUser(), User.Role.TEACHER);
-        checkContent(clarificationAnswerDto.getContent(), ErrorMessage.CLARIFICATION_ANSWER_IS_EMPTY);
-
-        clarificationAnswerRepository.save(clarificationAnswer);
-        clarificationAnswer.getClarification().addClarificationAnswer(clarificationAnswer);
-        clarificationAnswer.getUser().addClarificationAnswer(clarificationAnswer);
-
-        return new ClarificationAnswerDto(clarificationAnswer);
-    }
-
     private void checkQuestion(Question question) {
         if (question == null)
             throw new TutorException(ErrorMessage.QUESTION_MISSING_DATA);

@@ -63,7 +63,7 @@ class CreateClarificationAnswerTest extends Specification {
         then: "the correct clarification answer is inside the repository"
         clarificationAnswerRepository.count() == 1
         def result = clarificationAnswerRepository.findAll().get(0)
-        result.content == CONTENT
+        result.getContent() == CONTENT
         and: "the clarification answer was added to the clarification"
         clarification.getClarificationAnswers().size() == 1
     }
@@ -79,7 +79,8 @@ class CreateClarificationAnswerTest extends Specification {
         clarificationService.createClarificationAnswer(clarification, user, CONTENT)
 
         then: "an exception is thrown"
-        thrown(TutorException)
+        def error = thrown(TutorException)
+        error.errorMessage == ErrorMessage.CLARIFICATION_NOT_FOUND
     }
 
     def "user doesn't exist"() {
@@ -92,7 +93,20 @@ class CreateClarificationAnswerTest extends Specification {
         clarificationService.createClarificationAnswer(clarification, user, CONTENT)
 
         then: "an exception is thrown"
-        thrown(TutorException)
+        def error = thrown(TutorException)
+        error.errorMessage == ErrorMessage.USER_NOT_FOUND
+    }
+
+    def "user is null"() {
+        given: "a clarification"
+        clarificationRepository.save(clarification)
+
+        when:
+        clarificationService.createClarificationAnswer(clarification, null, CONTENT)
+
+        then: "an exception is thrown"
+        def error = thrown(TutorException)
+        error.errorMessage == ErrorMessage.USER_NOT_FOUND
     }
 
     @Unroll("invalid arguments: #content | #role || errorMessage")
@@ -102,12 +116,9 @@ class CreateClarificationAnswerTest extends Specification {
         userRepository.save(user)
         and: "a clarification"
         clarificationRepository.save(clarification)
-        def clarificationAnswerDto = new ClarificationAnswerDto()
-        clarificationAnswerDto.setContent(content)
-        clarificationAnswerDto.setUser(user)
 
         when:
-        clarificationService.createClarificationAnswer(clarificationAnswerDto)
+        clarificationService.createClarificationAnswer(clarification, user, content)
 
         then: "an exception is thrown"
         def error = thrown(TutorException)
