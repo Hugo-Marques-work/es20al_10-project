@@ -35,16 +35,6 @@ public class Clarification {
 
     public Clarification() {}
 
-    public Clarification(ClarificationDto clarification, Question question, User user) {
-        this.user = user;
-        this.question = question;
-
-        if (clarification.getContent() == null || clarification.getContent().isEmpty() || clarification.getContent().isBlank())
-            throw new TutorException(CLARIFICATION_IS_EMPTY);
-        else
-            this.content = clarification.getContent();
-    }
-
     public Clarification(String content, Question question, User user) {
         this.user = user;
         this.question = question;
