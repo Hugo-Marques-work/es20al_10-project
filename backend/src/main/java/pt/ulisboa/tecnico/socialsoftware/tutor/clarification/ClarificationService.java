@@ -72,12 +72,18 @@ public class ClarificationService {
     }
 
     private void checkQuestion(Question question) {
+        if (question == null)
+            throw new TutorException(ErrorMessage.QUESTION_MISSING_DATA);
+
         Question qtn = questionRepository.findByKey(question.getKey()).orElse(null);
         if (qtn == null)
             throw new TutorException(ErrorMessage.QUESTION_NOT_FOUND, question.getKey());
     }
 
     private void checkUser(User user, User.Role role) {
+        if (user == null)
+            throw new TutorException(ErrorMessage.USER_NOT_FOUND);
+
         User usr = userRepository.findByKey(user.getKey());
         if (usr == null)
             throw new TutorException(ErrorMessage.USER_NOT_FOUND, user.getKey());
