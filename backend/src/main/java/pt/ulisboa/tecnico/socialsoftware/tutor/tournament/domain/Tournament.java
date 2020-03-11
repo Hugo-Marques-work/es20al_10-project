@@ -141,10 +141,7 @@ public class Tournament {
     }
 
     private void checkValidTimeForSignUp(LocalDateTime currentTime) {
-        if(currentTime.isBefore(startingDate)) {
-            throw new TutorException(TOURNAMENT_SIGN_UP_NOT_READY, this.id);
-        }
-        else if(currentTime.isAfter(this.conclusionDate)) {
+        if(currentTime.isAfter(this.startingDate)) {
             throw new TutorException(TOURNAMENT_SIGN_UP_OVER, this.id);
         }
     }

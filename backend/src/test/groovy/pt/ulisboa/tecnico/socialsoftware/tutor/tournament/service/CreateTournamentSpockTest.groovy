@@ -16,6 +16,8 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import spock.lang.Shared
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserService
@@ -161,6 +163,7 @@ class CreateTournamentSpockTest extends Specification {
         given: "a null starting date"
         def signUps = new HashSet<>();
         signUps.add(new User())
+        def tournamentDto = createValidTournamentDto()
         tournamentDto.setSignedUpUsers(signUps)
 
         when:

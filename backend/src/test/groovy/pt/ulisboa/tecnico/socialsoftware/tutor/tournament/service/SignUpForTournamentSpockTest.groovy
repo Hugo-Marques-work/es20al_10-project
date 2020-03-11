@@ -52,7 +52,7 @@ class SignUpForTournamentSpockTest extends Specification{
 
     def setup() {
         formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-        LocalDateTime startingDate = LocalDateTime.now().minusDays(1)
+        LocalDateTime startingDate = LocalDateTime.now().plusDays(1)
         LocalDateTime conclusionDate = LocalDateTime.now().plusDays(3)
         currentDate = LocalDateTime.now();
         
@@ -117,7 +117,7 @@ class SignUpForTournamentSpockTest extends Specification{
         //fixme user not enrolled?
         error.errorMessage == USER_NOT_ENROLLED
     }
-
+/*
     def "tournament signup is not ready"() {
         given: "a tournament id"
         def tournament = tournamentRepository.findAll().get(0)
@@ -134,8 +134,8 @@ class SignUpForTournamentSpockTest extends Specification{
         then:
         def error = thrown(TutorException)
         error.errorMessage == TOURNAMENT_SIGN_UP_NOT_READY
-
     }
+ */
 
     def "tournament signup is finished"() {
         given: "a tournament id"
@@ -144,7 +144,7 @@ class SignUpForTournamentSpockTest extends Specification{
         and: "a user id"
         def userId = userRepository.findAll().get(0).getId()
         and: "a starting date later than the current date"
-        tournament.setConclusionDate(currentDate.minusDays(1))
+        tournament.setStartingDate(currentDate.minusDays(1))
 
         when:
         tournamentService.signUp(userId, tournamentId)
@@ -194,6 +194,33 @@ class SignUpForTournamentSpockTest extends Specification{
         then:
         def error = thrown(TutorException)
         error.errorMessage == TOURNAMENT_NOT_FOUND
+    }
+
+    def  "invalid arguments: startingDate=#startingDate | \
+        userId=#userId | tournamentId=#tournamentId ||\
+        errorMessage=#errorMessage "() {
+        given: "a tournament id"
+        def tournament = tournamentRepository.findAll().get(0)
+        def tournamentId = tournament.getId()
+        and: "a user id"
+        def user = userRepository.findAll().get(0)
+        def userId = user.getId()
+        and: "a starting date"
+        tournament.setStartingDate(currentDate.minusDays(1))
+
+        when:
+        tournamentService.signUp(userId, tournamentId)
+
+        then:
+        def error = thrown(TutorException)
+        error.errorMessage == errorMessage
+
+        where:
+        startingDate    | userId  | tournamentId || errorMessage
+        null            |  | NUMBER_QUESTIONS  | true             || TOURNAMENT_NOT_CONSISTENT
+        START_DATE      | null            | NUMBER_QUESTIONS  | true             || TOURNAMENT_NOT_CONSISTENT
+        CONCLUSION_DATE | START_DATE      | NUMBER_QUESTIONS  | true             || TOURNAMENT_NOT_CONSISTENT
+        expect: true
     }
 
     @TestConfiguration
