@@ -157,9 +157,11 @@ class CreateTournamentSpockTest extends Specification {
     }
 
     //FIXME: Should we accept tournaments with pre-signedup users?
-    def "user list is not empty"() {
-        given: "a null starting date"
-        def signUps = new HashSet<>();
+    def "sign up list is not empty"() {
+        given: "a valid tournament Dto"
+        def tournamentDto = createValidTournamentDto()
+        and: "a non empty sign up list"
+        def signUps = new HashSet<>()
         signUps.add(new User())
         tournamentDto.setSignedUpUsers(signUps)
 
