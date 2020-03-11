@@ -63,13 +63,14 @@ public class ClarificationService {
         if (question == null)
             throw new TutorException(ErrorMessage.QUESTION_MISSING_DATA);
 
-        Question qtn = questionRepository.findByKey(question.getKey()).orElseThrow(
-                () -> new TutorException(ErrorMessage.QUESTION_NOT_FOUND, question.getKey()));
+        Question qtn = questionRepository.findByKey(question.getKey()).orElse(null);
+        if (qtn == null)
+            throw new TutorException(ErrorMessage.QUESTION_NOT_FOUND, question.getKey());
     }
 
     private void checkUser(User user, User.Role role) {
         if (user == null)
-            throw new TutorException(ErrorMessage.USER_NOT_FOUND);
+            throw new TutorException(ErrorMessage.USER_NOT_FOUND, null);
 
         User usr = userRepository.findByKey(user.getKey());
         if (usr == null)
@@ -84,6 +85,8 @@ public class ClarificationService {
     }
 
     private void checkClarification(Clarification clarification){
+        if (clarification == null)
+            throw new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, null);
         Clarification clr = clarificationRepository.findById(clarification.getId()).orElse(null);
         if (clr == null)
             throw new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarification.getId());

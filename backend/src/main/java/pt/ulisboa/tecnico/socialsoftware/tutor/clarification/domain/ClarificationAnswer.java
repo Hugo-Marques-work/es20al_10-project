@@ -28,18 +28,6 @@ public class ClarificationAnswer {
 
     public ClarificationAnswer() {}
 
-    public ClarificationAnswer(ClarificationAnswerDto clarificationAnswer) {
-        this.user = clarificationAnswer.getUser();
-        this.id = clarificationAnswer.getId();
-
-        if (clarificationAnswer.getContent() == null
-                || clarificationAnswer.getContent().isEmpty()
-                || clarificationAnswer.getContent().isBlank())
-            throw  new TutorException(CLARIFICATION_ANSWER_IS_EMPTY);
-        else
-            this.content = clarificationAnswer.getContent();
-    }
-
     public ClarificationAnswer(String content, Clarification clarification, User user) {
         this.user = user;
         this.clarification = clarification;
