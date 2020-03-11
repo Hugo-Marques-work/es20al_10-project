@@ -3,17 +3,20 @@ package pt.ulisboa.tecnico.socialsoftware.tutor.clarification.dto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.domain.ClarificationAnswer;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import java.io.Serializable;
 
 public class ClarificationAnswerDto implements Serializable {
     private Integer id;
     private String content;
+    private User user;
 
     public ClarificationAnswerDto() {}
 
     public ClarificationAnswerDto(ClarificationAnswer clarificationAnswer) {
         this.id = clarificationAnswer.getId();
+        this.user = clarificationAnswer.getUser();
 
         if (clarificationAnswer.getContent() == null
                 || clarificationAnswer.getContent().isEmpty() || clarificationAnswer.getContent().isBlank())
@@ -36,6 +39,14 @@ public class ClarificationAnswerDto implements Serializable {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override

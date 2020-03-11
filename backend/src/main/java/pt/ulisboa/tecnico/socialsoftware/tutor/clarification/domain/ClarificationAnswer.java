@@ -28,9 +28,9 @@ public class ClarificationAnswer {
 
     public ClarificationAnswer() {}
 
-    public ClarificationAnswer(ClarificationAnswerDto clarificationAnswer, Clarification clarification, User user) {
-        this.user = user;
-        this.clarification = clarification;
+    public ClarificationAnswer(ClarificationAnswerDto clarificationAnswer) {
+        this.user = clarificationAnswer.getUser();
+        this.id = clarificationAnswer.getId();
 
         if (clarificationAnswer.getContent() == null
                 || clarificationAnswer.getContent().isEmpty()
