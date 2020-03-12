@@ -66,10 +66,11 @@ public class Tournament {
         setConclusionDate( concludeDate );
 
         this.status = Status.OPEN;
-        this.numberOfQuestions = nQuestions;
-        if (this.numberOfQuestions < 1) {
+        if (nQuestions < 1) {
             throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Number of questions" + this.numberOfQuestions);
         }
+        this.numberOfQuestions = nQuestions;
+
     }
 
     private void setCreator(User creator) {
