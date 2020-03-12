@@ -120,27 +120,18 @@ public class TournamentService {
     }
 
     public void cancelTournament(Integer userId, Integer tournamentId) {
-        userRepository.findById(userId).orElseThrow(
+        User user = userRepository.findById(userId).orElseThrow(
                 () -> new TutorException(USER_NOT_FOUND, userId));
 
         Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(
                 () -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
 
-        checkUserAbleToCancel(userId, tournament);
-
-        tournament.checkAbleToBeCanceled();
-
-        executeCancel(tournament);
+        executeCancel(user,tournament);
     }
 
-    private void executeCancel(Tournament tournament) {
-        tournament.setStatus(Tournament.Status.CANCELED);
+    private void executeCancel(User user, Tournament tournament) {
+        tournament.cancel(user);
         tournamentRepository.save(tournament);
     }
 
-    private void checkUserAbleToCancel(Integer userId, Tournament tournament) {
-        if(!tournament.getCreator().getId().equals(userId)){
-            throw new TutorException(TOURNAMENT_NOT_THE_CREATOR,tournament.getId().toString());
-        }
-    }
 }
