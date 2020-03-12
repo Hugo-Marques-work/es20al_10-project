@@ -16,12 +16,10 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository
-import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
-import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
-import spock.lang.Shared
-import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserService
+import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -103,8 +101,8 @@ class CreateTournamentSpockTest extends Specification {
 
     def setupSpec() {
         formatter =  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-        START_DATE = LocalDateTime.now().format(formatter)
-        CONCLUSION_DATE = LocalDateTime.now().plusDays(1).format(formatter)
+        START_DATE = LocalDateTime.now().plusDays(1).format(formatter)
+        CONCLUSION_DATE = LocalDateTime.now().plusDays(2).format(formatter)
     }
 
     def "create a tournament"() {
@@ -129,6 +127,8 @@ class CreateTournamentSpockTest extends Specification {
         and: "the tournament is created"
         tournamentRepository.count() == 1L
         def result = tournamentRepository.findAll().get(0)
+        courseExecution.getTournaments().size() == 1
+        student.getCreatedTournaments().size() == 1
         result != null
         result.getId() == resultDto.getId()
         result.getStatus() == resultDto.getStatus()

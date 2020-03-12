@@ -478,6 +478,14 @@ public class User implements UserDetails, Importable {
         return signUpTournaments;
     }
 
+    public Set<Tournament> getCreatedTournaments() {
+        return this.createdTournaments;
+    }
+
+    public void addCreatedTournament(Tournament tournament) {
+        this.createdTournaments.add(tournament);
+    }
+
     public void setSignUpTournaments(Set<Tournament> signUpTournaments) {
         this.signUpTournaments = signUpTournaments;
     }

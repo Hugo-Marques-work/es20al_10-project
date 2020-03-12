@@ -2,8 +2,8 @@ package pt.ulisboa.tecnico.socialsoftware.tutor.tournament;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
@@ -17,7 +17,9 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 
@@ -48,7 +50,19 @@ public class TournamentService {
         checkSignUp(tournamentDto);
 
         tournamentRepository.save(tournament);
+        courseExecution.addTournament(tournament);
+        creator.addCreatedTournament(tournament);
         return new TournamentDto(tournament, true);
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public List<TournamentDto> getOpenTournaments(int courseExecutionId) {
+        CourseExecution courseExecution = getCourseExecution(courseExecutionId);
+
+        return courseExecution.getTournaments().stream()
+                .map(tournament -> new TournamentDto(tournament, true))
+                .filter(TournamentDto::isOpen)
+                .collect(Collectors.toList());
     }
 
     private User getTournamentCreator(int creatorId) {
