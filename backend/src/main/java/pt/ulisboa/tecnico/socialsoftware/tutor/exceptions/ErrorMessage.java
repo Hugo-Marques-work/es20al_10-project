@@ -21,7 +21,10 @@ public enum ErrorMessage {
     USERNAME_NOT_FOUND("Username %s not found"),
 
     CLARIFICATION_IS_EMPTY("The clarification content is empty"),
-    CLARIFICATION_WRONG_USER("The user has to be associated with a student."),
+    CLARIFICATION_WRONG_USER("The user has to be associated with a %s"),
+    CLARIFICATION_NOT_FOUND("Clarification not found with id %s"),
+
+    CLARIFICATION_ANSWER_IS_EMPTY("The clarification answer content is empty"),
 
     QUIZ_USER_MISMATCH("Quiz %s is not assigned to student %s"),
     QUIZ_MISMATCH("Quiz Answer Quiz %d does not match Quiz Question Quiz %d"),

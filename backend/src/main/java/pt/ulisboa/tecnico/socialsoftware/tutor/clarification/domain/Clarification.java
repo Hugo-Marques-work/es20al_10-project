@@ -7,6 +7,9 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import javax.persistence.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.CLARIFICATION_IS_EMPTY;
 
 @Entity
@@ -27,17 +30,10 @@ public class Clarification {
     @JoinColumn(name = "question_id")
     private Question question;
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval=true)
+    private Set<ClarificationAnswer> clarificationAnswers = new HashSet<>();
+
     public Clarification() {}
-
-    public Clarification(ClarificationDto clarification, Question question, User user) {
-        this.user = user;
-        this.question = question;
-
-        if (clarification.getContent() == null || clarification.getContent().isEmpty() || clarification.getContent().isBlank())
-            throw new TutorException(CLARIFICATION_IS_EMPTY);
-        else
-            this.content = clarification.getContent();
-    }
 
     public Clarification(String content, Question question, User user) {
         this.user = user;
@@ -64,6 +60,12 @@ public class Clarification {
     public void setQuestion(Question question) { this.question = question; }
 
     public void setUser(User user) { this.user = user; }
+
+    public Set<ClarificationAnswer> getClarificationAnswers() { return clarificationAnswers; }
+
+    public void setClarificationAnswers(Set<ClarificationAnswer> clarificationAnswers) { this.clarificationAnswers = clarificationAnswers; }
+
+    public void addClarificationAnswer(ClarificationAnswer clarificationAnswer) {this.clarificationAnswers.add(clarificationAnswer);}
 
     @Override
     public String toString() {

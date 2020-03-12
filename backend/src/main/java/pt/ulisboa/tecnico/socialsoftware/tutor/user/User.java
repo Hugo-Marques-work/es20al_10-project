@@ -5,6 +5,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuizAnswer;
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.domain.Clarification;
+import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.domain.ClarificationAnswer;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.Importable;
@@ -71,6 +72,9 @@ public class User implements UserDetails, Importable {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval=true)
     private Set<Clarification> clarifications = new HashSet<>();
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval=true)
+    private Set<ClarificationAnswer> clarificationAnswers = new HashSet<>();
 
     public User() {
     }
@@ -312,6 +316,12 @@ public class User implements UserDetails, Importable {
     public void setClarifications(Set<Clarification> clarifications) { this.clarifications = clarifications; }
 
     public void addClarification(Clarification clarification) {this.clarifications.add(clarification);}
+
+    public Set<ClarificationAnswer> getClarificationAnswers() { return clarificationAnswers; }
+
+    public void setClarificationAnswers(Set<ClarificationAnswer> clarificationAnswers) { this.clarificationAnswers = clarificationAnswers; }
+
+    public void addClarificationAnswer(ClarificationAnswer clarificationAnswer) {this.clarificationAnswers.add(clarificationAnswer);}
 
     public void increaseNumberOfQuizzes(Quiz.QuizType type) {
         switch (type) {
