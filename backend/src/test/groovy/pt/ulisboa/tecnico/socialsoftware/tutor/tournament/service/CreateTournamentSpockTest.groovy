@@ -131,6 +131,7 @@ class CreateTournamentSpockTest extends Specification {
         def result = tournamentRepository.findAll().get(0)
         result != null
         result.getId() == 1
+        result.getStatus() == resultDto.getStatus()
         result.getStartingDate().format(formatter) == START_DATE
         result.getConclusionDate().format(formatter) == CONCLUSION_DATE
         result.getNumberOfQuestions() == NUMBER_QUESTIONS

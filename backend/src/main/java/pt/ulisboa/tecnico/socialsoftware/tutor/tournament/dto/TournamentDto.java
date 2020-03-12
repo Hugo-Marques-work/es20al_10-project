@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto;
 
 import org.springframework.data.annotation.Transient;
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
@@ -19,6 +20,7 @@ public class TournamentDto {
     private int numberOfQuestions;
     private Set<TopicDto> topics = new HashSet<>();
     private Set<UserDto> signedUpUsers = new HashSet<>();
+    private Tournament.Status status;
 
     @Transient
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -28,6 +30,7 @@ public class TournamentDto {
     public TournamentDto(Tournament tournament, boolean deepCopy) {
         this.id = tournament.getId();
         this.numberOfQuestions = tournament.getNumberOfQuestions();
+        this.status = tournament.getStatus();
 
         if (tournament.getStartingDate() != null)
             this.startingDate = tournament.getStartingDate().format(formatter);
@@ -96,6 +99,14 @@ public class TournamentDto {
 
     public void clearTopicList() {
         this.topics.clear();
+    }
+
+    public Tournament.Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Tournament.Status status) {
+        this.status = status;
     }
 
     public LocalDateTime getStartingDateDate() {

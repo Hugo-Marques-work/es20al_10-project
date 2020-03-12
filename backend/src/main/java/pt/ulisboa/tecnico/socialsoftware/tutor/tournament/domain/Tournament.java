@@ -226,6 +226,7 @@ public class Tournament {
                 ", creator" + creator +
                 ", startingDate=" + startingDate +
                 ", conclusionDate=" + conclusionDate +
+                ", status=" + status +
                 ", numberOfQuestions=" + numberOfQuestions +
                 ", topics=" + topics +
                 '}';
