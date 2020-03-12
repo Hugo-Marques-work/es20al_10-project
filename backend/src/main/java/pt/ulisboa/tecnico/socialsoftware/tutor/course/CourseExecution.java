@@ -53,8 +53,8 @@ public class CourseExecution {
         return tournaments;
     }
 
-    public void setTournaments(Set<Tournament> tournaments) {
-        this.tournaments = tournaments;
+    public void addTournament(Tournament tournament) {
+        this.tournaments.add(tournament);
     }
 
     public CourseExecution(Course course, String acronym, String academicTerm, Course.Type type) {
