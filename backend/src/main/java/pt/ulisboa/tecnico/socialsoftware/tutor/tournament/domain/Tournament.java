@@ -166,13 +166,11 @@ public class Tournament {
     }
 
     public void checkReadyForSignUp() {
-        if (getValidatedStatus().equals(Status.OPEN)){
-            throw new TutorException(TOURNAMENT_SIGN_UP_NOT_READY, this.id);
-        }
-        else if (getValidatedStatus().equals(Status.FINISHED)){
+        Status actualStatus = getValidatedStatus();
+        if (actualStatus.equals(Status.FINISHED) || actualStatus.equals(Status.RUNNING)){
             throw new TutorException(TOURNAMENT_SIGN_UP_OVER, this.id);
         }
-        else if (getValidatedStatus().equals(Status.CANCELED)){
+        else if (actualStatus.equals(Status.CANCELED)){
             throw new TutorException(TOURNAMENT_SIGN_UP_CANCELED, this.id);
         }
     }

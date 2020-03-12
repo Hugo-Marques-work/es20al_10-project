@@ -60,7 +60,6 @@ public enum ErrorMessage {
     TOURNAMENT_NOT_FOUND("Tournament not found with id %s"),
     TOURNAMENT_SIGN_UP_OVER("Tournament sign up was over at %s"),
     TOURNAMENT_SIGN_UP_CANCELED("The tournament with id %s has been canceled"),
-    TOURNAMENT_SIGN_UP_NOT_READY("Tournament sign up is ready at %s"),
     TOURNAMENT_DUPLICATE_SIGN_UP("The user has already signed up for tournament with id %s"),
     TOURNAMENT_NOT_THE_CREATOR("The user is not the creator of the tournament with id %s"),
     TOURNAMENT_ALREADY_CANCELED("The tournament with id %s has already been canceled"),

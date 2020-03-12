@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Isolation;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
@@ -20,6 +21,7 @@ import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 
+@Service("TournamentService")
 public class TournamentService {
     @Autowired
     private UserRepository userRepository;
@@ -87,20 +89,22 @@ public class TournamentService {
 
 
     public void signUp(Integer userId, Integer tournamentId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, userId));
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new TutorException(USER_NOT_FOUND, userId));
 
-        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(
+                () -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
 
-        checkUserReadyForSignUp(userId, user, tournament);
+        checkUserReadyForSignUp(user, tournament);
 
         tournament.checkReadyForSignUp();
 
         executeSignUp(user, tournament);
     }
 
-    private void checkUserReadyForSignUp(Integer userId, User user, Tournament tournament) {
+    private void checkUserReadyForSignUp(User user, Tournament tournament) {
         if(!user.getCourseExecutions().contains(tournament.getCourseExecution())) {
-            throw new TutorException(USER_NOT_ENROLLED,userId.toString());
+            throw new TutorException(USER_NOT_ENROLLED,user.getUsername());
         }
 
         if(user.getSignUpTournaments().contains(tournament)) {
