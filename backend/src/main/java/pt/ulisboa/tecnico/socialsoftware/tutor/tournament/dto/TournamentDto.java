@@ -3,6 +3,8 @@ package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto;
 import org.springframework.data.annotation.Transient;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.StudentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
 import java.time.LocalDateTime;
@@ -14,6 +16,7 @@ import java.util.stream.Collectors;
 
 public class TournamentDto {
     private Integer id;
+    private StudentDto creator;
     private String startingDate = null;
     private String conclusionDate = null;
     private int numberOfQuestions;
@@ -30,13 +33,13 @@ public class TournamentDto {
         this.id = tournament.getId();
         this.numberOfQuestions = tournament.getNumberOfQuestions();
         this.status = tournament.getStatus();
-
         if (tournament.getStartingDate() != null)
             this.startingDate = tournament.getStartingDate().format(formatter);
         if (tournament.getConclusionDate() != null)
             this.conclusionDate = tournament.getConclusionDate().format(formatter);
 
         if (deepCopy) {
+            this.creator = new StudentDto(tournament.getCreator());
             this.topics = tournament.getTopics().stream()
                     .map(TopicDto::new)
                     .collect(Collectors.toSet());
@@ -120,5 +123,17 @@ public class TournamentDto {
             return null;
         }
         return LocalDateTime.parse(getConclusionDate(), formatter);
+    }
+
+    public boolean isOpen() {
+        return this.status == Tournament.Status.OPEN;
+    }
+
+    public StudentDto getCreator() {
+        return creator;
+    }
+
+    public void setCreator(StudentDto creator) {
+        this.creator = creator;
     }
 }

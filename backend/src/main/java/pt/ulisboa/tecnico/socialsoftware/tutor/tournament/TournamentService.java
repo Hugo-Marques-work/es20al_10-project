@@ -54,6 +54,16 @@ public class TournamentService {
         return new TournamentDto(tournament, true);
     }
 
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public List<TournamentDto> getOpenTournaments(int courseExecutionId) {
+        CourseExecution courseExecution = getCourseExecution(courseExecutionId);
+
+        return courseExecution.getTournaments().stream()
+                .map(tournament -> new TournamentDto(tournament, true))
+                .filter(TournamentDto::isOpen)
+                .collect(Collectors.toList());
+    }
+
     private User getTournamentCreator(int creatorId) {
         return userRepository.findById(creatorId)
                 .orElseThrow(() -> new TutorException(USER_NOT_FOUND, creatorId));
