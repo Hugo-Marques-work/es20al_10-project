@@ -251,19 +251,6 @@ public class Question {
 
 
     public Integer getDifficulty() {
-        // required because the import is done directly in the database
-        if (numberOfAnswers == null || numberOfAnswers == 0) {
-            numberOfAnswers = getQuizQuestions().stream()
-                    .flatMap(quizQuestion -> quizQuestion.getQuestionAnswers().stream())
-                    .filter(questionAnswer -> questionAnswer.getQuizAnswer().getCompleted())
-                    .map(e -> 1).reduce(0, Integer::sum);
-            numberOfCorrect = getQuizQuestions().stream()
-                    .flatMap(quizQuestion -> quizQuestion.getQuestionAnswers().stream())
-                    .filter(questionAnswer -> questionAnswer.getQuizAnswer().getCompleted())
-                    .filter(questionAnswer -> questionAnswer.getOption() != null && questionAnswer.getOption().getCorrect())
-                    .map(e -> 1).reduce(0, Integer::sum);
-        }
-
         if (numberOfAnswers == 0) {
             return null;
         }
@@ -285,9 +272,6 @@ public class Question {
             option.setContent(optionDto.getContent());
             option.setCorrect(optionDto.getCorrect());
         });
-
-        // TODO: not yet implemented
-        //new Image(questionDto.getImage());
     }
 
     private void checkConsistentQuestion(QuestionDto questionDto) {

@@ -81,7 +81,7 @@ public class UserDto implements Serializable {
                 ", username='" + username + '\'' +
                 ", name='" + name + '\'' +
                 ", role=" + role +
-                ", creationDate='" + creationDate + '\'' +
+                ", creationDate=" + creationDate + '\'' +
                 ", clarifications=" + clarifications +
                 '}';
     }
