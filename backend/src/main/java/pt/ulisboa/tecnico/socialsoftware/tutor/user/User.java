@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuizAnswer;
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.domain.Clarification;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
+import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.Importable;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz;
@@ -15,6 +16,9 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_DUPLICATE_SIGN_UP;
+import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.USER_NOT_ENROLLED;
 
 @Entity
 @Table(name = "users")
@@ -470,5 +474,15 @@ public class User implements UserDetails, Importable {
 
     public void signUpForTournament(Tournament tournament) {
         this.signUpTournaments.add(tournament);
+    }
+
+    public void checkReadyForSignUp(Tournament tournament) {
+        if(!this.courseExecutions.contains(tournament.getCourseExecution())) {
+            throw new TutorException(USER_NOT_ENROLLED,this.username);
+        }
+
+        if(this.signUpTournaments.contains(tournament)) {
+            throw new TutorException(TOURNAMENT_DUPLICATE_SIGN_UP, tournament.getId().toString());
+        }
     }
 }
