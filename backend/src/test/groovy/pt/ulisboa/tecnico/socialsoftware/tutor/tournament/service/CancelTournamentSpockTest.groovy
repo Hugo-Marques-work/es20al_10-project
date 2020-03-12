@@ -16,6 +16,7 @@ import spock.lang.Specification
 import java.time.LocalDateTime
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_ALREADY_CANCELED
+import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_FINISHED
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_NOT_FOUND
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_NOT_THE_CREATOR
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_RUNNING
@@ -38,6 +39,8 @@ class CancelTournamentSpockTest extends Specification{
     static final LocalDateTime CONCLUSION_DATE = LocalDateTime.now().plusDays(3)
     static final LocalDateTime BAD_START_DATE = LocalDateTime.now().minusDays(1)
     static final LocalDateTime GOOD_START_DATE = LocalDateTime.now().plusDays(1)
+    static final LocalDateTime BAD_START_DATE2 = LocalDateTime.now().minusDays(3)
+    static final LocalDateTime BAD_CONCLUSION_DATE = LocalDateTime.now().minusDays(2)
 
     @Autowired
     TournamentService tournamentService
@@ -98,11 +101,13 @@ class CancelTournamentSpockTest extends Specification{
     }
 
     @Unroll
-    def  "invalid arguments: startingDate=#startingDate | \
-        statusCanceled=#statusCanceled |userTypeVar=#userTypeVar | \
-        validTournamentId=#validTournamentId | errorMessage=#errorMessage "() {
+    def  "invalid data in database where: startingDate=#startingDate | \
+        conclusionDate=#conclusionDate |statusCanceled=#statusCanceled \
+        |userTypeVar=#userTypeVar | validTournamentId=#validTournamentId \
+        | errorMessage=#errorMessage "() {
         given:"a tournament id"
         tournament.setStartingDate(startingDate)
+        tournament.setConclusionDate(conclusionDate)
         def tournamentId = getTournamentId(tournament, validTournamentId)
 
         and: "a user id"
@@ -117,12 +122,13 @@ class CancelTournamentSpockTest extends Specification{
         error.errorMessage == errorMessage
 
         where:
-        startingDate    | statusCanceled | userTypeVar           | validTournamentId || errorMessage
-        GOOD_START_DATE | false          | userType.USER         | true              || TOURNAMENT_NOT_THE_CREATOR
-        BAD_START_DATE  | false          | userType.CREATOR      | true              || TOURNAMENT_RUNNING
-        GOOD_START_DATE | true           | userType.CREATOR      | true              || TOURNAMENT_ALREADY_CANCELED
-        GOOD_START_DATE | false          | userType.INVALID_USER | true              || USER_NOT_FOUND
-        GOOD_START_DATE | false          | userType.CREATOR      | false             || TOURNAMENT_NOT_FOUND
+        startingDate    | conclusionDate      | statusCanceled | userTypeVar           | validTournamentId || errorMessage
+        GOOD_START_DATE | CONCLUSION_DATE     | false          | userType.USER         | true              || TOURNAMENT_NOT_THE_CREATOR
+        BAD_START_DATE  | CONCLUSION_DATE     | false          | userType.CREATOR      | true              || TOURNAMENT_RUNNING
+        GOOD_START_DATE | CONCLUSION_DATE     | true           | userType.CREATOR      | true              || TOURNAMENT_ALREADY_CANCELED
+        BAD_START_DATE2 | BAD_CONCLUSION_DATE | false          | userType.CREATOR      | true              || TOURNAMENT_FINISHED
+        GOOD_START_DATE | CONCLUSION_DATE     | false          | userType.INVALID_USER | true              || USER_NOT_FOUND
+        GOOD_START_DATE | CONCLUSION_DATE     | false          | userType.CREATOR      | false             || TOURNAMENT_NOT_FOUND
     }
 
     @TestConfiguration
