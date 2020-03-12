@@ -188,6 +188,20 @@ class CreateTournamentSpockTest extends Specification {
         error.errorMessage == TOURNAMENT_NOT_CONSISTENT
     }
 
+    def "sign up list is null"() {
+        given: "a valid tournament Dto"
+        def tournamentDto = createValidTournamentDto()
+        and: "a non empty sign up list"
+        tournamentDto.setSignedUpUsers(null)
+
+        when:
+        tournamentService.createTournament(student.getId(), courseExecution.getId(), tournamentDto)
+
+        then:
+        def error = thrown(TutorException)
+        error.errorMessage == TOURNAMENT_NOT_CONSISTENT
+    }
+
     @Unroll
     def "invalid arguments: startingDate=#startingDate | conclusionDate=#conclusionDate |\
         numberOfQuestions=#numberOfQuestions | validExecutionId=#validExecutionId ||\

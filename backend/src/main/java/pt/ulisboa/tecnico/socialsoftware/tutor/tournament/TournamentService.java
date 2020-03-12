@@ -76,26 +76,27 @@ public class TournamentService {
     }
 
     private void checkAndAddTopics(TournamentDto tournamentDto, Tournament tournament) {
-        if (tournamentDto.getTopics() != null) {
-            Set<TopicDto> topics = tournamentDto.getTopics();
-            if (topics.isEmpty()) {
-                throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "topic list (empty)"
-                        + tournamentDto.getTopics());
-            }
+        Set<TopicDto> topics = tournamentDto.getTopics();
+        if (topics.isEmpty()) {
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "topic list (empty)"
+                    + tournamentDto.getTopics());
+        }
 
-            for (TopicDto topicDto : topics) {
-                Topic topic = topicRepository.findById(topicDto.getId())
-                        .orElseThrow(() -> new TutorException(TOPIC_NOT_FOUND, topicDto.getId()));
-                tournament.addTopic(topic);
-            }
+        for (TopicDto topicDto : topics) {
+            Topic topic = topicRepository.findById(topicDto.getId())
+                    .orElseThrow(() -> new TutorException(TOPIC_NOT_FOUND, topicDto.getId()));
+            tournament.addTopic(topic);
         }
     }
 
     private void checkSignUp(TournamentDto tournamentDto) {
         Set<UserDto> users = tournamentDto.getSignedUpUsers();
-        if (users != null && !users.isEmpty()) {
-                throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Sign up list is not empty"
-                        + tournamentDto.getSignedUpUsers());
+        if (users == null) {
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Sign up list can't be null");
+        }
+        if (!users.isEmpty()) {
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Sign up list is not empty"
+                    + tournamentDto.getSignedUpUsers());
         }
     }
 
