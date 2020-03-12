@@ -120,9 +120,11 @@ public class TournamentService {
     }
 
     public void cancelTournament(Integer userId, Integer tournamentId) {
-        userRepository.findById(userId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, userId));
+        userRepository.findById(userId).orElseThrow(
+                () -> new TutorException(USER_NOT_FOUND, userId));
 
-        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(
+                () -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
 
         checkUserAbleToCancel(userId, tournament);
 

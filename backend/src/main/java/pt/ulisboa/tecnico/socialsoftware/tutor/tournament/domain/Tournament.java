@@ -176,13 +176,14 @@ public class Tournament {
     }
 
     public void checkAbleToBeCanceled() {
-        if (getValidatedStatus().equals(Status.CANCELED)){
+        Status actualStatus = getValidatedStatus();
+        if (actualStatus.equals(Status.CANCELED)){
             throw new TutorException(TOURNAMENT_ALREADY_CANCELED, this.id);
         }
-        else if (getValidatedStatus().equals(Status.RUNNING)){
+        else if (actualStatus.equals(Status.RUNNING)){
             throw new TutorException(TOURNAMENT_RUNNING, this.id);
         }
-        else if (getValidatedStatus().equals(Status.FINISHED)){
+        else if (actualStatus.equals(Status.FINISHED)){
             throw new TutorException(TOURNAMENT_FINISHED, this.id);
         }
     }
