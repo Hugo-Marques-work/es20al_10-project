@@ -130,7 +130,6 @@ class CreateTournamentSpockTest extends Specification {
         tournamentRepository.count() == 1L
         def result = tournamentRepository.findAll().get(0)
         result != null
-        result.getId() == 1
         result.getStartingDate().format(formatter) == START_DATE
         result.getConclusionDate().format(formatter) == CONCLUSION_DATE
         result.getNumberOfQuestions() == NUMBER_QUESTIONS
@@ -171,7 +170,6 @@ class CreateTournamentSpockTest extends Specification {
         error.errorMessage == TOURNAMENT_NOT_CONSISTENT
     }
 
-    //FIXME: Should we accept tournaments with pre-signedup users?
     def "sign up list is not empty"() {
         given: "a valid tournament Dto"
         def tournamentDto = createValidTournamentDto()
