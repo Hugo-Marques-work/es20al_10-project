@@ -128,6 +128,7 @@ class CreateTournamentSpockTest extends Specification {
         tournamentRepository.count() == 1L
         def result = tournamentRepository.findAll().get(0)
         courseExecution.getTournaments().size() == 1
+        student.getCreatedTournaments().size() == 1
         result != null
         result.getId() == resultDto.getId()
         result.getStatus() == resultDto.getStatus()

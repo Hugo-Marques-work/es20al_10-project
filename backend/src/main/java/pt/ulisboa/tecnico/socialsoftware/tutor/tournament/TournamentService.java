@@ -51,6 +51,7 @@ public class TournamentService {
 
         tournamentRepository.save(tournament);
         courseExecution.addTournament(tournament);
+        creator.addCreatedTournament(tournament);
         return new TournamentDto(tournament, true);
     }
 
