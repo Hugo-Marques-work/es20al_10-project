@@ -95,22 +95,13 @@ public class TournamentService {
         Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(
                 () -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
 
-        checkUserReadyForSignUp(user, tournament);
+        user.checkReadyForSignUp(tournament);
 
         tournament.checkReadyForSignUp();
 
         executeSignUp(user, tournament);
     }
 
-    private void checkUserReadyForSignUp(User user, Tournament tournament) {
-        if(!user.getCourseExecutions().contains(tournament.getCourseExecution())) {
-            throw new TutorException(USER_NOT_ENROLLED,user.getUsername());
-        }
-
-        if(user.getSignUpTournaments().contains(tournament)) {
-            throw new TutorException(TOURNAMENT_DUPLICATE_SIGN_UP, tournament.getId().toString());
-        }
-    }
 
     private void executeSignUp(User user, Tournament tournament) {
         tournament.addSignUp(user);
