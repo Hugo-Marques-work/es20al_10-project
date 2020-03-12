@@ -85,7 +85,7 @@ public class TournamentService {
         }
     }
 
-
+    @Transactional
     public void signUp(Integer userId, Integer tournamentId) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new TutorException(USER_NOT_FOUND, userId));
@@ -104,10 +104,9 @@ public class TournamentService {
     private void executeSignUp(User user, Tournament tournament) {
         tournament.addSignUp(user);
         user.signUpForTournament(tournament);
-        userRepository.save(user);
-        tournamentRepository.save(tournament);
     }
 
+    @Transactional
     public void cancelTournament(Integer userId, Integer tournamentId) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new TutorException(USER_NOT_FOUND, userId));
@@ -120,7 +119,6 @@ public class TournamentService {
 
     private void executeCancel(User user, Tournament tournament) {
         tournament.cancel(user);
-        tournamentRepository.save(tournament);
     }
 
 }
