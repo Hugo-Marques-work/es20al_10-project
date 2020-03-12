@@ -78,8 +78,8 @@ public class TournamentService {
     }
 
     private void checkSignUp(TournamentDto tournamentDto) {
-        if (tournamentDto.getSignedUpUsers() != null) {
-            Set<UserDto> users = tournamentDto.getSignedUpUsers();
+        Set<UserDto> users = tournamentDto.getSignedUpUsers();
+        if (users != null) {
             if (!users.isEmpty()) {
                 throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Sign up list is not empty"
                         + tournamentDto.getSignedUpUsers());
