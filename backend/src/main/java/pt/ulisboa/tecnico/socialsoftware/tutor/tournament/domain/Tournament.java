@@ -17,6 +17,7 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 @Entity
 @Table(name = "tournaments")
 public class Tournament {
+    public enum Status {OPEN,CANCELED,RUNNING,FINISHED}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,6 +35,9 @@ public class Tournament {
     private LocalDateTime startingDate;
 
     private LocalDateTime conclusionDate;
+
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     @ManyToMany
     @Column(name = "user_id")
@@ -61,6 +65,7 @@ public class Tournament {
         setStartingDate( startDate );
         setConclusionDate( concludeDate );
 
+        this.status = Status.OPEN;
         if (nQuestions < 1) {
             throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Number of questions" + this.numberOfQuestions);
         }
@@ -74,6 +79,18 @@ public class Tournament {
                     User.Role.STUDENT.toString(), creator.getRole().toString());
         }
         this.creator = creator;
+    }
+
+    public User getCreator() {
+        return creator;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public Integer getId() { return id; }
@@ -150,16 +167,58 @@ public class Tournament {
     }
 
     public void checkReadyForSignUp() {
-        LocalDateTime currentTime = LocalDateTime.now();
-
-        checkValidTimeForSignUp(currentTime);
-    }
-
-    private void checkValidTimeForSignUp(LocalDateTime currentTime) {
-        if(currentTime.isAfter(this.startingDate)) {
+        Status actualStatus = getValidatedStatus();
+        if (actualStatus.equals(Status.FINISHED) || actualStatus.equals(Status.RUNNING)){
             throw new TutorException(TOURNAMENT_SIGN_UP_OVER, this.id);
         }
+        else if (actualStatus.equals(Status.CANCELED)){
+            throw new TutorException(TOURNAMENT_SIGN_UP_CANCELED, this.id);
+        }
     }
+
+    public void checkAbleToBeCanceled() {
+        Status actualStatus = getValidatedStatus();
+        if (actualStatus.equals(Status.CANCELED)){
+            throw new TutorException(TOURNAMENT_ALREADY_CANCELED, this.id);
+        }
+        else if (actualStatus.equals(Status.RUNNING)){
+            throw new TutorException(TOURNAMENT_RUNNING, this.id);
+        }
+        else if (actualStatus.equals(Status.FINISHED)){
+            throw new TutorException(TOURNAMENT_FINISHED, this.id);
+        }
+    }
+
+    public void cancel(User user) {
+        if(!this.isCreator(user)){
+            throw new TutorException(TOURNAMENT_NOT_THE_CREATOR,this.getId().toString());
+        }
+
+        checkAbleToBeCanceled();
+
+        status = Status.CANCELED;
+    }
+
+    public boolean isCreator(User user){
+        return creator.equals(user);
+    }
+
+    public Status getValidatedStatus() {
+        if (status.equals(Status.CANCELED))
+            return status;
+
+        LocalDateTime currentTime = LocalDateTime.now();
+        if(currentTime.isBefore(startingDate)) {
+            setStatus(Status.OPEN);
+        }
+        else if(!currentTime.isBefore(startingDate) && currentTime.isBefore(conclusionDate)) {
+            setStatus(Status.RUNNING);
+        }
+        else setStatus(Status.FINISHED);
+
+        return status;
+    }
+
 
     @Override
     public String toString() {
@@ -168,6 +227,7 @@ public class Tournament {
                 ", creator" + creator +
                 ", startingDate=" + startingDate +
                 ", conclusionDate=" + conclusionDate +
+                ", status=" + status +
                 ", numberOfQuestions=" + numberOfQuestions +
                 ", topics=" + topics +
                 '}';

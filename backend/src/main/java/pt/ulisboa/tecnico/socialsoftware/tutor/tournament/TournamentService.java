@@ -79,15 +79,13 @@ public class TournamentService {
 
     private void checkSignUp(TournamentDto tournamentDto) {
         Set<UserDto> users = tournamentDto.getSignedUpUsers();
-        if (users != null) {
-            if (!users.isEmpty()) {
+        if (users != null && !users.isEmpty()) {
                 throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Sign up list is not empty"
                         + tournamentDto.getSignedUpUsers());
-            }
         }
     }
 
-
+    @Transactional
     public void signUp(Integer userId, Integer tournamentId) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new TutorException(USER_NOT_FOUND, userId));
@@ -106,7 +104,21 @@ public class TournamentService {
     private void executeSignUp(User user, Tournament tournament) {
         tournament.addSignUp(user);
         user.signUpForTournament(tournament);
-        userRepository.save(user);
-        tournamentRepository.save(tournament);
     }
+
+    @Transactional
+    public void cancelTournament(Integer userId, Integer tournamentId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new TutorException(USER_NOT_FOUND, userId));
+
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(
+                () -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
+
+        executeCancel(user,tournament);
+    }
+
+    private void executeCancel(User user, Tournament tournament) {
+        tournament.cancel(user);
+    }
+
 }
