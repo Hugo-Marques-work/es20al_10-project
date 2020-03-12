@@ -1,8 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Isolation;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
@@ -14,36 +13,47 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicReposito
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
-import java.sql.SQLException;
 import java.util.Set;
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 
+@Service("TournamentService")
 public class TournamentService {
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private TournamentRepository tournamentRepository;
+
     @Autowired
     private CourseExecutionRepository courseExecutionRepository;
 
     @Autowired
     private TopicRepository topicRepository;
 
-    @Autowired
-    private TournamentRepository tournamentRepository;
-
-    @Retryable(
-            value = { SQLException.class },
-            backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public TournamentDto createTournament(int executionId, TournamentDto tournamentDto) {
+    public TournamentDto createTournament(int creatorId, int executionId, TournamentDto tournamentDto) {
         CourseExecution courseExecution = getCourseExecution(executionId);
 
-        Tournament tournament = new Tournament(tournamentDto);
+        User creator = getTournamentCreator(creatorId);
+
+        Tournament tournament = new Tournament(creator, tournamentDto);
         tournament.setCourseExecution(courseExecution);
 
         checkAndAddTopics(tournamentDto, tournament);
+        checkSignUp(tournamentDto);
 
         tournamentRepository.save(tournament);
         return new TournamentDto(tournament, true);
+    }
+
+    private User getTournamentCreator(int creatorId) {
+        return userRepository.findById(creatorId)
+                .orElseThrow(() -> new TutorException(USER_NOT_FOUND, creatorId));
     }
 
     private CourseExecution getCourseExecution(int executionId) {
@@ -65,5 +75,38 @@ public class TournamentService {
                 tournament.addTopic(topic);
             }
         }
+    }
+
+    private void checkSignUp(TournamentDto tournamentDto) {
+        Set<UserDto> users = tournamentDto.getSignedUpUsers();
+        if (users != null) {
+            if (!users.isEmpty()) {
+                throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Sign up list is not empty"
+                        + tournamentDto.getSignedUpUsers());
+            }
+        }
+    }
+
+
+    public void signUp(Integer userId, Integer tournamentId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new TutorException(USER_NOT_FOUND, userId));
+
+        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(
+                () -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
+
+        user.checkReadyForSignUp(tournament);
+
+        tournament.checkReadyForSignUp();
+
+        executeSignUp(user, tournament);
+    }
+
+
+    private void executeSignUp(User user, Tournament tournament) {
+        tournament.addSignUp(user);
+        user.signUpForTournament(tournament);
+        userRepository.save(user);
+        tournamentRepository.save(tournament);
     }
 }
