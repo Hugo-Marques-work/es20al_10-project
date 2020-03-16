@@ -17,6 +17,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -62,6 +63,8 @@ public class TournamentService {
         return courseExecution.getTournaments().stream()
                 .map(tournament -> new TournamentDto(tournament, true))
                 .filter(TournamentDto::isOpen)
+                .sorted(Comparator
+                        .comparing(TournamentDto::getStartingDateDate))
                 .collect(Collectors.toList());
     }
 
