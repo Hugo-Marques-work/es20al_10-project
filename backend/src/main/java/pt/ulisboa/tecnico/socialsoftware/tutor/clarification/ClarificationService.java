@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.clarification;
 
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -17,6 +18,12 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepos
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service("ClarificationService")
 public class ClarificationService {
     @Autowired
@@ -31,6 +38,9 @@ public class ClarificationService {
     @Autowired
     ClarificationAnswerRepository clarificationAnswerRepository;
 
+    @PersistenceContext
+    EntityManager entityManager;
+
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public ClarificationDto createClarification(Question question, User user, String content) {
         checkQuestion(question);
@@ -43,6 +53,13 @@ public class ClarificationService {
         user.addClarification(clarification);
 
         return new ClarificationDto(clarification);
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public ClarificationDto createClarification(int questionKey, int userKey, String content) {
+        return createClarification(questionRepository.findByKey(questionKey).orElse(null)
+                            , userRepository.findByKey(userKey)
+                            , content);
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
@@ -90,5 +107,47 @@ public class ClarificationService {
         Clarification clr = clarificationRepository.findById(clarification.getId()).orElse(null);
         if (clr == null)
             throw new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarification.getId());
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public List<ClarificationDto> getClarificationsByQuestion(int questionKey) {
+        Question question = questionRepository.findByKey(questionKey).orElse(null);
+        if (question == null)
+            throw new TutorException(ErrorMessage.QUESTION_NOT_FOUND, question.getKey());
+        return Lists.newArrayList(question.getClarifications()).stream()
+                .map(ClarificationDto::new)
+                .sorted(Comparator
+                        .comparing(ClarificationDto::getId))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public List<ClarificationDto> getClarificationsByUser(int userKey) {
+        User user = userRepository.findByKey(userKey);
+        if (user == null)
+            throw new TutorException(ErrorMessage.USER_NOT_FOUND, user.getKey());
+        return Lists.newArrayList(user.getClarifications()).stream()
+                .map(ClarificationDto::new)
+                .sorted(Comparator
+                        .comparing(ClarificationDto::getId))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public List<ClarificationDto> replaceClarifications(int questionKey, int userKey, List<ClarificationDto> clarificationDtos) {
+        for (int i = 0; i < clarificationDtos.size(); i++) {
+            createClarification(questionKey, userKey, clarificationDtos.get(i).getContent());
+        }
+        return getClarificationsByQuestion(questionKey);
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void removeClarification(int clarificationId) {
+        Clarification clarification = clarificationRepository.findById(clarificationId).orElse(null);
+        if (clarification == null)
+            throw new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationId);
+
+        clarification.remove();
+        entityManager.remove(clarification);
     }
 }
