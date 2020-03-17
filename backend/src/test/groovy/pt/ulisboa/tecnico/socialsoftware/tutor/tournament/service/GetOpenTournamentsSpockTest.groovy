@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
@@ -14,7 +15,6 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto
-import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserService
@@ -22,9 +22,8 @@ import spock.lang.Shared
 import spock.lang.Specification
 
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*
+import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.COURSE_EXECUTION_NOT_FOUND
 
 @DataJpaTest
 class GetOpenTournamentsSpockTest extends Specification {
@@ -50,8 +49,6 @@ class GetOpenTournamentsSpockTest extends Specification {
     @Autowired
     TopicService topicService
 
-    @Shared
-    DateTimeFormatter formatter
     @Autowired
     UserService userService
 
@@ -90,9 +87,8 @@ class GetOpenTournamentsSpockTest extends Specification {
     }
 
     def setupSpec() {
-        formatter =  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-        START_DATE = LocalDateTime.now().plusDays(1).format(formatter)
-        CONCLUSION_DATE = LocalDateTime.now().plusDays(2).format(formatter)
+        START_DATE = DateHandler.format(LocalDateTime.now().plusDays(1))
+        CONCLUSION_DATE = DateHandler.format(LocalDateTime.now().plusDays(2))
     }
 
     def "an open tournament and a cancelled one"() {

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
@@ -24,7 +25,6 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.stream.Collectors
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*
@@ -62,8 +62,6 @@ class CreateTournamentSpockTest extends Specification {
     @Autowired
     TopicService topicService
 
-    @Shared
-    DateTimeFormatter formatter
     @Autowired
     UserService userService
 
@@ -100,9 +98,8 @@ class CreateTournamentSpockTest extends Specification {
     }
 
     def setupSpec() {
-        formatter =  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-        START_DATE = LocalDateTime.now().plusDays(1).format(formatter)
-        CONCLUSION_DATE = LocalDateTime.now().plusDays(2).format(formatter)
+        START_DATE = DateHandler.format(LocalDateTime.now().plusDays(1))
+        CONCLUSION_DATE = DateHandler.format(LocalDateTime.now().plusDays(2))
     }
 
     def "create a tournament"() {
@@ -132,8 +129,8 @@ class CreateTournamentSpockTest extends Specification {
         result != null
         result.getId() == resultDto.getId()
         result.getStatus() == resultDto.getStatus()
-        result.getStartingDate().format(formatter) == START_DATE
-        result.getConclusionDate().format(formatter) == CONCLUSION_DATE
+        DateHandler.format((result.getStartingDate())) == START_DATE
+        DateHandler.format((result.getConclusionDate())) == CONCLUSION_DATE
         result.getNumberOfQuestions() == NUMBER_QUESTIONS
         result.getTopics() == topics
         result.getSignedUpUsers().size() == 0

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
@@ -20,7 +21,6 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizRepository
 import spock.lang.Specification
 
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 @DataJpaTest
 class CreateQuizTest extends Specification {
@@ -53,11 +53,8 @@ class CreateQuizTest extends Specification {
     def availableDate
     def conclusionDate
     def questionDto
-    def formatter
 
     def setup() {
-        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-
         course = new Course(COURSE_NAME, Course.Type.TECNICO)
         courseRepository.save(course)
 
@@ -70,8 +67,8 @@ class CreateQuizTest extends Specification {
         availableDate = LocalDateTime.now()
         conclusionDate = LocalDateTime.now().plusDays(1)
         quiz.setScramble(true)
-        quiz.setAvailableDate(availableDate.format(formatter))
-        quiz.setConclusionDate(conclusionDate.format(formatter))
+        quiz.setAvailableDate(DateHandler.format(availableDate))
+        quiz.setConclusionDate(DateHandler.format(conclusionDate))
         quiz.setSeries(1)
         quiz.setVersion(VERSION)
 
@@ -107,8 +104,8 @@ class CreateQuizTest extends Specification {
         result.getScramble()
         result.getTitle() == QUIZ_TITLE
         result.getCreationDate() != null
-        result.getAvailableDate().format(formatter) == availableDate.format(formatter)
-        result.getConclusionDate().format(formatter) == conclusionDate.format(formatter)
+        DateHandler.format(result.getAvailableDate()) == DateHandler.format(availableDate)
+        DateHandler.format(result.getConclusionDate()) == DateHandler.format(conclusionDate)
         result.getType() == Quiz.QuizType.GENERATED
         result.getSeries() == 1
         result.getVersion() == VERSION
@@ -146,7 +143,7 @@ class CreateQuizTest extends Specification {
     def "create a TEACHER quiz with available date after conclusion"() {
         given: 'createQuiz a quiz'
         quiz.setTitle(QUIZ_TITLE)
-        quiz.setConclusionDate(getAvailableDate().minusDays(1).format(formatter))
+        quiz.setConclusionDate(DateHandler.format(LocalDateTime.now().minusDays(1)))
         quiz.setType(Quiz.QuizType.PROPOSED)
 
         when:

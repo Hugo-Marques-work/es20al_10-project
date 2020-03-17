@@ -1,13 +1,12 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto;
 
-import org.springframework.data.annotation.Transient;
+import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.StudentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -23,9 +22,6 @@ public class TournamentDto {
     private Set<UserDto> signedUpUsers = new HashSet<>();
     private Tournament.Status status;
 
-    @Transient
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
     public TournamentDto() {}
 
     public TournamentDto(Tournament tournament, boolean deepCopy) {
@@ -33,9 +29,9 @@ public class TournamentDto {
         this.numberOfQuestions = tournament.getNumberOfQuestions();
         this.status = tournament.getStatus();
         if (tournament.getStartingDate() != null)
-            this.startingDate = tournament.getStartingDate().format(formatter);
+            this.startingDate = DateHandler.format(tournament.getStartingDate());
         if (tournament.getConclusionDate() != null)
-            this.conclusionDate = tournament.getConclusionDate().format(formatter);
+            this.conclusionDate = DateHandler.format(tournament.getConclusionDate());
 
         if (deepCopy) {
             this.creator = new StudentDto(tournament.getCreator());
@@ -114,14 +110,14 @@ public class TournamentDto {
         if (getStartingDate() == null || getStartingDate().isEmpty()) {
             return null;
         }
-        return LocalDateTime.parse(getStartingDate(), formatter);
+        return DateHandler.parse(getStartingDate());
     }
 
     public LocalDateTime getConclusionDateDate() {
         if (getConclusionDate() == null || getConclusionDate().isEmpty()) {
             return null;
         }
-        return LocalDateTime.parse(getConclusionDate(), formatter);
+        return DateHandler.parse(getConclusionDate());
     }
 
     public boolean isOpen() {
