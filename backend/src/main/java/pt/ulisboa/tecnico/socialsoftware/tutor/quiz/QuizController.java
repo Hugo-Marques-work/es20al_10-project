@@ -2,14 +2,13 @@ package pt.ulisboa.tecnico.socialsoftware.tutor.quiz;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import pt.ulisboa.tecnico.socialsoftware.tutor.answer.dto.QuizAnswersDto;
+import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.dto.QuizDto;
 
 import javax.validation.Valid;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -31,15 +30,6 @@ public class QuizController {
         return this.quizService.createQuiz(executionId, quiz);
     }
 
-    private void formatDates(QuizDto quiz) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
-        if (quiz.getAvailableDate() != null)
-            quiz.setAvailableDate(LocalDateTime.parse(quiz.getAvailableDate().replaceAll(".$", ""), DateTimeFormatter.ISO_DATE_TIME).format(formatter));
-        if (quiz.getConclusionDate() !=null)
-            quiz.setConclusionDate(LocalDateTime.parse(quiz.getConclusionDate().replaceAll(".$", ""), DateTimeFormatter.ISO_DATE_TIME).format(formatter));
-    }
-
     @GetMapping("/quizzes/{quizId}")
     @PreAuthorize("hasRole('ROLE_TEACHER') and hasPermission(#quizId, 'QUIZ.ACCESS')")
     public QuizDto getQuiz(@PathVariable Integer quizId) {
@@ -59,5 +49,17 @@ public class QuizController {
         quizService.removeQuiz(quizId);
 
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/quizzes/{quizId}/answers")
+    @PreAuthorize("hasRole('ROLE_TEACHER') and hasPermission(#quizId, 'QUIZ.ACCESS')")
+    public QuizAnswersDto getQuizAnswers(@PathVariable Integer quizId) {
+        return this.quizService.getQuizAnswers(quizId);
+    }
+
+
+    private void formatDates(QuizDto quiz) {
+        DateHandler.formatFromRequest(quiz.getAvailableDate());
+        DateHandler.formatFromRequest(quiz.getConclusionDate());
     }
 }
