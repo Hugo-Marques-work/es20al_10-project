@@ -21,6 +21,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,8 +59,8 @@ public class ClarificationService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public ClarificationDto createClarification(int questionKey, int userKey, String content) {
         return createClarification(questionRepository.findByKey(questionKey).orElse(null)
-                            , userRepository.findByKey(userKey)
-                            , content);
+                , userRepository.findByKey(userKey)
+                , content);
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
@@ -134,11 +135,13 @@ public class ClarificationService {
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public List<ClarificationDto> replaceClarifications(int questionKey, int userKey, List<ClarificationDto> clarificationDtos) {
-        for (int i = 0; i < clarificationDtos.size(); i++) {
-            createClarification(questionKey, userKey, clarificationDtos.get(i).getContent());
-        }
-        return getClarificationsByQuestion(questionKey);
+    public ClarificationDto updateClarifications(ClarificationDto clarificationDto) {
+        Clarification clarification = clarificationRepository.findById(clarificationDto.getId()).orElse(null);
+        if (clarification == null)
+            throw new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationDto.getId());
+
+        clarification.setContent(clarificationDto.getContent());
+        return clarificationDto;
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
