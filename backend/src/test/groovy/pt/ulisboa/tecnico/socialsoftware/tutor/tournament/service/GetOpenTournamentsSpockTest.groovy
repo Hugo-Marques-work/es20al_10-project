@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.service
 
+import org.apache.tomcat.jni.Local
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
@@ -64,6 +65,7 @@ class GetOpenTournamentsSpockTest extends Specification {
 
     def createValidTournamentDto(String startDate) {
         def tournamentDto = new TournamentDto()
+        tournamentDto.setTitle("TEST")
         tournamentDto.setStartingDate(startDate)
         tournamentDto.setConclusionDate(CONCLUSION_DATE)
         tournamentDto.setNumberOfQuestions(NUMBER_QUESTIONS)
@@ -94,7 +96,7 @@ class GetOpenTournamentsSpockTest extends Specification {
     def "an open tournament and a cancelled one"() {
         given: "two valid tournament dto"
         def validTournament1 = createValidTournamentDto(START_DATE)
-        def otherDate =  LocalDateTime.now().plusDays(1).plusHours(12).format(formatter)
+        def otherDate =  DateHandler.format(LocalDateTime.now().plusDays(1).plusHours(12))
         def validTournament2 = createValidTournamentDto(otherDate)
         and: "a tournament dto that has been canceled"
         def canceledTournament = createValidTournamentDto(START_DATE)

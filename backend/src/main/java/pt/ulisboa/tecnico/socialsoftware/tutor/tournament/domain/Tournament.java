@@ -23,11 +23,14 @@ public class Tournament {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    private String title;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id")
     private User creator;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany
+    @Column(name = "topic_id")
     private Set<Topic> topics = new HashSet<>();
 
     private Integer numberOfQuestions;
@@ -39,7 +42,7 @@ public class Tournament {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @Column(name = "user_id")
     private Set<User> signedUpUsers = new HashSet<>();
 
@@ -54,16 +57,18 @@ public class Tournament {
     public Tournament() {}
 
     public Tournament(User creator, TournamentDto tournamentDto) {
-        this(creator, tournamentDto.getStartingDateDate(), tournamentDto.getConclusionDateDate(),
+        this(creator, tournamentDto.getTitle(),
+                tournamentDto.getStartingDateDate(), tournamentDto.getConclusionDateDate(),
                 tournamentDto.getNumberOfQuestions());
     }
 
-    public Tournament(User creator,
+    public Tournament(User creator, String title,
                       LocalDateTime startDate, LocalDateTime concludeDate,
                       int nQuestions) {
+        checkTitle(title);
         setCreator(creator);
-        setStartingDate( startDate );
-        setConclusionDate( concludeDate );
+        checkStartingDate(startDate);
+        checkConclusionDate(concludeDate);
 
         this.status = Status.OPEN;
         if (nQuestions < 1) {
@@ -83,6 +88,21 @@ public class Tournament {
 
     public User getCreator() {
         return creator;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void checkTitle(String title) {
+        if (title == null || title.isEmpty() || title.isBlank()) {
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Title " + title);
+        }
+        setTitle(title);
     }
 
     public Status getStatus() {
@@ -111,14 +131,12 @@ public class Tournament {
     public LocalDateTime getStartingDate() { return startingDate; }
 
     public void setStartingDate(LocalDateTime startingDate) {
-        checkStartingDate(startingDate);
         this.startingDate = startingDate;
     }
 
     public LocalDateTime getConclusionDate() { return conclusionDate; }
 
     public void setConclusionDate(LocalDateTime conclusionDate) {
-        checkConclusionDate(conclusionDate);
         this.conclusionDate = conclusionDate;
     }
 
@@ -149,21 +167,23 @@ public class Tournament {
     }
 
     void checkStartingDate(LocalDateTime startingDate) {
-        if (startingDate == null) {
+        if (startingDate == null || startingDate.isBefore(LocalDateTime.now())) {
             throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Starting date" + startingDate);
         }
-        if (this.conclusionDate != null && conclusionDate.isBefore(startingDate)) {
+        if (this.conclusionDate != null && !conclusionDate.isAfter(startingDate)) {
             throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Starting date" + startingDate + conclusionDate);
         }
+        setStartingDate(startingDate);
     }
 
     void checkConclusionDate(LocalDateTime conclusionDate) {
         if (conclusionDate == null) {
             throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Conclusion date " + conclusionDate);
         }
-        if (startingDate != null && conclusionDate.isBefore(startingDate)) {
+        if (this.startingDate != null && !conclusionDate.isAfter(startingDate)) {
             throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Conclusion date " + conclusionDate + startingDate);
         }
+        setConclusionDate(conclusionDate);
     }
 
     public void checkReadyForSignUp() {
@@ -224,6 +244,7 @@ public class Tournament {
     public String toString() {
         return "Tournament{" +
                 "id=" + id +
+                ", title" + title +
                 ", creator" + creator +
                 ", startingDate=" + startingDate +
                 ", conclusionDate=" + conclusionDate +

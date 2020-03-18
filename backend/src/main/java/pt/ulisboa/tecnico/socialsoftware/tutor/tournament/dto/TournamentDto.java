@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 public class TournamentDto {
     private Integer id;
+    private String title;
     private StudentDto creator;
     private String startingDate = null;
     private String conclusionDate = null;
@@ -26,6 +27,7 @@ public class TournamentDto {
 
     public TournamentDto(Tournament tournament, boolean deepCopy) {
         this.id = tournament.getId();
+        this.title = tournament.getTitle();
         this.numberOfQuestions = tournament.getNumberOfQuestions();
         this.status = tournament.getStatus();
         if (tournament.getStartingDate() != null)
@@ -51,6 +53,15 @@ public class TournamentDto {
     public void setId(Integer id) {
         this.id = id;
     }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
 
     public String getStartingDate() {
         return startingDate;

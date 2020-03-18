@@ -69,6 +69,7 @@ class CreateTournamentSpockTest extends Specification {
     CourseExecution courseExecution
     User student
 
+    String title = "Test Tournament"
     @Shared
     String START_DATE
     @Shared
@@ -90,6 +91,7 @@ class CreateTournamentSpockTest extends Specification {
         def topicDtos = new HashSet<TopicDto>(Arrays.asList(topicDto))
 
         def tournamentDto = new TournamentDto()
+        tournamentDto.setTitle(title)
         tournamentDto.setStartingDate(START_DATE)
         tournamentDto.setConclusionDate(CONCLUSION_DATE)
         tournamentDto.setNumberOfQuestions(NUMBER_QUESTIONS)
@@ -121,6 +123,7 @@ class CreateTournamentSpockTest extends Specification {
         resultDto.numberOfQuestions == NUMBER_QUESTIONS
         resultDto.startingDate == START_DATE
         resultDto.conclusionDate == CONCLUSION_DATE
+        resultDto.title == title
         and: "the tournament is created"
         tournamentRepository.count() == 1L
         def result = tournamentRepository.findAll().get(0)
@@ -129,6 +132,7 @@ class CreateTournamentSpockTest extends Specification {
         result != null
         result.getId() == resultDto.getId()
         result.getStatus() == resultDto.getStatus()
+        result.getTitle() == title
         DateHandler.format((result.getStartingDate())) == START_DATE
         DateHandler.format((result.getConclusionDate())) == CONCLUSION_DATE
         result.getNumberOfQuestions() == NUMBER_QUESTIONS

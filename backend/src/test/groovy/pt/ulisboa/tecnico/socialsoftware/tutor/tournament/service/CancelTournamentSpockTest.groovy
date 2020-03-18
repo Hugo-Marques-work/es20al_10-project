@@ -59,7 +59,7 @@ class CancelTournamentSpockTest extends Specification{
         creator = new User(USER_NAME, USER_UNAME, USER_KEY, User.Role.STUDENT)
         userRepository.save(creator)
 
-        tournament = new Tournament(creator,GOOD_START_DATE, CONCLUSION_DATE, NUMBER_QUESTIONS)
+        tournament = new Tournament(creator, "TEST", GOOD_START_DATE, CONCLUSION_DATE, NUMBER_QUESTIONS)
         tournamentRepository.save(tournament)
 
         user = new User(USER_NAME,USER2_UNAME,USER2_KEY, User.Role.STUDENT)
