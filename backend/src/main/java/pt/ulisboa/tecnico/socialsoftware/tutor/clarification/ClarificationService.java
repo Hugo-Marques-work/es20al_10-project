@@ -11,6 +11,8 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.domain.Clarificatio
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.dto.ClarificationDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.repository.ClarificationAnswerRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.repository.ClarificationRepository;
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course;
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
@@ -20,9 +22,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service("ClarificationService")
@@ -35,6 +35,9 @@ public class ClarificationService {
 
     @Autowired
     ClarificationRepository clarificationRepository;
+
+    @Autowired
+    CourseRepository courseRepository;
 
     @Autowired
     ClarificationAnswerRepository clarificationAnswerRepository;
@@ -57,9 +60,9 @@ public class ClarificationService {
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public ClarificationDto createClarification(int questionKey, int userKey, String content) {
-        return createClarification(questionRepository.findByKey(questionKey).orElse(null)
-                , userRepository.findByKey(userKey)
+    public ClarificationDto createClarification(int questionId, int userId, String content) {
+        return createClarification(questionRepository.findById(questionId).orElse(null)
+                , userRepository.findById(userId).orElse(null)
                 , content);
     }
 
@@ -111,10 +114,8 @@ public class ClarificationService {
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public List<ClarificationDto> getClarificationsByQuestion(int questionKey) {
-        Question question = questionRepository.findByKey(questionKey).orElse(null);
-        if (question == null)
-            throw new TutorException(ErrorMessage.QUESTION_NOT_FOUND, question.getKey());
+    public List<ClarificationDto> getClarificationsByQuestion(int questionId) {
+        Question question = questionRepository.findById(questionId).orElseThrow(() -> new TutorException(ErrorMessage.QUESTION_NOT_FOUND, questionId));
         return Lists.newArrayList(question.getClarifications()).stream()
                 .map(ClarificationDto::new)
                 .sorted(Comparator
@@ -123,11 +124,25 @@ public class ClarificationService {
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public List<ClarificationDto> getClarificationsByUser(int userKey) {
-        User user = userRepository.findByKey(userKey);
-        if (user == null)
-            throw new TutorException(ErrorMessage.USER_NOT_FOUND, user.getKey());
+    public List<ClarificationDto> getClarificationsByUser(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new TutorException(ErrorMessage.USER_NOT_FOUND, userId));
         return Lists.newArrayList(user.getClarifications()).stream()
+                .map(ClarificationDto::new)
+                .sorted(Comparator
+                        .comparing(ClarificationDto::getId))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public List<ClarificationDto> getClarificationsByCourse(int courseId) {
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> new TutorException(ErrorMessage.COURSE_NOT_FOUND_ID, courseId));
+        Set<Clarification> clarifications = new HashSet<>();
+        List<Question> questions = new ArrayList<>(course.getQuestions());
+        for (int i = 0; i < questions.size(); i++) {
+            clarifications.addAll(questions.get(i).getClarifications());
+        }
+
+        return Lists.newArrayList(clarifications).stream()
                 .map(ClarificationDto::new)
                 .sorted(Comparator
                         .comparing(ClarificationDto::getId))

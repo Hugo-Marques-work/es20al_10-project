@@ -20,9 +20,10 @@ public class ClarificationController {
     @Autowired
     private ClarificationService clarificationService;
 
-    @GetMapping("/question/{questionKey}/clarifications")
-    public List<ClarificationDto> getClarificationsByQuestion(@PathVariable int questionKey) {
-        return clarificationService.getClarificationsByQuestion(questionKey);
+    @GetMapping("/question/{questionId}/clarifications")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('DEMO_ADMIN') or hasPermission(#questionId, 'QUESTION.ACCESS')")
+    public List<ClarificationDto> getClarificationsByQuestion(@PathVariable int questionId) {
+        return clarificationService.getClarificationsByQuestion(questionId);
     }
 
     @GetMapping("/clarifications")
@@ -31,20 +32,26 @@ public class ClarificationController {
         if(user == null){
             throw new TutorException(AUTHENTICATION_ERROR);
         }
-        return clarificationService.getClarificationsByUser(user.getKey());
+        return clarificationService.getClarificationsByUser(user.getId());
     }
 
-    @PostMapping("/question/{questionKey}/clarifications")
-    public ClarificationDto addClarification(@PathVariable int questionKey, @RequestBody String content, Principal principal) {
+    @GetMapping("/course/{courseId}/clarifications")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('DEMO_ADMIN') or hasPermission(#courseId, 'COURSE.ACCESS')")
+    public List<ClarificationDto> getClarificationsByCourse(@PathVariable int courseId) {
+        return clarificationService.getClarificationsByCourse(courseId);
+    }
+
+    @PostMapping("/question/{questionId}/clarifications")
+    public ClarificationDto addClarification(@PathVariable int questionId, @RequestBody String content, Principal principal) {
         User user = (User) ((Authentication) principal).getPrincipal();
         if(user == null){
             throw new TutorException(AUTHENTICATION_ERROR);
         }
-        return clarificationService.createClarification(questionKey, user.getKey(), content);
+        return clarificationService.createClarification(questionId, user.getKey(), content);
     }
 
     @PutMapping("/clarifications")
-    public ClarificationDto replaceClarifications(@RequestBody ClarificationDto clarificationDto) {
+    public ClarificationDto updateClarifications(@RequestBody ClarificationDto clarificationDto) {
         return clarificationService.updateClarifications(clarificationDto);
     }
 
