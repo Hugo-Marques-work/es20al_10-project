@@ -10,13 +10,13 @@ import java.io.Serializable;
 public class ClarificationAnswerDto implements Serializable {
     private Integer id;
     private String content;
-    private User user;
+    private Integer userKey;
 
     public ClarificationAnswerDto() {}
 
     public ClarificationAnswerDto(ClarificationAnswer clarificationAnswer) {
         this.id = clarificationAnswer.getId();
-        this.user = clarificationAnswer.getUser();
+        this.userKey = clarificationAnswer.getUser().getKey();
 
         if (clarificationAnswer.getContent() == null
                 || clarificationAnswer.getContent().isEmpty() || clarificationAnswer.getContent().isBlank())
@@ -41,12 +41,12 @@ public class ClarificationAnswerDto implements Serializable {
         this.content = content;
     }
 
-    public User getUser() {
-        return user;
+    public Integer getUserKey() {
+        return userKey;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserKey(Integer userKey) {
+        this.userKey = userKey;
     }
 
     @Override

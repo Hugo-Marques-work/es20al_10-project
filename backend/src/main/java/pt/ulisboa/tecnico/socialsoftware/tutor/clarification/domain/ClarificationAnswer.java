@@ -81,4 +81,9 @@ public class ClarificationAnswer {
                 ", clarification=" + clarification +
                 '}';
     }
+
+    public void remove(){
+        user.getClarificationAnswers().remove(this);
+        clarification.getClarificationAnswers().remove(this);
+    }
 }
