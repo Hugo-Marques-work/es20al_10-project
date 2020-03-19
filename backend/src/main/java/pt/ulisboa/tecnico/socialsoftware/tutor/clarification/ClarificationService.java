@@ -54,7 +54,6 @@ public class ClarificationService {
         clarificationRepository.save(clarification);
         question.addClarification(clarification);
         user.addClarification(clarification);
-
         return new ClarificationDto(clarification);
     }
 
@@ -93,11 +92,11 @@ public class ClarificationService {
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public ClarificationAnswerDto updateClarificationAnswer(int clarificationAnswerId, ClarificationAnswerDto clarificationAnswerDto) {
+    public ClarificationAnswerDto updateClarificationAnswer(int clarificationAnswerId, String content) {
         ClarificationAnswer clarificationAnswer = clarificationAnswerRepository.findById(clarificationAnswerId)
                 .orElseThrow(()-> new TutorException(ErrorMessage.CLARIFICATION_ANSWER_NOT_FOUND, clarificationAnswerId));
 
-        clarificationAnswer.setContent(clarificationAnswerDto.getContent());
+        clarificationAnswer.setContent(content);
         return new ClarificationAnswerDto(clarificationAnswer);
     }
 
@@ -111,6 +110,15 @@ public class ClarificationService {
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public CourseDto findClarificationCourseById(int clarificationId) {
+        return clarificationRepository.findById(clarificationId)
+                .map(Clarification::getQuestion)
+                .map(Question::getCourse)
+                .map(CourseDto::new)
+                .orElseThrow(() -> new TutorException(CLARIFICATION_NOT_FOUND, clarificationId));
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public CourseDto findClarificationAnswerCourseById(int clarificationAnswerId) {
         return clarificationAnswerRepository.findById(clarificationAnswerId)
                 .map(ClarificationAnswer::getClarification)
@@ -119,7 +127,6 @@ public class ClarificationService {
                 .map(CourseDto::new)
                 .orElseThrow(() -> new TutorException(CLARIFICATION_ANSWER_NOT_FOUND, clarificationAnswerId));
     }
-
 
     private void checkQuestion(Question question) {
         if (question == null)

@@ -1,5 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.clarification.api;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +18,7 @@ import java.util.List;
 
 @RestController
 public class ClarificationAnswerController {
+    private static Logger logger = LoggerFactory.getLogger(ClarificationAnswerController.class);
 
     @Autowired
     ClarificationService clarificationService;
@@ -23,31 +26,35 @@ public class ClarificationAnswerController {
     @GetMapping("/clarification/{clarificationId}/answers")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_DEMO_ADMIN') or hasPermission(#clarificationId, 'CLARIFICATION.ACCESS')")
     public List<ClarificationAnswerDto> getClarificationAnswers(@PathVariable int clarificationId) {
-        return this.clarificationService.getClarificationAnswers(clarificationId);
+        logger.info("getClarificationAnswers - clarificationId: {}", clarificationId);
+        return clarificationService.getClarificationAnswers(clarificationId);
     }
 
     @PostMapping("/clarification/{clarificationId}/answer")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_DEMO_ADMIN') or hasPermission(#clarificationId, 'CLARIFICATION.ACCESS')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_DEMO_ADMIN') or (hasRole('ROLE_TEACHER') and hasPermission(#clarificationId, 'CLARIFICATION.ACCESS'))")
     public ClarificationAnswerDto addClarificationAnswer(@PathVariable int clarificationId,
                                                          @Valid @RequestBody String content,
                                                          Principal principal) {
         User user = (User) ((Authentication) principal).getPrincipal();
-        return this.clarificationService.createClarificationAnswer(clarificationId, content, user.getKey());
+        logger.info("addClarificationAnswer - clarificationId: {}", clarificationId);
+        return clarificationService.createClarificationAnswer(clarificationId, content, user.getKey());
     }
 
-    //FIXME: Do I need to check if it is the user creator?
     @PutMapping("/clarification/answer/{clarificationAnswerId}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_DEMO_ADMIN') or hasPermission(#clarificationId, 'CLARIFICATION.ACCESS')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_DEMO_ADMIN') " +
+            "or (hasRole('ROLE_TEACHER') and hasPermission(#clarificationAnswerId, 'CLARIFICATION_ANSWER.ACCESS'))")
     public ClarificationAnswerDto updateClarificationAnswer(@PathVariable int clarificationAnswerId,
-                                                            @Valid @PathVariable ClarificationAnswerDto clarificationAnswerDto,) {
-        return this.clarificationService.updateClarificationAnswer(clarificationAnswerId, clarificationAnswerDto);
+                                                            @Valid @RequestBody String content) {
+        logger.info("updateClarificationAnswer - clarificationAnswerId: {}", clarificationAnswerId);
+        return clarificationService.updateClarificationAnswer(clarificationAnswerId, content);
     }
 
-    //FIXME: Do I need to check if it is the user creator?
     @DeleteMapping("/clarification/answer/{clarificationAnswerId}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_DEMO_ADMIN') or hasPermission(#clarificationId, 'CLARIFICATION.ACCESS')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_DEMO_ADMIN') " +
+            "or (hasRole('ROLE_TEACHER') and hasPermission(#clarificationAnswerId, 'CLARIFICATION_ANSWER.ACCESS'))")
     public ResponseEntity removeClarificationAnswer(@PathVariable int clarificationAnswerId) {
-        this.clarificationService.removeClarificationAnswer(clarificationAnswerId);
+        logger.info("deleteClarificationAnswer - clarificationAnswerId: {}", clarificationAnswerId);
+        clarificationService.removeClarificationAnswer(clarificationAnswerId);
         return ResponseEntity.ok().build();
     }
 

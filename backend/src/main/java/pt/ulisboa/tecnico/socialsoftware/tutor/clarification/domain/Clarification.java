@@ -1,6 +1,5 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.clarification.domain;
 
-import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.dto.ClarificationDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
@@ -30,7 +29,7 @@ public class Clarification {
     @JoinColumn(name = "question_id")
     private Question question;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval=true)
+    @OneToMany(cascade = CascadeType.ALL)
     private Set<ClarificationAnswer> clarificationAnswers = new HashSet<>();
 
     public Clarification() {}
