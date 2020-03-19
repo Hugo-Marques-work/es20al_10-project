@@ -29,7 +29,7 @@ public class Clarification {
     @JoinColumn(name = "question_id")
     private Question question;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "clarification")
     private Set<ClarificationAnswer> clarificationAnswers = new HashSet<>();
 
     public Clarification() {}
