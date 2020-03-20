@@ -29,7 +29,7 @@ public class TournamentDto {
         this.id = tournament.getId();
         this.title = tournament.getTitle();
         this.numberOfQuestions = tournament.getNumberOfQuestions();
-        this.status = tournament.getStatus();
+        this.status = tournament.getValidatedStatus();
         if (tournament.getStartingDate() != null)
             this.startingDate = DateHandler.format(tournament.getStartingDate());
         if (tournament.getConclusionDate() != null)
