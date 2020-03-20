@@ -224,8 +224,9 @@ public class Tournament {
     }
 
     public Status getValidatedStatus() {
-        if (status.equals(Status.CANCELED))
+        if (status.equals(Status.CANCELED) || status.equals(Status.FINISHED)) {
             return status;
+        }
 
         LocalDateTime currentTime = LocalDateTime.now();
         if(currentTime.isBefore(startingDate)) {
@@ -234,7 +235,9 @@ public class Tournament {
         else if(!currentTime.isBefore(startingDate) && currentTime.isBefore(conclusionDate)) {
             setStatus(Status.RUNNING);
         }
-        else setStatus(Status.FINISHED);
+        else {
+            setStatus(Status.FINISHED);
+        }
 
         return status;
     }
