@@ -41,6 +41,18 @@ public class TournamentController {
         return tournamentService.createTournament(user.getId(), executionId, tournamentDto);
     }
 
+    @PostMapping("/tournaments/{tournamentId}/cancel")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public TournamentDto cancelTournament(Principal principal,
+                                 @PathVariable int tournamentId) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        if(user == null){
+            throw new TutorException(AUTHENTICATION_ERROR);
+        }
+
+        return tournamentService.cancelTournament(user.getId(),tournamentId);
+    }
+
     private void formatDates(TournamentDto tournament) {
         DateHandler.formatFromRequest(tournament.getStartingDate());
         DateHandler.formatFromRequest(tournament.getConclusionDate());

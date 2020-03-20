@@ -125,7 +125,7 @@ public class TournamentService {
     }
 
     @Transactional
-    public void cancelTournament(Integer userId, Integer tournamentId) {
+    public TournamentDto cancelTournament(Integer userId, Integer tournamentId) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new TutorException(USER_NOT_FOUND, userId));
 
@@ -133,6 +133,8 @@ public class TournamentService {
                 () -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
 
         executeCancel(user,tournament);
+
+        return new TournamentDto(tournament, true);
     }
 
     private void executeCancel(User user, Tournament tournament) {
