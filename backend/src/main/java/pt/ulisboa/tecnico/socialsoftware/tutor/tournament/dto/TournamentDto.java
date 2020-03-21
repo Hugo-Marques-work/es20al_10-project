@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class TournamentDto {
     private Integer id;
     private String title;
-    private StudentDto creator;
+    private UserDto creator;
     private String startingDate = null;
     private String conclusionDate = null;
     private int numberOfQuestions;
@@ -36,7 +36,7 @@ public class TournamentDto {
             this.conclusionDate = DateHandler.format(tournament.getConclusionDate());
 
         if (deepCopy) {
-            this.creator = new StudentDto(tournament.getCreator());
+            this.creator = new UserDto(tournament.getCreator());
             this.topics = tournament.getTopics().stream()
                     .map(TopicDto::new)
                     .collect(Collectors.toSet());
@@ -135,11 +135,11 @@ public class TournamentDto {
         return this.status == Tournament.Status.OPEN;
     }
 
-    public StudentDto getCreator() {
+    public UserDto getCreator() {
         return creator;
     }
 
-    public void setCreator(StudentDto creator) {
+    public void setCreator(UserDto creator) {
         this.creator = creator;
     }
 }
