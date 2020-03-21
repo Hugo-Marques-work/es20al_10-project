@@ -31,7 +31,7 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*
 
 @DataJpaTest
 class CreateTournamentSpockTest extends Specification {
-    public static final enum userType {
+    static final enum userType {
         STUDENT,
         TEACHER,
         INEXISTENT
