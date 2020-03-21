@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.2.1">
   <hashTree>
-    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Web Service  createClarificationAnswer" enabled="true">
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Web Service  UpdateClarificationAnswer" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
       <boolProp name="TestPlan.functional_mode">false</boolProp>
       <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
@@ -29,13 +29,23 @@
             <stringProp name="Argument.value">8080</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
-          <elementProp name="STRING" elementType="Argument">
-            <stringProp name="Argument.name">STRING</stringProp>
+          <elementProp name="content1" elementType="Argument">
+            <stringProp name="Argument.name">content1</stringProp>
             <stringProp name="Argument.value">&quot;THIS IS TEST&quot;</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="content2" elementType="Argument">
+            <stringProp name="Argument.name">content2</stringProp>
+            <stringProp name="Argument.value">&quot;THIS IS NOT A TEST&quot;</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="clarificationId" elementType="Argument">
             <stringProp name="Argument.name">clarificationId</stringProp>
+            <stringProp name="Argument.value">1</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="clarificationAnswerId" elementType="Argument">
+            <stringProp name="Argument.name">clarificationAnswerId</stringProp>
             <stringProp name="Argument.value">1</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
@@ -44,14 +54,14 @@
             <stringProp name="Argument.value">1786</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
-          <elementProp name="teacherKey" elementType="Argument">
-            <stringProp name="Argument.name">teacherKey</stringProp>
-            <stringProp name="Argument.value">677</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
           <elementProp name="studentKey" elementType="Argument">
             <stringProp name="Argument.name">studentKey</stringProp>
             <stringProp name="Argument.value">676</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="teacherKey" elementType="Argument">
+            <stringProp name="Argument.name">teacherKey</stringProp>
+            <stringProp name="Argument.value">677</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
@@ -94,7 +104,9 @@
           <stringProp name="dataSource">initReq</stringProp>
           <stringProp name="queryType">Update Statement</stringProp>
           <stringProp name="query">DELETE FROM clarifications WHERE id = ${clarificationId};
-INSERT INTO clarifications VALUES (${clarificationId}, &apos;${STRING}&apos;, ${questionId}, ${studentKey});</stringProp>
+INSERT INTO clarifications VALUES (${clarificationId}, &apos;${content1}&apos;, ${questionId}, ${studentKey});
+DELETE FROM clarification_answers WHERE id = ${clarificationAnswerId};
+INSERT INTO clarification_answers VALUES (${clarificationAnswerId}, &apos;${content1}&apos;, ${clarificationId}, ${teacherKey});</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
           <stringProp name="variableNames"></stringProp>
@@ -197,13 +209,13 @@ INSERT INTO clarifications VALUES (${clarificationId}, &apos;${STRING}&apos;, ${
             </collectionProp>
           </HeaderManager>
           <hashTree/>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request to create clarification answer" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request to update clarification answer" enabled="true">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
               <collectionProp name="Arguments.arguments">
                 <elementProp name="" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">${STRING}</stringProp>
+                  <stringProp name="Argument.value">${content2}</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
               </collectionProp>
@@ -212,8 +224,8 @@ INSERT INTO clarifications VALUES (${clarificationId}, &apos;${STRING}&apos;, ${
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol"></stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-            <stringProp name="HTTPSampler.path">/clarification/1/answer</stringProp>
-            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <stringProp name="HTTPSampler.path">/clarification/answer/${clarificationAnswerId}</stringProp>
+            <stringProp name="HTTPSampler.method">PUT</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -225,14 +237,23 @@ INSERT INTO clarifications VALUES (${clarificationId}, &apos;${STRING}&apos;, ${
           <hashTree>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert content" enabled="true">
               <stringProp name="JSON_PATH">$.content</stringProp>
-              <stringProp name="EXPECTED_VALUE">${STRING}</stringProp>
+              <stringProp name="EXPECTED_VALUE">${content2}</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
               <boolProp name="INVERT">false</boolProp>
               <boolProp name="ISREGEX">false</boolProp>
             </JSONPathAssertion>
             <hashTree/>
-            <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert user key" enabled="true">
+            <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert id" enabled="true">
+              <stringProp name="JSON_PATH">$.id</stringProp>
+              <stringProp name="EXPECTED_VALUE">${clarificationAnswerId}</stringProp>
+              <boolProp name="JSONVALIDATION">true</boolProp>
+              <boolProp name="EXPECT_NULL">false</boolProp>
+              <boolProp name="INVERT">false</boolProp>
+              <boolProp name="ISREGEX">false</boolProp>
+            </JSONPathAssertion>
+            <hashTree/>
+            <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert userKey" enabled="true">
               <stringProp name="JSON_PATH">$.userKey</stringProp>
               <stringProp name="EXPECTED_VALUE">${teacherKey}</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
@@ -240,21 +261,6 @@ INSERT INTO clarifications VALUES (${clarificationId}, &apos;${STRING}&apos;, ${
               <boolProp name="INVERT">false</boolProp>
               <boolProp name="ISREGEX">false</boolProp>
             </JSONPathAssertion>
-            <hashTree/>
-            <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="JSON Extractor" enabled="true">
-              <stringProp name="JSONPostProcessor.referenceNames">id</stringProp>
-              <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
-              <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
-              <stringProp name="Sample.scope">all</stringProp>
-              <stringProp name="Scope.variable">id</stringProp>
-            </JSONPostProcessor>
-            <hashTree/>
-            <BeanShellAssertion guiclass="BeanShellAssertionGui" testclass="BeanShellAssertion" testname="BeanShell Assertion" enabled="true">
-              <stringProp name="BeanShellAssertion.query">${__setProperty(id, ${id})}</stringProp>
-              <stringProp name="BeanShellAssertion.filename"></stringProp>
-              <stringProp name="BeanShellAssertion.parameters"></stringProp>
-              <boolProp name="BeanShellAssertion.resetInterpreter">false</boolProp>
-            </BeanShellAssertion>
             <hashTree/>
           </hashTree>
         </hashTree>
@@ -368,7 +374,7 @@ INSERT INTO clarifications VALUES (${clarificationId}, &apos;${STRING}&apos;, ${
         <hashTree/>
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
           <stringProp name="dataSource">sampleReq</stringProp>
-          <stringProp name="query">DELETE FROM clarification_answers WHERE id = ${__property(id)};
+          <stringProp name="query">DELETE FROM clarification_answers WHERE id = ${clarificationAnswerId};
 DELETE FROM clarifications WHERE id = ${clarificationId};</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
