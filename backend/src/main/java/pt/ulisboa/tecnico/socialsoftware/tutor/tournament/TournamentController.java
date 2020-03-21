@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -33,9 +34,7 @@ public class TournamentController {
                                           @PathVariable int executionId,
                                           @Valid @RequestBody TournamentDto tournamentDto) {
         User user = (User) ((Authentication) principal).getPrincipal();
-        if(user == null){
-            throw new TutorException(AUTHENTICATION_ERROR);
-        }
+        checkUserAuth(user);
 
         formatDates(tournamentDto);
         return tournamentService.createTournament(user.getId(), executionId, tournamentDto);
@@ -44,5 +43,24 @@ public class TournamentController {
     private void formatDates(TournamentDto tournament) {
         DateHandler.formatFromRequest(tournament.getStartingDate());
         DateHandler.formatFromRequest(tournament.getConclusionDate());
+    }
+
+    @PostMapping("/executions/{executionId}/tournaments/signUp")
+    @PreAuthorize("hasRole('ROLE_STUDENT') && hasPermission(#executionId, 'EXECUTION.ACCESS')")
+    public ResponseEntity signUpForTournament(Principal principal,
+                                              @PathVariable int executionId,
+                                              @Valid @RequestBody int tournamentId) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        checkUserAuth(user);
+
+        tournamentService.signUp(user.getId(), tournamentId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    private void checkUserAuth(User user) {
+        if(user == null) {
+            throw new TutorException(AUTHENTICATION_ERROR);
+        }
     }
 }
