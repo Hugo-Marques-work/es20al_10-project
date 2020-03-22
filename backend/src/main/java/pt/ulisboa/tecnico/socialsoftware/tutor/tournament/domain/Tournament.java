@@ -205,13 +205,8 @@ public class Tournament {
         }
     }
 
-    public void cancel(User user) {
-        if(!this.isCreator(user)){
-            throw new TutorException(TOURNAMENT_NOT_THE_CREATOR,this.getId().toString());
-        }
-
+    public void cancel() {
         checkAbleToBeCanceled();
-
         status = Status.CANCELED;
     }
 
