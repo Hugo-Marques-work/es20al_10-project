@@ -15,12 +15,7 @@ import spock.lang.Specification
 
 import java.time.LocalDateTime
 
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_ALREADY_CANCELED
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_FINISHED
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_NOT_FOUND
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_NOT_THE_CREATOR
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_RUNNING
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.USER_NOT_FOUND
+import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*
 
 @DataJpaTest
 class CancelTournamentSpockTest extends Specification{
@@ -51,19 +46,14 @@ class CancelTournamentSpockTest extends Specification{
     @Autowired
     UserRepository userRepository
 
-    User creator
-    User user
     Tournament tournament
 
     def setup(){
-        creator = new User(USER_NAME, USER_UNAME, USER_KEY, User.Role.STUDENT)
+        def creator = new User(USER_NAME, USER_UNAME, USER_KEY, User.Role.STUDENT)
         userRepository.save(creator)
 
         tournament = new Tournament(creator, "TEST", GOOD_START_DATE, CONCLUSION_DATE, NUMBER_QUESTIONS)
         tournamentRepository.save(tournament)
-
-        user = new User(USER_NAME,USER2_UNAME,USER2_KEY, User.Role.STUDENT)
-        userRepository.save(user)
     }
 
     def getTournamentId(tournament, validTournamentId) {
@@ -71,30 +61,16 @@ class CancelTournamentSpockTest extends Specification{
         return -1;
     }
 
-    def getUserId(userType) {
-        switch (userType) {
-            case userType.CREATOR:
-                return creator.getId();
-            case userType.USER:
-                return user.getId();
-            default:
-                return -1
-        }
-    }
-
     def setStatusCanceled(tournament, statusCanceled) {
         if(statusCanceled) tournament.setStatus(Tournament.Status.CANCELED)
     }
 
     def "cancel a tournament"() {
-        given: "a creator"
-        def creatorId=creator.getId()
-
-        and:"a tournament id"
+        given:"a tournament id"
         def tournamentId = tournamentRepository.findAll().get(0).getId()
 
         when:
-        tournamentService.cancelTournament(creatorId, tournamentId);
+        tournamentService.cancelTournament(tournamentId);
 
         then:"tournament has been canceled"
         tournamentRepository.findAll().get(0).getStatus() == Tournament.Status.CANCELED
@@ -102,33 +78,27 @@ class CancelTournamentSpockTest extends Specification{
 
     @Unroll
     def  "invalid data in database where: startingDate=#startingDate | \
-        conclusionDate=#conclusionDate |statusCanceled=#statusCanceled \
-        |userTypeVar=#userTypeVar | validTournamentId=#validTournamentId \
-        | errorMessage=#errorMessage "() {
+        conclusionDate=#conclusionDate |statusCanceled=#statusCanceled | \
+        validTournamentId=#validTournamentId | errorMessage=#errorMessage "() {
         given:"a tournament id"
         tournament.setStartingDate(startingDate)
         tournament.setConclusionDate(conclusionDate)
         def tournamentId = getTournamentId(tournament, validTournamentId)
 
-        and: "a user id"
-        def userId = getUserId(userTypeVar)
-
         when:
         setStatusCanceled(tournament,statusCanceled)
-        tournamentService.cancelTournament(userId, tournamentId)
+        tournamentService.cancelTournament(tournamentId)
 
         then:
         def error = thrown(TutorException)
         error.errorMessage == errorMessage
 
         where:
-        startingDate    | conclusionDate      | statusCanceled | userTypeVar           | validTournamentId || errorMessage
-        GOOD_START_DATE | CONCLUSION_DATE     | false          | userType.USER         | true              || TOURNAMENT_NOT_THE_CREATOR
-        BAD_START_DATE  | CONCLUSION_DATE     | false          | userType.CREATOR      | true              || TOURNAMENT_RUNNING
-        GOOD_START_DATE | CONCLUSION_DATE     | true           | userType.CREATOR      | true              || TOURNAMENT_ALREADY_CANCELED
-        BAD_START_DATE2 | BAD_CONCLUSION_DATE | false          | userType.CREATOR      | true              || TOURNAMENT_FINISHED
-        GOOD_START_DATE | CONCLUSION_DATE     | false          | userType.INVALID_USER | true              || USER_NOT_FOUND
-        GOOD_START_DATE | CONCLUSION_DATE     | false          | userType.CREATOR      | false             || TOURNAMENT_NOT_FOUND
+        startingDate    | conclusionDate      | statusCanceled | validTournamentId || errorMessage
+        BAD_START_DATE  | CONCLUSION_DATE     | false          | true              || TOURNAMENT_RUNNING
+        GOOD_START_DATE | CONCLUSION_DATE     | true           | true              || TOURNAMENT_ALREADY_CANCELED
+        BAD_START_DATE2 | BAD_CONCLUSION_DATE | false          | true              || TOURNAMENT_FINISHED
+        GOOD_START_DATE | CONCLUSION_DATE     | false          | false             || TOURNAMENT_NOT_FOUND
     }
 
     @TestConfiguration
