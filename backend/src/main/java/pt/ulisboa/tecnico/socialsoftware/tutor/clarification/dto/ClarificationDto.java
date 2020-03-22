@@ -9,8 +9,8 @@ import java.io.Serializable;
 public class ClarificationDto implements Serializable {
     private Integer id;
     private String content;
-    private Integer userKey;
-    private Integer questionKey;
+    private Integer userId;
+    private Integer questionId;
 
     public ClarificationDto() {}
 
@@ -23,37 +23,37 @@ public class ClarificationDto implements Serializable {
             this.content = clarification.getContent();
 
         if (clarification.getUser() != null)
-            this.userKey = clarification.getUser().getKey();
-        else throw new TutorException(ErrorMessage.USER_NOT_FOUND, clarification.getUser().getKey());
+            this.userId = clarification.getUser().getId();
+        else throw new TutorException(ErrorMessage.USER_NOT_FOUND, clarification.getUser().getId());
 
         if (clarification.getQuestion() != null)
-            this.questionKey = clarification.getQuestion().getKey();
-        else throw new TutorException(ErrorMessage.QUESTION_NOT_FOUND, clarification.getQuestion().getKey());
+            this.questionId = clarification.getQuestion().getId();
+        else throw new TutorException(ErrorMessage.QUESTION_NOT_FOUND, clarification.getQuestion().getId());
     }
 
     public Integer getId() { return id; }
 
     public String getContent() { return content; }
 
-    public Integer getUserKey() { return userKey; }
+    public Integer getUserId() { return userId; }
 
-    public Integer getQuestionKey() { return questionKey; }
+    public Integer getQuestionId() { return questionId; }
 
     public void setId(Integer id) { this.id = id; }
 
     public void setContent(String content) { this.content = content; }
 
-    public void setUserKey(Integer userKey) { this.userKey = userKey; }
+    public void setUserId(Integer userId) { this.userId = userId; }
 
-    public void setQuestionKey(Integer questionKey) { this.questionKey = questionKey; }
+    public void setQuestionId(Integer questionId) { this.questionId = questionId; }
 
     @Override
     public String toString() {
         return "ClarificationDto{" +
                 "id=" + id +
                 ", content='" + content + '\'' +
-                ", userKey=" + userKey +
-                ", questionKey=" + questionKey +
+                ", userId=" + userId +
+                ", questionId=" + questionId +
                 '}';
     }
 }

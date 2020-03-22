@@ -84,19 +84,16 @@ public class ClarificationService {
         if (question == null)
             throw new TutorException(ErrorMessage.QUESTION_MISSING_DATA);
 
-        Question qtn = questionRepository.findByKey(question.getKey()).orElse(null);
-        if (qtn == null)
-            throw new TutorException(ErrorMessage.QUESTION_NOT_FOUND, question.getKey());
+        questionRepository.findById(question.getId()).orElseThrow(
+                () -> new TutorException(ErrorMessage.QUESTION_NOT_FOUND, question.getId()));
     }
 
     private void checkUser(User user, User.Role role) {
         if (user == null)
             throw new TutorException(ErrorMessage.USER_NOT_FOUND, null);
 
-        User usr = userRepository.findByKey(user.getKey());
-        if (usr == null)
-            throw new TutorException(ErrorMessage.USER_NOT_FOUND, user.getKey());
-        else if (usr.getRole() != role)
+        User usr = userRepository.findById(user.getId()).orElseThrow(() -> new TutorException(ErrorMessage.USER_NOT_FOUND, user.getId()));
+        if (usr.getRole() != role)
             throw new TutorException(ErrorMessage.CLARIFICATION_WRONG_USER, role.toString());
     }
 
@@ -156,7 +153,7 @@ public class ClarificationService {
             throw new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationDto.getId());
 
         clarification.setContent(clarificationDto.getContent());
-        return clarificationDto;
+        return new ClarificationDto(clarification);
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
