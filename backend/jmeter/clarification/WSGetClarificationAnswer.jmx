@@ -29,19 +29,9 @@
             <stringProp name="Argument.value">8080</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
-          <elementProp name="STRING" elementType="Argument">
-            <stringProp name="Argument.name">STRING</stringProp>
+          <elementProp name="content" elementType="Argument">
+            <stringProp name="Argument.name">content</stringProp>
             <stringProp name="Argument.value">&quot;THIS IS TEST&quot;</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="clarificationId" elementType="Argument">
-            <stringProp name="Argument.name">clarificationId</stringProp>
-            <stringProp name="Argument.value">1</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="clarificationAnswerId" elementType="Argument">
-            <stringProp name="Argument.name">clarificationAnswerId</stringProp>
-            <stringProp name="Argument.value">1</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="questionId" elementType="Argument">
@@ -57,6 +47,11 @@
           <elementProp name="teacherKey" elementType="Argument">
             <stringProp name="Argument.name">teacherKey</stringProp>
             <stringProp name="Argument.value">677</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="hash" elementType="Argument">
+            <stringProp name="Argument.name">hash</stringProp>
+            <stringProp name="Argument.value">1586cffafa39e38959477da9eaa41c31</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
@@ -98,9 +93,7 @@
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
           <stringProp name="dataSource">initReq</stringProp>
           <stringProp name="queryType">Update Statement</stringProp>
-          <stringProp name="query">DELETE FROM clarifications WHERE id = ${clarificationId};
-INSERT INTO clarifications VALUES (${clarificationId}, &apos;${STRING}&apos;, ${questionId}, ${studentKey});
-INSERT INTO clarification_answers VALUES (${clarificationAnswerId}, &apos;${STRING}&apos;, ${clarificationId}, ${teacherKey});</stringProp>
+          <stringProp name="query">INSERT INTO clarifications(content, question_id, user_id) VALUES (&apos;${hash}&apos;, ${questionId}, ${studentKey});</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
           <stringProp name="variableNames"></stringProp>
@@ -110,6 +103,61 @@ INSERT INTO clarification_answers VALUES (${clarificationAnswerId}, &apos;${STRI
           <stringProp name="resultSetHandler">Store as String</stringProp>
         </JDBCSampler>
         <hashTree/>
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
+          <stringProp name="dataSource">initReq</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">SELECT id FROM clarifications WHERE content = &apos;${hash}&apos;;</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames">clarificationId</stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree>
+          <BeanShellAssertion guiclass="BeanShellAssertionGui" testclass="BeanShellAssertion" testname="BeanShell Assertion" enabled="true">
+            <stringProp name="BeanShellAssertion.query">${__setProperty(clarificationId, ${clarificationId_1})}</stringProp>
+            <stringProp name="BeanShellAssertion.filename"></stringProp>
+            <stringProp name="BeanShellAssertion.parameters"></stringProp>
+            <boolProp name="BeanShellAssertion.resetInterpreter">false</boolProp>
+          </BeanShellAssertion>
+          <hashTree/>
+        </hashTree>
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
+          <stringProp name="dataSource">initReq</stringProp>
+          <stringProp name="queryType">Update Statement</stringProp>
+          <stringProp name="query">INSERT INTO clarification_answers(content, clarification_id, user_id) VALUES (&apos;${hash}&apos;, ${__property(clarificationId)}, ${teacherKey});</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames"></stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree/>
+        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
+          <stringProp name="dataSource">initReq</stringProp>
+          <stringProp name="queryType">Select Statement</stringProp>
+          <stringProp name="query">SELECT id FROM clarification_answers WHERE content =&apos;${hash}&apos;;</stringProp>
+          <stringProp name="queryArguments"></stringProp>
+          <stringProp name="queryArgumentsTypes"></stringProp>
+          <stringProp name="variableNames">clarificationAnswerId</stringProp>
+          <stringProp name="resultVariable"></stringProp>
+          <stringProp name="queryTimeout"></stringProp>
+          <stringProp name="resultSetMaxRows"></stringProp>
+          <stringProp name="resultSetHandler">Store as String</stringProp>
+        </JDBCSampler>
+        <hashTree>
+          <BeanShellAssertion guiclass="BeanShellAssertionGui" testclass="BeanShellAssertion" testname="BeanShell Assertion" enabled="true">
+            <stringProp name="BeanShellAssertion.query">${__setProperty(clarificationAnswerId, ${clarificationAnswerId_1})}</stringProp>
+            <stringProp name="BeanShellAssertion.filename"></stringProp>
+            <stringProp name="BeanShellAssertion.parameters"></stringProp>
+            <boolProp name="BeanShellAssertion.resetInterpreter">false</boolProp>
+          </BeanShellAssertion>
+          <hashTree/>
+        </hashTree>
         <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
           <boolProp name="ResultCollector.error_logging">false</boolProp>
           <objProp>
@@ -211,7 +259,7 @@ INSERT INTO clarification_answers VALUES (${clarificationAnswerId}, &apos;${STRI
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol"></stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-            <stringProp name="HTTPSampler.path">/clarification/1/answers</stringProp>
+            <stringProp name="HTTPSampler.path">/clarification/${__property(clarificationId)}/answers</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -224,7 +272,7 @@ INSERT INTO clarification_answers VALUES (${clarificationAnswerId}, &apos;${STRI
           <hashTree>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert content" enabled="true">
               <stringProp name="JSON_PATH">$[0].content</stringProp>
-              <stringProp name="EXPECTED_VALUE">${STRING}</stringProp>
+              <stringProp name="EXPECTED_VALUE">${hash}</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
               <boolProp name="INVERT">false</boolProp>
@@ -376,8 +424,8 @@ INSERT INTO clarification_answers VALUES (${clarificationAnswerId}, &apos;${STRI
         <hashTree/>
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
           <stringProp name="dataSource">sampleReq</stringProp>
-          <stringProp name="query">DELETE FROM clarification_answers WHERE id = ${clarificationAnswerId};
-DELETE FROM clarifications WHERE id = ${clarificationId};</stringProp>
+          <stringProp name="query">DELETE FROM clarification_answers WHERE id = ${__property(clarificationAnswerId)};
+DELETE FROM clarifications WHERE id = ${__property(clarificationId)};</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
           <stringProp name="queryTimeout"></stringProp>
