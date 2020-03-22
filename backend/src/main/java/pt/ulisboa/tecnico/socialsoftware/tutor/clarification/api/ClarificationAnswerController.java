@@ -9,11 +9,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.ClarificationService;
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.dto.ClarificationAnswerDto;
+import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
+
+import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.AUTHENTICATION_ERROR;
 
 
 @RestController
@@ -26,7 +29,7 @@ public class ClarificationAnswerController {
     @GetMapping("/clarification/{clarificationId}/answers")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_DEMO_ADMIN') or hasPermission(#clarificationId, 'CLARIFICATION.ACCESS')")
     public List<ClarificationAnswerDto> getClarificationAnswers(@PathVariable int clarificationId) {
-        logger.info("getClarificationAnswers - clarificationId: {}", clarificationId);
+        logger.debug("getClarificationAnswers - clarificationId: {}", clarificationId);
         return clarificationService.getClarificationAnswers(clarificationId);
     }
 
@@ -36,7 +39,11 @@ public class ClarificationAnswerController {
                                                          @Valid @RequestBody String content,
                                                          Principal principal) {
         User user = (User) ((Authentication) principal).getPrincipal();
-        logger.info("addClarificationAnswer - clarificationId: {}", clarificationId);
+
+        if(user == null){
+            throw new TutorException(AUTHENTICATION_ERROR);
+        }
+        logger.debug("addClarificationAnswer - clarificationId: {}", clarificationId);
         return clarificationService.createClarificationAnswer(clarificationId, content, user.getKey());
     }
 
@@ -45,7 +52,7 @@ public class ClarificationAnswerController {
             "or (hasRole('ROLE_TEACHER') and hasPermission(#clarificationAnswerId, 'CLARIFICATION_ANSWER.ACCESS'))")
     public ClarificationAnswerDto updateClarificationAnswer(@PathVariable int clarificationAnswerId,
                                                             @Valid @RequestBody String content) {
-        logger.info("updateClarificationAnswer - clarificationAnswerId: {}", clarificationAnswerId);
+        logger.debug("updateClarificationAnswer - clarificationAnswerId: {}", clarificationAnswerId);
         return clarificationService.updateClarificationAnswer(clarificationAnswerId, content);
     }
 
@@ -53,7 +60,7 @@ public class ClarificationAnswerController {
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_DEMO_ADMIN') " +
             "or (hasRole('ROLE_TEACHER') and hasPermission(#clarificationAnswerId, 'CLARIFICATION_ANSWER.ACCESS'))")
     public ResponseEntity removeClarificationAnswer(@PathVariable int clarificationAnswerId) {
-        logger.info("deleteClarificationAnswer - clarificationAnswerId: {}", clarificationAnswerId);
+        logger.debug("deleteClarificationAnswer - clarificationAnswerId: {}", clarificationAnswerId);
         clarificationService.removeClarificationAnswer(clarificationAnswerId);
         return ResponseEntity.ok().build();
     }

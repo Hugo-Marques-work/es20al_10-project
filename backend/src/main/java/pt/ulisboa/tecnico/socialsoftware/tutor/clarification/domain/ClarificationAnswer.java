@@ -1,6 +1,5 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.clarification.domain;
 
-import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.dto.ClarificationAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
