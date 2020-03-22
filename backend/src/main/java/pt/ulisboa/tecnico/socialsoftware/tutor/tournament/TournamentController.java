@@ -46,11 +46,7 @@ public class TournamentController {
     @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'TOURNAMENT.CANCEL')")
     public ResponseEntity cancelTournament(Principal principal,
                                  @PathVariable int tournamentId) {
-        User user = (User) ((Authentication) principal).getPrincipal();
-        if(user == null){
-            throw new TutorException(AUTHENTICATION_ERROR);
-        }
-
+        tournamentService.cancelTournament(tournamentId);
         return ResponseEntity.ok().build();
     }
 
