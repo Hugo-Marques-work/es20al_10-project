@@ -46,10 +46,11 @@ public class TournamentController {
     }
 
     @PostMapping("/executions/{executionId}/tournaments/signUp")
-    @PreAuthorize("hasRole('ROLE_STUDENT') && hasPermission(#executionId, 'EXECUTION.ACCESS')")
+    @PreAuthorize("hasRole('ROLE_STUDENT') && hasPermission(#tournamentId, 'TOURNAMENT.ACCESS')")
     public ResponseEntity signUpForTournament(Principal principal,
                                               @PathVariable int executionId,
                                               @Valid @RequestBody int tournamentId) {
+
         User user = (User) ((Authentication) principal).getPrincipal();
         checkUserAuth(user);
 
