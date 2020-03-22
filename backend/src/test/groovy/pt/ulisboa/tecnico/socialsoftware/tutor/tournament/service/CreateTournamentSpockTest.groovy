@@ -31,12 +31,6 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*
 
 @DataJpaTest
 class CreateTournamentSpockTest extends Specification {
-    public static final enum userType {
-        STUDENT,
-        TEACHER,
-        INEXISTENT
-    }
-
     public static final String COURSE_NAME = "Software Architecture"
     public static final String ACRONYM = "AS1"
     public static final String ACADEMIC_TERM = "1 SEM"
@@ -67,7 +61,7 @@ class CreateTournamentSpockTest extends Specification {
 
     Course course
     CourseExecution courseExecution
-    User student
+    User user
 
     String title = "Test Tournament"
     @Shared
@@ -82,8 +76,8 @@ class CreateTournamentSpockTest extends Specification {
         courseExecution = new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
         courseExecutionRepository.save(courseExecution)
 
-        student = new User("Joao", "joao", 1, User.Role.STUDENT)
-        userRepository.save(student)
+        user = new User("Joao", "joao", 1, User.Role.STUDENT)
+        userRepository.save(user)
 
         def topicDto = new TopicDto()
         topicDto.setName(TOPIC_NAME)
@@ -113,7 +107,7 @@ class CreateTournamentSpockTest extends Specification {
                 .collect(Collectors.toSet());
 
         when:
-        def resultDto = tournamentService.createTournament(student.getId(), courseExecution.getId(), tournamentDto)
+        def resultDto = tournamentService.createTournament(user.getId(), courseExecution.getId(), tournamentDto)
 
         then: "the returned data is correct"
         resultDto.topics.size() == 1
@@ -128,7 +122,7 @@ class CreateTournamentSpockTest extends Specification {
         tournamentRepository.count() == 1L
         def result = tournamentRepository.findAll().get(0)
         courseExecution.getTournaments().size() == 1
-        student.getCreatedTournaments().size() == 1
+        user.getCreatedTournaments().size() == 1
         result != null
         result.getId() == resultDto.getId()
         result.getStatus() == resultDto.getStatus()
@@ -146,7 +140,7 @@ class CreateTournamentSpockTest extends Specification {
         tournamentDto.clearTopicList();
 
         when:
-        tournamentService.createTournament(student.getId(), courseExecution.getId(), tournamentDto)
+        tournamentService.createTournament(user.getId(), courseExecution.getId(), tournamentDto)
 
         then:
         def error = thrown(TutorException)
@@ -166,7 +160,7 @@ class CreateTournamentSpockTest extends Specification {
         tournamentDto.addTopic(invalidTopicDto)
 
         when:
-        tournamentService.createTournament(student.getId(), courseExecution.getId(), tournamentDto)
+        tournamentService.createTournament(user.getId(), courseExecution.getId(), tournamentDto)
 
         then:
         def error = thrown(TutorException)
@@ -182,7 +176,7 @@ class CreateTournamentSpockTest extends Specification {
         tournamentDto.setSignedUpUsers(signUps)
 
         when:
-        tournamentService.createTournament(student.getId(), courseExecution.getId(), tournamentDto)
+        tournamentService.createTournament(user.getId(), courseExecution.getId(), tournamentDto)
 
         then:
         def error = thrown(TutorException)
@@ -196,7 +190,7 @@ class CreateTournamentSpockTest extends Specification {
         tournamentDto.setSignedUpUsers(null)
 
         when:
-        tournamentService.createTournament(student.getId(), courseExecution.getId(), tournamentDto)
+        tournamentService.createTournament(user.getId(), courseExecution.getId(), tournamentDto)
 
         then:
         def error = thrown(TutorException)
@@ -220,7 +214,7 @@ class CreateTournamentSpockTest extends Specification {
         tournamentDto.setNumberOfQuestions(numberOfQuestions)
 
         when:
-        tournamentService.createTournament(getCreatorId(userType.STUDENT), getExecutionId(validExecutionId),
+        tournamentService.createTournament(getCreatorId(true), getExecutionId(validExecutionId),
                 tournamentDto)
 
         then:
@@ -242,35 +236,24 @@ class CreateTournamentSpockTest extends Specification {
         def tournamentDto = createValidTournamentDto()
 
         when:
-        tournamentService.createTournament(getCreatorId(creatorType), getExecutionId(true), tournamentDto)
+        tournamentService.createTournament(getCreatorId(false), getExecutionId(true), tournamentDto)
 
         then:
         def error = thrown(TutorException)
-        error.errorMessage == errorMessage
-
-        where:
-        creatorType         || errorMessage
-        userType.TEACHER    || TOURNAMENT_INVALID_CREATOR
-        userType.INEXISTENT || USER_NOT_FOUND
-
+        error.errorMessage == USER_NOT_FOUND
     }
 
     def getExecutionId(valid) {
         return (valid) ? courseExecutionRepository.findAll().get(0).getId() : -1
     }
 
-    def getCreatorId(type) {
-        switch (type) {
-            case userType.STUDENT:
-                def student = new User("student", "student", 1, User.Role.STUDENT)
-                userRepository.save(student)
-                return student.getId()
-            case userType.TEACHER:
-                def teacher = new User("prof", "prof", 2, User.Role.TEACHER)
-                userRepository.save(teacher)
-                return teacher.getId()
-            default:
-                return -1
+    def getCreatorId(valid) {
+        if (valid) {
+            def student = new User("student", "student", 1, User.Role.STUDENT)
+            userRepository.save(student)
+            return student.getId()
+        } else {
+            return -1;
         }
     }
 
