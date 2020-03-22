@@ -44,11 +44,6 @@
             <stringProp name="Argument.value">TestTournament1</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
-          <elementProp name="state" elementType="Argument">
-            <stringProp name="Argument.name">state</stringProp>
-            <stringProp name="Argument.value">CANCELED</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
         </collectionProp>
       </Arguments>
       <hashTree/>
