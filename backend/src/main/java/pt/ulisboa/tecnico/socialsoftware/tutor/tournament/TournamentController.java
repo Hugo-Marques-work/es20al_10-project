@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -42,15 +43,15 @@ public class TournamentController {
     }
 
     @PostMapping("/tournaments/{tournamentId}/cancel")
-    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'TOURNAMENT.ACCESS')")
-    public TournamentDto cancelTournament(Principal principal,
+    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'TOURNAMENT.CANCEL')")
+    public ResponseEntity cancelTournament(Principal principal,
                                  @PathVariable int tournamentId) {
         User user = (User) ((Authentication) principal).getPrincipal();
         if(user == null){
             throw new TutorException(AUTHENTICATION_ERROR);
         }
 
-        return tournamentService.cancelTournament(user.getId(),tournamentId);
+        return ResponseEntity.ok().build();
     }
 
     private void formatDates(TournamentDto tournament) {
