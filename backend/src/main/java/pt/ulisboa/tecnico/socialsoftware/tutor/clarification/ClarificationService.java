@@ -19,8 +19,6 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepos
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,9 +38,6 @@ public class ClarificationService {
 
     @Autowired
     ClarificationAnswerRepository clarificationAnswerRepository;
-
-    @PersistenceContext
-    EntityManager entityManager;
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public ClarificationDto createClarification(Question question, User user, String content) {
@@ -106,7 +101,7 @@ public class ClarificationService {
                 .orElseThrow(()-> new TutorException(ErrorMessage.CLARIFICATION_ANSWER_NOT_FOUND, clarificationAnswerId));
 
         clarificationAnswer.remove();
-        entityManager.remove(clarificationAnswer);
+        clarificationAnswerRepository.delete(clarificationAnswer);
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
