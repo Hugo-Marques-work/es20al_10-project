@@ -44,8 +44,7 @@ public class TournamentController {
 
     @PostMapping("/tournaments/{tournamentId}/cancel")
     @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'TOURNAMENT.CANCEL')")
-    public ResponseEntity cancelTournament(Principal principal,
-                                 @PathVariable int tournamentId) {
+    public ResponseEntity cancelTournament(@PathVariable int tournamentId) {
         tournamentService.cancelTournament(tournamentId);
         return ResponseEntity.ok().build();
     }
