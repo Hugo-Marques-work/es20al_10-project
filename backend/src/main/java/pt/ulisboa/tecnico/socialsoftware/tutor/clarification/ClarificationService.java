@@ -42,9 +42,6 @@ public class ClarificationService {
     @Autowired
     ClarificationAnswerRepository clarificationAnswerRepository;
 
-    @PersistenceContext
-    EntityManager entityManager;
-
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public ClarificationDto createClarification(Question question, User user, String content) {
         checkQuestion(question);
@@ -148,9 +145,8 @@ public class ClarificationService {
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public ClarificationDto updateClarifications(ClarificationDto clarificationDto) {
-        Clarification clarification = clarificationRepository.findById(clarificationDto.getId()).orElse(null);
-        if (clarification == null)
-            throw new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationDto.getId());
+        Clarification clarification = clarificationRepository.findById(clarificationDto.getId()).orElseThrow(
+                () -> new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationDto.getId()));
 
         clarification.setContent(clarificationDto.getContent());
         return new ClarificationDto(clarification);
@@ -158,11 +154,10 @@ public class ClarificationService {
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void removeClarification(int clarificationId) {
-        Clarification clarification = clarificationRepository.findById(clarificationId).orElse(null);
-        if (clarification == null)
-            throw new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationId);
+        Clarification clarification = clarificationRepository.findById(clarificationId).orElseThrow(
+                () -> new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationId));
 
         clarification.remove();
-        entityManager.remove(clarification);
+        clarificationRepository.delete(clarification);
     }
 }
