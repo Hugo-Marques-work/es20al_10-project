@@ -67,6 +67,8 @@ class CreateQuizTest extends Specification {
         availableDate = LocalDateTime.now()
         conclusionDate = LocalDateTime.now().plusDays(1)
         quiz.setScramble(true)
+        quiz.setOneWay(true)
+        quiz.setQrCodeOnly(true)
         quiz.setAvailableDate(DateHandler.format(availableDate))
         quiz.setConclusionDate(DateHandler.format(conclusionDate))
         quiz.setSeries(1)
@@ -102,6 +104,8 @@ class CreateQuizTest extends Specification {
         result.getId() != null
         result.getKey() != null
         result.getScramble()
+        result.isOneWay()
+        result.isQrCodeOnly()
         result.getTitle() == QUIZ_TITLE
         result.getCreationDate() != null
         DateHandler.format(result.getAvailableDate()) == DateHandler.format(availableDate)
