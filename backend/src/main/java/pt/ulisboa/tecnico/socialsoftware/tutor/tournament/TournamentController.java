@@ -42,7 +42,7 @@ public class TournamentController {
     }
 
     @PostMapping("/tournaments/{tournamentId}/cancel")
-    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'TOURNAMENT.ACCESS')")
     public TournamentDto cancelTournament(Principal principal,
                                  @PathVariable int tournamentId) {
         User user = (User) ((Authentication) principal).getPrincipal();
