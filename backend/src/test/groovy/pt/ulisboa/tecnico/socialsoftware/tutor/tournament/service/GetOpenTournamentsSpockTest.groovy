@@ -100,7 +100,7 @@ class GetOpenTournamentsSpockTest extends Specification {
         def validTournament2 = createValidTournamentDto(otherDate)
         and: "a tournament dto that has been canceled"
         def canceledTournament = createValidTournamentDto(START_DATE)
-        tournamentService.cancelTournament(student.getId(), canceledTournament.getId())
+        tournamentService.cancelTournament(canceledTournament.getId())
 
         when:
         def result = tournamentService.getOpenTournaments(courseExecution.getId())

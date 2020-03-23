@@ -52,11 +52,19 @@ public class TournamentController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/tournaments/{tournamentId}/cancel")
+    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'TOURNAMENT.CANCEL')")
+    public ResponseEntity cancelTournament(@PathVariable int tournamentId) {
+        tournamentService.cancelTournament(tournamentId);
+        return ResponseEntity.ok().build();
+    }
+
     private void checkUserAuth(User user) {
         if(user == null) {
             throw new TutorException(AUTHENTICATION_ERROR);
         }
     }
+
     private void formatDates(TournamentDto tournament) {
         DateHandler.formatFromRequest(tournament.getStartingDate());
         DateHandler.formatFromRequest(tournament.getConclusionDate());

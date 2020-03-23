@@ -79,10 +79,6 @@ public class Tournament {
     }
 
     private void setCreator(User creator) {
-        if (creator.getRole() != User.Role.STUDENT) {
-            throw new TutorException(TOURNAMENT_INVALID_CREATOR,
-                    User.Role.STUDENT.toString(), creator.getRole().toString());
-        }
         this.creator = creator;
     }
 
@@ -209,13 +205,8 @@ public class Tournament {
         }
     }
 
-    public void cancel(User user) {
-        if(!this.isCreator(user)){
-            throw new TutorException(TOURNAMENT_NOT_THE_CREATOR,this.getId().toString());
-        }
-
+    public void cancel() {
         checkAbleToBeCanceled();
-
         status = Status.CANCELED;
     }
 
