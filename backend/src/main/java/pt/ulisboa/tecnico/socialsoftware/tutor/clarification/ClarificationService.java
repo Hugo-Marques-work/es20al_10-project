@@ -87,9 +87,8 @@ public class ClarificationService {
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public List<ClarificationAnswerDto> getClarificationAnswers(int clarificationId) {
-        Clarification clarification = clarificationRepository.findById(clarificationId).orElse(null);
-        if (clarification == null)
-            throw new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationId);
+        Clarification clarification = clarificationRepository.findById(clarificationId)
+                .orElseThrow(()-> new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationId));
 
         return Lists.newArrayList(clarification.getClarificationAnswers().stream()
             .map(ClarificationAnswerDto::new)
@@ -139,8 +138,9 @@ public class ClarificationService {
         if (question == null)
             throw new TutorException(ErrorMessage.QUESTION_MISSING_DATA);
 
-        questionRepository.findById(question.getId()).orElseThrow(
-                () -> new TutorException(ErrorMessage.QUESTION_NOT_FOUND, question.getId()));
+        Question qt = questionRepository.findById(question.getId()).orElse(null);
+        if (qt == null)
+                throw new TutorException(ErrorMessage.QUESTION_NOT_FOUND, question.getId());
     }
 
     private void checkUser(User user, User.Role role) {
