@@ -248,7 +248,7 @@ VALUES (
             <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV Data Set Config" enabled="true">
               <stringProp name="delimiter">,</stringProp>
               <stringProp name="fileEncoding"></stringProp>
-              <stringProp name="filename">/home/muggy/leic_3ano_2semestre/es/project/proj1/es20al_10-project/backend/jmeter/tournament/TournamentDataForSignUp2.csv</stringProp>
+              <stringProp name="filename">/home/muggy/leic_3ano_2semestre/es/project/proj1/es20al_10-project/backend/jmeter/tournament/TournamentDataForSignUp.csv</stringProp>
               <boolProp name="ignoreFirstLine">false</boolProp>
               <boolProp name="quotedData">false</boolProp>
               <boolProp name="recycle">true</boolProp>
