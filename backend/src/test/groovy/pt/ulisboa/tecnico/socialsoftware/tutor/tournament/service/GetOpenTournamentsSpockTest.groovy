@@ -1,6 +1,5 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.service
 
-import org.apache.tomcat.jni.Local
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration

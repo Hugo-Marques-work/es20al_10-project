@@ -77,7 +77,6 @@ class CreateTournamentServiceSpockPerformanceTest extends Specification {
         and: "a tournament dto"
         def tournamentDto = new TournamentDto()
         tournamentDto.setTitle(TITLE)
-        tournamentDto.setTitle(TITLE)
         tournamentDto.setStartingDate(START_DATE)
         tournamentDto.setConclusionDate(CONCLUSION_DATE)
         tournamentDto.setNumberOfQuestions(NUMBER_QUESTIONS)
