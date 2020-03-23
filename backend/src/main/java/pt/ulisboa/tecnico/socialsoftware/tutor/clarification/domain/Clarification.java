@@ -66,6 +66,11 @@ public class Clarification {
 
     public void addClarificationAnswer(ClarificationAnswer clarificationAnswer) {this.clarificationAnswers.add(clarificationAnswer);}
 
+    public void remove() {
+        user.getClarifications().remove(this);
+        question.getClarifications().remove(this);
+    }
+
     @Override
     public String toString() {
         return "Clarification{" +

@@ -14,6 +14,7 @@ public enum ErrorMessage {
     COURSE_EXECUTION_NOT_FOUND("Course execution not found with id %d"),
 
     COURSE_NOT_FOUND("Course not found with name %s"),
+    COURSE_NOT_FOUND_ID("Course not found with id %d"),
     COURSE_NAME_IS_EMPTY("The course name is empty"),
     COURSE_TYPE_NOT_DEFINED("The course type is not defined"),
     COURSE_EXECUTION_ACRONYM_IS_EMPTY("The course execution acronym is empty"),
@@ -56,6 +57,7 @@ public enum ErrorMessage {
     QUESTION_CHANGE_CORRECT_OPTION_HAS_ANSWERS("Can not change correct option of answered question"),
     QUIZ_HAS_ANSWERS("Quiz already has answers"),
     QUIZ_ALREADY_COMPLETED("Quiz already completed"),
+    QUIZ_ALREADY_STARTED("Quiz was already started"),
     QUIZ_QUESTION_HAS_ANSWERS("Quiz question has answers"),
     FENIX_ERROR("Fenix Error"),
     AUTHENTICATION_ERROR("Authentication Error"),
