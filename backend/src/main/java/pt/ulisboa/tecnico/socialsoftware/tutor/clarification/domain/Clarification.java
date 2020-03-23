@@ -21,6 +21,9 @@ public class Clarification {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    @Column(nullable = false)
+    private boolean status;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -37,6 +40,7 @@ public class Clarification {
     public Clarification(String content, Question question, User user) {
         this.user = user;
         this.question = question;
+        this.status = false;
 
         if (content == null || content.isEmpty() || content.isBlank())
             throw new TutorException(CLARIFICATION_IS_EMPTY);
@@ -52,6 +56,8 @@ public class Clarification {
 
     public User getUser() { return user; }
 
+    public boolean isStatus() { return status; }
+
     public void setId(Integer id) { this.id = id; }
 
     public void setContent(String content) { this.content = content; }
@@ -64,7 +70,12 @@ public class Clarification {
 
     public void setClarificationAnswers(Set<ClarificationAnswer> clarificationAnswers) { this.clarificationAnswers = clarificationAnswers; }
 
-    public void addClarificationAnswer(ClarificationAnswer clarificationAnswer) {this.clarificationAnswers.add(clarificationAnswer);}
+    public void setStatus(boolean status) { this.status = status; }
+
+    public void addClarificationAnswer(ClarificationAnswer clarificationAnswer) {
+        if (!status) status = true;
+        this.clarificationAnswers.add(clarificationAnswer);
+    }
 
     public void remove() {
         user.getClarifications().remove(this);
@@ -76,8 +87,10 @@ public class Clarification {
         return "Clarification{" +
                 "id=" + id +
                 ", content='" + content + '\'' +
+                ", status=" + status +
                 ", user=" + user +
                 ", question=" + question +
+                ", clarificationAnswers=" + clarificationAnswers +
                 '}';
     }
 }

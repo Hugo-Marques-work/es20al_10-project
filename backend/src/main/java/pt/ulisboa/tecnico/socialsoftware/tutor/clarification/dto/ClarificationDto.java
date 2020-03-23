@@ -11,11 +11,13 @@ public class ClarificationDto implements Serializable {
     private String content;
     private Integer userId;
     private Integer questionId;
+    private boolean status;
 
     public ClarificationDto() {}
 
     public ClarificationDto(Clarification clarification) {
         this.id = clarification.getId();
+        this.status = clarification.isStatus();
 
         if (clarification.getContent() == null || clarification.getContent().isEmpty() || clarification.getContent().isBlank())
             throw new TutorException(ErrorMessage.CLARIFICATION_IS_EMPTY);
@@ -39,6 +41,8 @@ public class ClarificationDto implements Serializable {
 
     public Integer getQuestionId() { return questionId; }
 
+    public boolean isStatus() { return status; }
+
     public void setId(Integer id) { this.id = id; }
 
     public void setContent(String content) { this.content = content; }
@@ -47,6 +51,8 @@ public class ClarificationDto implements Serializable {
 
     public void setQuestionId(Integer questionId) { this.questionId = questionId; }
 
+    public void setStatus(boolean status) { this.status = status; }
+
     @Override
     public String toString() {
         return "ClarificationDto{" +
@@ -54,6 +60,7 @@ public class ClarificationDto implements Serializable {
                 ", content='" + content + '\'' +
                 ", userId=" + userId +
                 ", questionId=" + questionId +
+                ", status=" + status +
                 '}';
     }
 }
