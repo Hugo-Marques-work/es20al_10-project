@@ -130,8 +130,8 @@ public class ClarificationService {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new TutorException(ErrorMessage.COURSE_NOT_FOUND_ID, courseId));
         Set<Clarification> clarifications = new HashSet<>();
         List<Question> questions = new ArrayList<>(course.getQuestions());
-        for (int i = 0; i < questions.size(); i++) {
-            clarifications.addAll(questions.get(i).getClarifications());
+        for (Question question : questions) {
+            clarifications.addAll(question.getClarifications());
         }
 
         return Lists.newArrayList(clarifications).stream()
