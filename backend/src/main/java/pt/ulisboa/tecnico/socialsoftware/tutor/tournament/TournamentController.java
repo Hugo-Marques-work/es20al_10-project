@@ -40,16 +40,9 @@ public class TournamentController {
         return tournamentService.createTournament(user.getId(), executionId, tournamentDto);
     }
 
-    private void formatDates(TournamentDto tournament) {
-        DateHandler.formatFromRequest(tournament.getStartingDate());
-        DateHandler.formatFromRequest(tournament.getConclusionDate());
-    }
-
-    @PostMapping("/executions/{executionId}/tournaments/signUp")
+    @PostMapping("/tournaments/{tournamentId}/signUp")
     @PreAuthorize("hasRole('ROLE_STUDENT') && hasPermission(#tournamentId, 'TOURNAMENT.ACCESS')")
-    public ResponseEntity signUpForTournament(Principal principal,
-                                              @PathVariable int executionId,
-                                              @Valid @RequestBody int tournamentId) {
+    public ResponseEntity signUpForTournament(Principal principal,@PathVariable int tournamentId) {
 
         User user = (User) ((Authentication) principal).getPrincipal();
         checkUserAuth(user);
@@ -63,5 +56,9 @@ public class TournamentController {
         if(user == null) {
             throw new TutorException(AUTHENTICATION_ERROR);
         }
+    }
+    private void formatDates(TournamentDto tournament) {
+        DateHandler.formatFromRequest(tournament.getStartingDate());
+        DateHandler.formatFromRequest(tournament.getConclusionDate());
     }
 }
