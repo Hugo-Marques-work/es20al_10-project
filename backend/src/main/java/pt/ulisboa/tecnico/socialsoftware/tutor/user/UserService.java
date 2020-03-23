@@ -21,8 +21,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.COURSE_EXECUTION_NOT_FOUND;
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.DUPLICATE_USER;
+import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 
 @Service
 public class UserService {
@@ -114,8 +113,9 @@ public class UserService {
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public List<TournamentDto> getCreatedTournaments(String username) {
-        User user =  this.userRepository.findByUsername(username);
+    public List<TournamentDto> getCreatedTournaments(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new TutorException(USER_NOT_FOUND, userId));
 
         return user.getCreatedTournaments().stream()
                 .map(tournament -> new TournamentDto(tournament, false)).collect(Collectors.toList());

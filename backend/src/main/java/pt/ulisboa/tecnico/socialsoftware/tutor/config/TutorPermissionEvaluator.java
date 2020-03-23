@@ -5,7 +5,6 @@ import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import pt.ulisboa.tecnico.socialsoftware.tutor.administration.AdministrationService;
-import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.AssessmentService;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService;
@@ -43,6 +42,7 @@ public class TutorPermissionEvaluator implements PermissionEvaluator {
     @Override
     public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
         String username = ((User) authentication.getPrincipal()).getUsername();
+        int userId = ((User) authentication.getPrincipal()).getId();
 
         if (targetDomainObject instanceof CourseDto) {
             CourseDto courseDto = (CourseDto) targetDomainObject;
@@ -77,7 +77,7 @@ public class TutorPermissionEvaluator implements PermissionEvaluator {
                 case "QUIZ.ACCESS":
                     return userHasThisExecution(username, quizService.findQuizCourseExecution(id).getCourseExecutionId());
                 case "TOURNAMENT.CANCEL":
-                    return userCreatedTournament(username, id);
+                    return userCreatedTournament(userId, id);
                 default: return false;
             }
         }
@@ -95,8 +95,8 @@ public class TutorPermissionEvaluator implements PermissionEvaluator {
                 .anyMatch(course -> course.getCourseExecutionId() == id);
     }
 
-    private boolean userCreatedTournament(String username, int id) {
-        return userService.getCreatedTournaments(username).stream()
+    private boolean userCreatedTournament(int userId, int id) {
+        return userService.getCreatedTournaments(userId).stream()
                 .anyMatch(tournament -> tournament.getId() == id);
     }
 
