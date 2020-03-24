@@ -67,25 +67,25 @@ class GetClarificationsSpockPerformanceTest extends Specification {
         question.addClarification(clarification)
     }
 
-    def "performance test to get 10000 clarifications by user" () {
+    def "performance test to get 100000 clarifications by user" () {
         when:
-        1.upto(10000, {clarificationService.getClarificationsByUser(user.getId())})
+        1.upto(100000, {clarificationService.getClarificationsByUser(user.getId())})
 
         then:
         true
     }
 
-    def "performance test to get 10000 clarifications by question" () {
+    def "performance test to get 100000 clarifications by question" () {
         when:
-        1.upto(10000, {clarificationService.getClarificationsByQuestion(question.getId())})
+        1.upto(100000, {clarificationService.getClarificationsByQuestion(question.getId())})
 
         then:
         true
     }
 
-    def "performance test to get 10000 clarifications by course" () {
+    def "performance test to get 100000 clarifications by course" () {
         when:
-        1.upto(10000, {clarificationService.getClarificationsByCourse(course.getId())})
+        1.upto(100000, {clarificationService.getClarificationsByCourse(course.getId())})
 
         then:
         true
