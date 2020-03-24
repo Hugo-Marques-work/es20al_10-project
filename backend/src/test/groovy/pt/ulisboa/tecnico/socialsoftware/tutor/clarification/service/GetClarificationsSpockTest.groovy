@@ -19,7 +19,6 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
 import spock.lang.Shared
 import spock.lang.Specification
-import spock.lang.Unroll
 
 @DataJpaTest
 class GetClarificationsSpockTest extends Specification{
@@ -79,7 +78,7 @@ class GetClarificationsSpockTest extends Specification{
         result.get(0).content == CONTENT
         result.get(0).questionId == question.getId()
         result.get(0).userId == user.getId()
-        !result.get(0).status
+        !result.get(0).answered
     }
 
     def "Question exists and returns clarifications with no answers" () {
@@ -90,7 +89,7 @@ class GetClarificationsSpockTest extends Specification{
         result.get(0).content == CONTENT
         result.get(0).questionId == question.getId()
         result.get(0).userId == user.getId()
-        !result.get(0).status
+        !result.get(0).answered
     }
 
     def "Course exists and returns clarifications with no answers" () {
@@ -101,7 +100,7 @@ class GetClarificationsSpockTest extends Specification{
         result.get(0).content == CONTENT
         result.get(0).questionId == question.getId()
         result.get(0).userId == user.getId()
-        !result.get(0).status
+        !result.get(0).answered
     }
 
     def "User exists and returns clarifications with answers" () {
@@ -117,7 +116,7 @@ class GetClarificationsSpockTest extends Specification{
         result.get(0).content == CONTENT
         result.get(0).questionId == question.getId()
         result.get(0).userId == user.getId()
-        result.get(0).status
+        result.get(0).answered
     }
 
     def "Question exists and returns clarifications with answers" () {
@@ -133,7 +132,7 @@ class GetClarificationsSpockTest extends Specification{
         result.get(0).content == CONTENT
         result.get(0).questionId == question.getId()
         result.get(0).userId == user.getId()
-        result.get(0).status
+        result.get(0).answered
     }
 
     def "Course exists and returns clarifications with answers" () {
@@ -149,7 +148,7 @@ class GetClarificationsSpockTest extends Specification{
         result.get(0).content == CONTENT
         result.get(0).questionId == question.getId()
         result.get(0).userId == user.getId()
-        result.get(0).status
+        result.get(0).answered
     }
 
     def "User does not exists and a an error is returned" () {

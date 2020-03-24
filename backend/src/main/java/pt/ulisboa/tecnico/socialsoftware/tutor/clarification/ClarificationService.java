@@ -86,86 +86,6 @@ public class ClarificationService {
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public List<ClarificationAnswerDto> getClarificationAnswers(int clarificationId) {
-        Clarification clarification = clarificationRepository.findById(clarificationId)
-                .orElseThrow(()-> new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationId));
-
-        return Lists.newArrayList(clarification.getClarificationAnswers().stream()
-            .map(ClarificationAnswerDto::new)
-            .sorted(Comparator.comparing(ClarificationAnswerDto::getId))
-            .collect(Collectors.toList())
-        );
-    }
-
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public ClarificationAnswerDto updateClarificationAnswer(int clarificationAnswerId, String content) {
-        ClarificationAnswer clarificationAnswer = clarificationAnswerRepository.findById(clarificationAnswerId)
-                .orElseThrow(()-> new TutorException(ErrorMessage.CLARIFICATION_ANSWER_NOT_FOUND, clarificationAnswerId));
-
-        clarificationAnswer.setContent(content);
-        return new ClarificationAnswerDto(clarificationAnswer);
-    }
-
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public void removeClarificationAnswer(int clarificationAnswerId) {
-        ClarificationAnswer clarificationAnswer = clarificationAnswerRepository.findById(clarificationAnswerId)
-                .orElseThrow(()-> new TutorException(ErrorMessage.CLARIFICATION_ANSWER_NOT_FOUND, clarificationAnswerId));
-
-        clarificationAnswer.remove();
-        clarificationAnswerRepository.delete(clarificationAnswer);
-    }
-
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public CourseDto findClarificationCourseById(int clarificationId) {
-        return clarificationRepository.findById(clarificationId)
-                .map(Clarification::getQuestion)
-                .map(Question::getCourse)
-                .map(CourseDto::new)
-                .orElseThrow(() -> new TutorException(CLARIFICATION_NOT_FOUND, clarificationId));
-    }
-
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public CourseDto findClarificationAnswerCourseById(int clarificationAnswerId) {
-        return clarificationAnswerRepository.findById(clarificationAnswerId)
-                .map(ClarificationAnswer::getClarification)
-                .map(Clarification::getQuestion)
-                .map(Question::getCourse)
-                .map(CourseDto::new)
-                .orElseThrow(() -> new TutorException(CLARIFICATION_ANSWER_NOT_FOUND, clarificationAnswerId));
-    }
-
-    private void checkQuestion(Question question) {
-        if (question == null)
-            throw new TutorException(ErrorMessage.QUESTION_MISSING_DATA);
-
-        Question qt = questionRepository.findById(question.getId()).orElse(null);
-        if (qt == null)
-                throw new TutorException(ErrorMessage.QUESTION_NOT_FOUND, question.getId());
-    }
-
-    private void checkUser(User user, User.Role role) {
-        if (user == null)
-            throw new TutorException(ErrorMessage.USER_NOT_FOUND, null);
-
-        User usr = userRepository.findById(user.getId()).orElseThrow(() -> new TutorException(ErrorMessage.USER_NOT_FOUND, user.getId()));
-        if (usr.getRole() != role)
-            throw new TutorException(ErrorMessage.CLARIFICATION_WRONG_USER, role.toString());
-    }
-
-    private void checkContent(String content, ErrorMessage errorMessage) {
-        if (content == null || content.isBlank() || content.isEmpty())
-            throw new TutorException(errorMessage);
-    }
-
-    private void checkClarification(Clarification clarification){
-        if (clarification == null)
-            throw new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, null);
-        Clarification clr = clarificationRepository.findById(clarification.getId()).orElse(null);
-        if (clr == null)
-            throw new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarification.getId());
-    }
-
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public List<ClarificationDto> getClarificationsByQuestion(int questionId) {
         Question question = questionRepository.findById(questionId).orElseThrow(() -> new TutorException(ErrorMessage.QUESTION_NOT_FOUND, questionId));
         return Lists.newArrayList(question.getClarifications()).stream()
@@ -202,6 +122,18 @@ public class ClarificationService {
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public List<ClarificationAnswerDto> getClarificationAnswers(int clarificationId) {
+        Clarification clarification = clarificationRepository.findById(clarificationId)
+                .orElseThrow(()-> new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationId));
+
+        return Lists.newArrayList(clarification.getClarificationAnswers().stream()
+            .map(ClarificationAnswerDto::new)
+            .sorted(Comparator.comparing(ClarificationAnswerDto::getId))
+            .collect(Collectors.toList())
+        );
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public ClarificationDto updateClarifications(ClarificationDto clarificationDto) {
         Clarification clarification = clarificationRepository.findById(clarificationDto.getId()).orElseThrow(
                 () -> new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationDto.getId()));
@@ -211,11 +143,77 @@ public class ClarificationService {
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public ClarificationAnswerDto updateClarificationAnswer(int clarificationAnswerId, String content) {
+        ClarificationAnswer clarificationAnswer = clarificationAnswerRepository.findById(clarificationAnswerId)
+                .orElseThrow(()-> new TutorException(ErrorMessage.CLARIFICATION_ANSWER_NOT_FOUND, clarificationAnswerId));
+
+        clarificationAnswer.setContent(content);
+        return new ClarificationAnswerDto(clarificationAnswer);
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void removeClarification(int clarificationId) {
         Clarification clarification = clarificationRepository.findById(clarificationId).orElseThrow(
                 () -> new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationId));
 
         clarification.remove();
         clarificationRepository.delete(clarification);
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void removeClarificationAnswer(int clarificationAnswerId) {
+        ClarificationAnswer clarificationAnswer = clarificationAnswerRepository.findById(clarificationAnswerId)
+                .orElseThrow(()-> new TutorException(ErrorMessage.CLARIFICATION_ANSWER_NOT_FOUND, clarificationAnswerId));
+
+        clarificationAnswer.remove();
+        clarificationAnswerRepository.delete(clarificationAnswer);
+    }
+
+    private void checkQuestion(Question question) {
+        if (question == null)
+            throw new TutorException(ErrorMessage.QUESTION_MISSING_DATA);
+
+        Question qt = questionRepository.findById(question.getId()).orElse(null);
+        if (qt == null)
+            throw new TutorException(ErrorMessage.QUESTION_NOT_FOUND, question.getId());
+    }
+
+    private void checkUser(User user, User.Role role) {
+        if (user == null)
+            throw new TutorException(ErrorMessage.USER_NOT_FOUND, null);
+
+        User usr = userRepository.findById(user.getId()).orElseThrow(() -> new TutorException(ErrorMessage.USER_NOT_FOUND, user.getId()));
+        if (usr.getRole() != role)
+            throw new TutorException(ErrorMessage.CLARIFICATION_WRONG_USER, role.toString());
+    }
+
+    private void checkContent(String content, ErrorMessage errorMessage) {
+        if (content == null || content.isBlank() || content.isEmpty())
+            throw new TutorException(errorMessage);
+    }
+
+    public CourseDto findClarificationCourseById(int clarificationId) {
+        return clarificationRepository.findById(clarificationId)
+                .map(Clarification::getQuestion)
+                .map(Question::getCourse)
+                .map(CourseDto::new)
+                .orElseThrow(() -> new TutorException(CLARIFICATION_NOT_FOUND, clarificationId));
+    }
+
+    public CourseDto findClarificationAnswerCourseById(int clarificationAnswerId) {
+        return clarificationAnswerRepository.findById(clarificationAnswerId)
+                .map(ClarificationAnswer::getClarification)
+                .map(Clarification::getQuestion)
+                .map(Question::getCourse)
+                .map(CourseDto::new)
+                .orElseThrow(() -> new TutorException(CLARIFICATION_ANSWER_NOT_FOUND, clarificationAnswerId));
+    }
+
+    private void checkClarification(Clarification clarification){
+        if (clarification == null)
+            throw new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, null);
+        Clarification clr = clarificationRepository.findById(clarification.getId()).orElse(null);
+        if (clr == null)
+            throw new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarification.getId());
     }
 }

@@ -22,7 +22,7 @@ public class Clarification {
     private String content;
 
     @Column(nullable = false)
-    private boolean status;
+    private boolean isAnswered;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -40,7 +40,7 @@ public class Clarification {
     public Clarification(String content, Question question, User user) {
         this.user = user;
         this.question = question;
-        this.status = false;
+        this.isAnswered = false;
 
         if (content == null || content.isEmpty() || content.isBlank())
             throw new TutorException(CLARIFICATION_IS_EMPTY);
@@ -56,7 +56,7 @@ public class Clarification {
 
     public User getUser() { return user; }
 
-    public boolean isStatus() { return status; }
+    public boolean isIsAnswered() { return isAnswered; }
 
     public void setId(Integer id) { this.id = id; }
 
@@ -70,10 +70,10 @@ public class Clarification {
 
     public void setClarificationAnswers(Set<ClarificationAnswer> clarificationAnswers) { this.clarificationAnswers = clarificationAnswers; }
 
-    public void setStatus(boolean status) { this.status = status; }
+    public void setIsAnswered(boolean status) { this.isAnswered = status; }
 
     public void addClarificationAnswer(ClarificationAnswer clarificationAnswer) {
-        if (!status) status = true;
+        if (!isAnswered) isAnswered = true;
         this.clarificationAnswers.add(clarificationAnswer);
     }
 
@@ -87,7 +87,7 @@ public class Clarification {
         return "Clarification{" +
                 "id=" + id +
                 ", content='" + content + '\'' +
-                ", status=" + status +
+                ", isAnswered=" + isAnswered +
                 ", user=" + user +
                 ", question=" + question +
                 ", clarificationAnswers=" + clarificationAnswers +
