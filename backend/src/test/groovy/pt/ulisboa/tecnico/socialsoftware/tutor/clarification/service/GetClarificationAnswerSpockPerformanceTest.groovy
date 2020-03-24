@@ -48,7 +48,7 @@ class GetClarificationAnswerSpockPerformanceTest extends Specification {
         })
 
         when:
-        1.upto(10000, {
+        1.upto(100000, {
             clarificationService.getClarificationAnswers(clarification_id)
         })
 
