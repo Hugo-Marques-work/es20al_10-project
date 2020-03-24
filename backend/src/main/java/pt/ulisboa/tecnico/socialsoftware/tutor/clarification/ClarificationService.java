@@ -169,6 +169,33 @@ public class ClarificationService {
         clarificationAnswerRepository.delete(clarificationAnswer);
     }
 
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public CourseDto findClarificationCourseById(int clarificationId) {
+        return clarificationRepository.findById(clarificationId)
+                .map(Clarification::getQuestion)
+                .map(Question::getCourse)
+                .map(CourseDto::new)
+                .orElseThrow(() -> new TutorException(CLARIFICATION_NOT_FOUND, clarificationId));
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public CourseDto findClarificationAnswerCourseById(int clarificationAnswerId) {
+        return clarificationAnswerRepository.findById(clarificationAnswerId)
+                .map(ClarificationAnswer::getClarification)
+                .map(Clarification::getQuestion)
+                .map(Question::getCourse)
+                .map(CourseDto::new)
+                .orElseThrow(() -> new TutorException(CLARIFICATION_ANSWER_NOT_FOUND, clarificationAnswerId));
+    }
+
+    private void checkClarification(Clarification clarification){
+        if (clarification == null)
+            throw new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, null);
+        Clarification clr = clarificationRepository.findById(clarification.getId()).orElse(null);
+        if (clr == null)
+            throw new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarification.getId());
+    }
+
     private void checkQuestion(Question question) {
         if (question == null)
             throw new TutorException(ErrorMessage.QUESTION_MISSING_DATA);
@@ -190,30 +217,5 @@ public class ClarificationService {
     private void checkContent(String content, ErrorMessage errorMessage) {
         if (content == null || content.isBlank() || content.isEmpty())
             throw new TutorException(errorMessage);
-    }
-
-    public CourseDto findClarificationCourseById(int clarificationId) {
-        return clarificationRepository.findById(clarificationId)
-                .map(Clarification::getQuestion)
-                .map(Question::getCourse)
-                .map(CourseDto::new)
-                .orElseThrow(() -> new TutorException(CLARIFICATION_NOT_FOUND, clarificationId));
-    }
-
-    public CourseDto findClarificationAnswerCourseById(int clarificationAnswerId) {
-        return clarificationAnswerRepository.findById(clarificationAnswerId)
-                .map(ClarificationAnswer::getClarification)
-                .map(Clarification::getQuestion)
-                .map(Question::getCourse)
-                .map(CourseDto::new)
-                .orElseThrow(() -> new TutorException(CLARIFICATION_ANSWER_NOT_FOUND, clarificationAnswerId));
-    }
-
-    private void checkClarification(Clarification clarification){
-        if (clarification == null)
-            throw new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, null);
-        Clarification clr = clarificationRepository.findById(clarification.getId()).orElse(null);
-        if (clr == null)
-            throw new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarification.getId());
     }
 }
