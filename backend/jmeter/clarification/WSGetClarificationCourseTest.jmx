@@ -84,7 +84,7 @@
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
           <stringProp name="dataSource">createClarification</stringProp>
           <stringProp name="query">delete from clarifications where id = ${id};
-insert into clarifications values(${id}, ${content}, ${questionId}, ${userId});</stringProp>
+insert into clarifications values(${id}, ${content}, false, ${questionId}, ${userId});</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
           <stringProp name="queryTimeout"></stringProp>
