@@ -32,7 +32,7 @@ class CreateClarificationAnswerSpockPerformanceTest extends Specification {
     @Autowired
     ClarificationAnswerRepository clarificationAnswerRepository
 
-    def "performance testing to create 10000 clarification answers"(){
+    def "performance testing to create 5000 clarification answers"(){
         given: "a user"
         def user = new User(NAME, USERNAME, USER_KEY, ROLE)
         userRepository.save(user)
@@ -42,7 +42,7 @@ class CreateClarificationAnswerSpockPerformanceTest extends Specification {
         clarificationRepository.save(clarification)
 
         when:
-        1.upto(10000, {
+        1.upto(5000, {
             clarificationService.createClarificationAnswer(clarification, user, CONTENT)
         })
 
