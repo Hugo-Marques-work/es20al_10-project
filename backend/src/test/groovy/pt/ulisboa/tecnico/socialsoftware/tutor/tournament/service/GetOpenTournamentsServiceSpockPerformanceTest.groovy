@@ -13,6 +13,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
+import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
@@ -23,7 +24,7 @@ import spock.lang.Specification
 import java.time.LocalDateTime
 
 @DataJpaTest
-class CreateTournamentServiceSpockPerformanceTest extends Specification {
+class GetOpenTournamentsServiceSpockPerformanceTest extends Specification {
     public static final String COURSE_NAME = "Software Architecture"
     public static final String ACRONYM = "AS1"
     public static final String ACADEMIC_TERM = "1 SEM"
@@ -58,7 +59,7 @@ class CreateTournamentServiceSpockPerformanceTest extends Specification {
         CONCLUSION_DATE = DateHandler.format(LocalDateTime.now().plusDays(2))
     }
 
-    def "create tournament performance test"() {
+    def "get open tournaments performance test"() {
         given: "a course execution"
         def course = new Course(COURSE_NAME, Course.Type.TECNICO)
         courseRepository.save(course)
@@ -78,12 +79,15 @@ class CreateTournamentServiceSpockPerformanceTest extends Specification {
         tournamentDto.setConclusionDate(CONCLUSION_DATE)
         tournamentDto.setNumberOfQuestions(NUMBER_QUESTIONS)
         tournamentDto.addTopic(topicDto)
+        and: "500000 tournaments"
+        1.upto(500000, {
+            tournamentRepository.save(new Tournament(student, tournamentDto))
+        })
 
-        when: "500000 tournaments are created"
+        when:
         def executionId = courseExecution.id
-        def studentId = student.id
         1.upto(500000,  {
-            tournamentService.createTournament(studentId, executionId, tournamentDto)
+            tournamentService.getOpenTournaments(executionId)
         })
 
         then:

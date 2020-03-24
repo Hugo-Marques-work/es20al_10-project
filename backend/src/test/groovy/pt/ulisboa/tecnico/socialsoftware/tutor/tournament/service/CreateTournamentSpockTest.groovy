@@ -56,9 +56,6 @@ class CreateTournamentSpockTest extends Specification {
     @Autowired
     TopicService topicService
 
-    @Autowired
-    UserService userService
-
     Course course
     CourseExecution courseExecution
     User user
@@ -273,11 +270,6 @@ class CreateTournamentSpockTest extends Specification {
         @Bean
         QuestionService questionService() {
             return new QuestionService()
-        }
-
-        @Bean
-        UserService userService() {
-            return new UserService()
         }
     }
 }
