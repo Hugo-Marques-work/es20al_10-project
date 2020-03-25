@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
@@ -17,6 +18,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,7 +43,7 @@ public class TournamentService {
     public TournamentDto createTournament(int creatorId, int executionId, TournamentDto tournamentDto) {
         CourseExecution courseExecution = getCourseExecution(executionId);
 
-        User creator = getTournamentCreator(creatorId);
+        User creator = getUser(creatorId);
 
         Tournament tournament = new Tournament(creator, tournamentDto);
         tournament.setCourseExecution(courseExecution);
@@ -62,12 +64,14 @@ public class TournamentService {
         return courseExecution.getTournaments().stream()
                 .map(tournament -> new TournamentDto(tournament, true))
                 .filter(TournamentDto::isOpen)
+                .sorted(Comparator
+                        .comparing(TournamentDto::getStartingDateDate))
                 .collect(Collectors.toList());
     }
 
-    private User getTournamentCreator(int creatorId) {
-        return userRepository.findById(creatorId)
-                .orElseThrow(() -> new TutorException(USER_NOT_FOUND, creatorId));
+    private User getUser(int userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new TutorException(USER_NOT_FOUND, userId));
     }
 
     private CourseExecution getCourseExecution(int executionId) {
@@ -105,8 +109,7 @@ public class TournamentService {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new TutorException(USER_NOT_FOUND, userId));
 
-        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(
-                () -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
+        Tournament tournament = getTournament(tournamentId);
 
         user.checkReadyForSignUp(tournament);
 
@@ -122,18 +125,21 @@ public class TournamentService {
     }
 
     @Transactional
-    public void cancelTournament(Integer userId, Integer tournamentId) {
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new TutorException(USER_NOT_FOUND, userId));
-
-        Tournament tournament = tournamentRepository.findById(tournamentId).orElseThrow(
-                () -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
-
-        executeCancel(user,tournament);
+    public void cancelTournament(Integer tournamentId) {
+        Tournament tournament = getTournament(tournamentId);
+        tournament.cancel();
     }
 
-    private void executeCancel(User user, Tournament tournament) {
-        tournament.cancel(user);
+    private Tournament getTournament(Integer tournamentId) {
+        return tournamentRepository.findById(tournamentId).orElseThrow(
+                () -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
+    }
+
+    public CourseDto findTournamentCourseExecution(int tournamentId) {
+        return this.tournamentRepository.findById(tournamentId)
+                .map(Tournament::getCourseExecution)
+                .map(CourseDto::new)
+                .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
     }
 
 }
