@@ -51,7 +51,7 @@ class SignUpForTournamentSpockTest extends Specification{
         CourseExecution courseExe = new CourseExecution();
         courseExecutionRepository.save(courseExe)
 
-        def tournament = new Tournament(creator, startingDate, currentDate.plusDays(2), 10)
+        def tournament = new Tournament(creator, "TEST", startingDate, currentDate.plusDays(2), 10)
         tournament.setId(1)
         tournament.setCourseExecution(courseExe)
         tournamentRepository.save(tournament)

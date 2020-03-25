@@ -3,7 +3,6 @@ package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
-import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.StudentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
 import java.time.LocalDateTime;
@@ -14,7 +13,8 @@ import java.util.stream.Collectors;
 
 public class TournamentDto {
     private Integer id;
-    private StudentDto creator;
+    private String title;
+    private UserDto creator;
     private String startingDate = null;
     private String conclusionDate = null;
     private int numberOfQuestions;
@@ -26,15 +26,16 @@ public class TournamentDto {
 
     public TournamentDto(Tournament tournament, boolean deepCopy) {
         this.id = tournament.getId();
+        this.title = tournament.getTitle();
         this.numberOfQuestions = tournament.getNumberOfQuestions();
-        this.status = tournament.getStatus();
+        this.status = tournament.getValidatedStatus();
         if (tournament.getStartingDate() != null)
             this.startingDate = DateHandler.format(tournament.getStartingDate());
         if (tournament.getConclusionDate() != null)
             this.conclusionDate = DateHandler.format(tournament.getConclusionDate());
 
         if (deepCopy) {
-            this.creator = new StudentDto(tournament.getCreator());
+            this.creator = new UserDto(tournament.getCreator());
             this.topics = tournament.getTopics().stream()
                     .map(TopicDto::new)
                     .collect(Collectors.toSet());
@@ -51,6 +52,15 @@ public class TournamentDto {
     public void setId(Integer id) {
         this.id = id;
     }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
 
     public String getStartingDate() {
         return startingDate;
@@ -124,11 +134,11 @@ public class TournamentDto {
         return this.status == Tournament.Status.OPEN;
     }
 
-    public StudentDto getCreator() {
+    public UserDto getCreator() {
         return creator;
     }
 
-    public void setCreator(StudentDto creator) {
+    public void setCreator(UserDto creator) {
         this.creator = creator;
     }
 }
