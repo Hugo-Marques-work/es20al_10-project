@@ -1,6 +1,5 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.clarification.domain;
 
-import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.dto.ClarificationDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
@@ -22,6 +21,9 @@ public class Clarification {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    @Column(nullable = false)
+    private boolean isAnswered;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -30,7 +32,7 @@ public class Clarification {
     @JoinColumn(name = "question_id")
     private Question question;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval=true)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "clarification")
     private Set<ClarificationAnswer> clarificationAnswers = new HashSet<>();
 
     public Clarification() {}
@@ -38,6 +40,7 @@ public class Clarification {
     public Clarification(String content, Question question, User user) {
         this.user = user;
         this.question = question;
+        this.isAnswered = false;
 
         if (content == null || content.isEmpty() || content.isBlank())
             throw new TutorException(CLARIFICATION_IS_EMPTY);
@@ -53,6 +56,8 @@ public class Clarification {
 
     public User getUser() { return user; }
 
+    public boolean isAnswered() { return isAnswered; }
+
     public void setId(Integer id) { this.id = id; }
 
     public void setContent(String content) { this.content = content; }
@@ -65,15 +70,27 @@ public class Clarification {
 
     public void setClarificationAnswers(Set<ClarificationAnswer> clarificationAnswers) { this.clarificationAnswers = clarificationAnswers; }
 
-    public void addClarificationAnswer(ClarificationAnswer clarificationAnswer) {this.clarificationAnswers.add(clarificationAnswer);}
+    public void setIsAnswered(boolean status) { this.isAnswered = status; }
+
+    public void addClarificationAnswer(ClarificationAnswer clarificationAnswer) {
+        if (!isAnswered) isAnswered = true;
+        this.clarificationAnswers.add(clarificationAnswer);
+    }
+
+    public void remove() {
+        user.getClarifications().remove(this);
+        question.getClarifications().remove(this);
+    }
 
     @Override
     public String toString() {
         return "Clarification{" +
                 "id=" + id +
                 ", content='" + content + '\'' +
+                ", isAnswered=" + isAnswered +
                 ", user=" + user +
                 ", question=" + question +
+                ", clarificationAnswers=" + clarificationAnswers +
                 '}';
     }
 }

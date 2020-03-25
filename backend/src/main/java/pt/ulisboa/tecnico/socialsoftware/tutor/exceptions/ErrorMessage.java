@@ -14,6 +14,7 @@ public enum ErrorMessage {
     COURSE_EXECUTION_NOT_FOUND("Course execution not found with id %d"),
 
     COURSE_NOT_FOUND("Course not found with name %s"),
+    COURSE_NOT_FOUND_ID("Course not found with id %d"),
     COURSE_NAME_IS_EMPTY("The course name is empty"),
     COURSE_TYPE_NOT_DEFINED("The course type is not defined"),
     COURSE_EXECUTION_ACRONYM_IS_EMPTY("The course execution acronym is empty"),
@@ -25,6 +26,7 @@ public enum ErrorMessage {
     CLARIFICATION_WRONG_USER("The user has to be associated with a %s"),
     CLARIFICATION_NOT_FOUND("Clarification not found with id %s"),
 
+    CLARIFICATION_ANSWER_NOT_FOUND("Clarification answer not found with id %s"),
     CLARIFICATION_ANSWER_IS_EMPTY("The clarification answer content is empty"),
 
     QUIZ_USER_MISMATCH("Quiz %s is not assigned to student %s"),
