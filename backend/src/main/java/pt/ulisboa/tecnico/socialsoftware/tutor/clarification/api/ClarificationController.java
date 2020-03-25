@@ -51,7 +51,7 @@ public class ClarificationController {
 
     @PutMapping("/clarifications/{clarificationId}")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('DEMO_ADMIN') or hasPermission(#clarificationId, 'CLARIFICATION.ACCESS')")
-    public ClarificationDto updateClarifications(@PathVariable int clarificationId, @RequestBody String content) {
+    public ClarificationDto updateClarification(@PathVariable int clarificationId, @RequestBody String content) {
         return clarificationService.updateClarification(clarificationId, content);
     }
 
