@@ -62,9 +62,10 @@ class GetOpenTournamentsSpockTest extends Specification {
     @Shared
     String CONCLUSION_DATE
 
-    def createValidTournamentDto() {
+    def createValidTournamentDto(String startDate) {
         def tournamentDto = new TournamentDto()
-        tournamentDto.setStartingDate(START_DATE)
+        tournamentDto.setTitle("TEST")
+        tournamentDto.setStartingDate(startDate)
         tournamentDto.setConclusionDate(CONCLUSION_DATE)
         tournamentDto.setNumberOfQuestions(NUMBER_QUESTIONS)
         tournamentDto.addTopic(topicDto)
@@ -92,18 +93,32 @@ class GetOpenTournamentsSpockTest extends Specification {
     }
 
     def "an open tournament and a cancelled one"() {
-        given: "a valid tournament dto"
-        def validTournament = createValidTournamentDto()
+        given: "two valid tournament dto"
+        def validTournament1 = createValidTournamentDto(START_DATE)
+        def otherDate =  DateHandler.format(LocalDateTime.now().plusDays(1).plusHours(12))
+        def validTournament2 = createValidTournamentDto(otherDate)
         and: "a tournament dto that has been canceled"
-        def canceledTournament = createValidTournamentDto()
-        tournamentService.cancelTournament(student.getId(), canceledTournament.getId())
+        def canceledTournament = createValidTournamentDto(START_DATE)
+        tournamentService.cancelTournament(canceledTournament.getId())
 
         when:
         def result = tournamentService.getOpenTournaments(courseExecution.getId())
 
         then: "the returned data is correct"
-        result.size() == 1
-        result.get(0).getId() == validTournament.getId()
+        result.size() == 2
+        def firstTournament = result[0]
+        firstTournament.getId() == validTournament1.getId()
+        firstTournament.startingDate == START_DATE
+        firstTournament.conclusionDate == CONCLUSION_DATE
+        firstTournament.numberOfQuestions == NUMBER_QUESTIONS
+        firstTournament.getTopics().getAt(0).name == TOPIC_NAME
+        def secondTournament = result[1]
+        secondTournament.getId() == validTournament2.getId()
+        secondTournament.startingDate == otherDate
+        secondTournament.conclusionDate == CONCLUSION_DATE
+        secondTournament.numberOfQuestions == NUMBER_QUESTIONS
+        secondTournament.getTopics().getAt(0).name == TOPIC_NAME
+
     }
 
     def "invalid course execution id"() {
