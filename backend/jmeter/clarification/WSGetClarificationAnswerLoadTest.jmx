@@ -93,7 +93,7 @@
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
           <stringProp name="dataSource">sampleReq</stringProp>
           <stringProp name="queryType">Update Statement</stringProp>
-          <stringProp name="query">INSERT INTO clarifications(content, question_id, user_id, status) VALUES (&apos;${hash}&apos;, ${questionId}, ${studentKey}, FALSE);</stringProp>
+          <stringProp name="query">INSERT INTO clarifications(content, question_id, user_id, is_answered) VALUES (&apos;${hash}&apos;, ${questionId}, ${studentKey}, FALSE);</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
           <stringProp name="variableNames"></stringProp>
