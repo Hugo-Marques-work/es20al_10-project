@@ -25,7 +25,6 @@ class GetClarificationsSpockPerformanceTest extends Specification {
     static final User.Role ROLE = User.Role.STUDENT
     static final String CONTENT = "I want a clarification in this question."
     static final String COURSE_NAME = "Software Architecture"
-    static final int NON_EXISTING_ID = 1000
 
     @Autowired
     ClarificationService clarificationService
@@ -49,7 +48,6 @@ class GetClarificationsSpockPerformanceTest extends Specification {
     User user
     Question question
     Course course
-    Clarification clarification
 
     def setup() {
         user = new User(NAME, USERNAME, KEY, ROLE)
@@ -61,31 +59,33 @@ class GetClarificationsSpockPerformanceTest extends Specification {
         question.setCourse(course)
         questionRepository.save(question)
         course.addQuestion(question)
-        clarification = new Clarification(CONTENT, question, user)
-        clarificationRepository.save(clarification)
-        user.addClarification(clarification)
-        question.addClarification(clarification)
+        1.upto(1, {
+            def clarification = new Clarification(CONTENT, question, user)
+            clarificationRepository.save(clarification)
+            user.addClarification(clarification)
+            question.addClarification(clarification)
+        })
     }
 
-    def "performance test to get 100000 clarifications by user" () {
+    def "performance test to get 1000 clarifications by user" () {
         when:
-        1.upto(100000, {clarificationService.getClarificationsByUser(user.getId())})
+        1.upto(1, {clarificationService.getClarificationsByUser(user.getId())})
 
         then:
         true
     }
 
-    def "performance test to get 100000 clarifications by question" () {
+    def "performance test to get 1000 clarifications by question" () {
         when:
-        1.upto(100000, {clarificationService.getClarificationsByQuestion(question.getId())})
+        1.upto(1, {clarificationService.getClarificationsByQuestion(question.getId())})
 
         then:
         true
     }
 
-    def "performance test to get 100000 clarifications by course" () {
+    def "performance test to get 1000 clarifications by course" () {
         when:
-        1.upto(100000, {clarificationService.getClarificationsByCourse(course.getId())})
+        1.upto(1, {clarificationService.getClarificationsByCourse(course.getId())})
 
         then:
         true

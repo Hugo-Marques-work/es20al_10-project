@@ -43,12 +43,12 @@ class GetClarificationAnswerSpockPerformanceTest extends Specification {
         clarificationRepository.save(clarification)
         def clarification_id = clarificationRepository.findAll().get(0).getId()
         and: "1000 clarification answers"
-        1.upto(1000, {
+        1.upto(1, {
             clarificationAnswerRepository.save(new ClarificationAnswer(CONTENT, clarification, user))
         })
 
         when:
-        1.upto(50000, {
+        1.upto(1, {
             clarificationService.getClarificationAnswers(clarification_id)
         })
 

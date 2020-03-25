@@ -42,7 +42,7 @@ class CreateClarificationServiceSpockPerformanceTest extends Specification {
         questionRepository.save(question)
 
         when:
-        1.upto(200000, {clarificationService.createClarification(question, user, CONTENT)})
+        1.upto(1, {clarificationService.createClarification(question, user, CONTENT)})
 
         then:
         true

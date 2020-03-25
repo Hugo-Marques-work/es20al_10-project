@@ -42,7 +42,7 @@ class CreateClarificationAnswerSpockPerformanceTest extends Specification {
         clarificationRepository.save(clarification)
 
         when:
-        1.upto(5000, {
+        1.upto(1, {
             clarificationService.createClarificationAnswer(clarification, user, CONTENT)
         })
 
