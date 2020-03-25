@@ -44,7 +44,7 @@ public class ClarificationAnswerController {
             throw new TutorException(AUTHENTICATION_ERROR);
         }
         logger.debug("addClarificationAnswer - clarificationId: {}", clarificationId);
-        return clarificationService.createClarificationAnswer(clarificationId, content, user.getKey());
+        return clarificationService.createClarificationAnswer(clarificationId, content, user.getId());
     }
 
     @PutMapping("/clarification/answer/{clarificationAnswerId}")

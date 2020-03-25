@@ -79,9 +79,9 @@ public class ClarificationService {
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public ClarificationAnswerDto createClarificationAnswer(int clarificationId, String content, int userKey) {
+    public ClarificationAnswerDto createClarificationAnswer(int clarificationId, String content, int userId) {
         return createClarificationAnswer(clarificationRepository.findById(clarificationId).orElse(null),
-                userRepository.findByKey(userKey),
+                userRepository.findById(userId).orElse(null),
                 content);
     }
 
