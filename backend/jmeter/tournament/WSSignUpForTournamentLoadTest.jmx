@@ -62,13 +62,13 @@
         <stringProp name="driver">org.postgresql.Driver</stringProp>
         <stringProp name="initQuery"></stringProp>
         <boolProp name="keepAlive">true</boolProp>
-        <stringProp name="password">1</stringProp>
+        <stringProp name="password"></stringProp>
         <stringProp name="poolMax">0</stringProp>
         <boolProp name="preinit">false</boolProp>
         <stringProp name="timeout">10000</stringProp>
         <stringProp name="transactionIsolation">DEFAULT</stringProp>
         <stringProp name="trimInterval">60000</stringProp>
-        <stringProp name="username">muggy</stringProp>
+        <stringProp name="username">ars</stringProp>
       </JDBCDataSource>
       <hashTree/>
       <SetupThreadGroup guiclass="SetupThreadGroupGui" testclass="SetupThreadGroup" testname="setUp Thread Group" enabled="true">
@@ -144,7 +144,7 @@ DELETE FROM tournaments;</stringProp>
           <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV Data Set Config" enabled="true">
             <stringProp name="delimiter">,</stringProp>
             <stringProp name="fileEncoding"></stringProp>
-            <stringProp name="filename">/home/muggy/leic_3ano_2semestre/es/project/proj1/es20al_10-project/backend/jmeter/tournament/TournamentDataForSignUp.csv</stringProp>
+            <stringProp name="filename">TournamentData.csv</stringProp>
             <boolProp name="ignoreFirstLine">false</boolProp>
             <boolProp name="quotedData">false</boolProp>
             <boolProp name="recycle">true</boolProp>
@@ -168,7 +168,7 @@ VALUES (
 	${tournamentId},
 	&apos;${tournamentTitle}&apos;,
 	${userId},
-	/*${executionId},*/11,
+	${executionId},
 	${numberOfQuestions},
 	&apos;${startingDate}&apos;,
 	&apos;${conclusionDate}&apos;,
@@ -248,11 +248,11 @@ VALUES (
             <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV Data Set Config" enabled="true">
               <stringProp name="delimiter">,</stringProp>
               <stringProp name="fileEncoding"></stringProp>
-              <stringProp name="filename">/home/muggy/leic_3ano_2semestre/es/project/proj1/es20al_10-project/backend/jmeter/tournament/TournamentDataForSignUp2.csv</stringProp>
+              <stringProp name="filename">TournamentData.csv</stringProp>
               <boolProp name="ignoreFirstLine">false</boolProp>
               <boolProp name="quotedData">false</boolProp>
               <boolProp name="recycle">true</boolProp>
-              <stringProp name="shareMode">shareMode.group</stringProp>
+              <stringProp name="shareMode">shareMode.all</stringProp>
               <boolProp name="stopThread">false</boolProp>
               <stringProp name="variableNames">tournamentId</stringProp>
             </CSVDataSet>

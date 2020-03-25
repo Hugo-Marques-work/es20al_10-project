@@ -13,6 +13,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
+import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
@@ -23,7 +24,7 @@ import spock.lang.Specification
 import java.time.LocalDateTime
 
 @DataJpaTest
-class CreateTournamentServiceSpockPerformanceTest extends Specification {
+class GetOpenTournamentsServiceSpockPerformanceTest extends Specification {
     public static final String COURSE_NAME = "Software Architecture"
     public static final String ACRONYM = "AS1"
     public static final String ACADEMIC_TERM = "1 SEM"
@@ -58,7 +59,7 @@ class CreateTournamentServiceSpockPerformanceTest extends Specification {
         CONCLUSION_DATE = DateHandler.format(LocalDateTime.now().plusDays(2))
     }
 
-    def "create tournament performance test"() {
+    def "get open tournaments performance test"() {
         given: "a number of loops"
         def loopTimes = 1
         and: "a course execution"
@@ -76,17 +77,19 @@ class CreateTournamentServiceSpockPerformanceTest extends Specification {
         and: "a tournament dto"
         def tournamentDto = new TournamentDto()
         tournamentDto.setTitle(TITLE)
-        tournamentDto.setTitle(TITLE)
         tournamentDto.setStartingDate(START_DATE)
         tournamentDto.setConclusionDate(CONCLUSION_DATE)
         tournamentDto.setNumberOfQuestions(NUMBER_QUESTIONS)
         tournamentDto.addTopic(topicDto)
+        and: "x tournaments"
+        1.upto(loopTimes, {
+            tournamentRepository.save(new Tournament(student, tournamentDto))
+        })
 
         when:
         def executionId = courseExecution.id
-        def studentId = student.id
         1.upto(loopTimes,  {
-            tournamentService.createTournament(studentId, executionId, tournamentDto)
+            tournamentService.getOpenTournaments(executionId)
         })
 
         then:
