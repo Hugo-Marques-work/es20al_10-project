@@ -17,7 +17,7 @@ public class ClarificationDto implements Serializable {
 
     public ClarificationDto(Clarification clarification) {
         this.id = clarification.getId();
-        this.isAnswered = clarification.isIsAnswered();
+        this.isAnswered = clarification.isAnswered();
 
         if (clarification.getContent() == null || clarification.getContent().isEmpty() || clarification.getContent().isBlank())
             throw new TutorException(ErrorMessage.CLARIFICATION_IS_EMPTY);

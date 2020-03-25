@@ -21,6 +21,7 @@ public class ClarificationController {
     private ClarificationService clarificationService;
 
     @PostMapping("/question/{questionId}/clarifications")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('DEMO_ADMIN') or hasPermission(#questionId, 'QUESTION.ACCESS')")
     public ClarificationDto addClarification(@PathVariable int questionId, @RequestBody String content, Principal principal) {
         User user = (User) ((Authentication) principal).getPrincipal();
         if(user == null){
@@ -42,22 +43,25 @@ public class ClarificationController {
     }
 
     @DeleteMapping("/clarification/{clarificationId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('DEMO_ADMIN') or hasPermission(#clarificationId, 'CLARIFICATION.ACCESS')")
     public ResponseEntity removeClarification(@PathVariable int clarificationId) {
         clarificationService.removeClarification(clarificationId);
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping("/clarifications/{clarificationId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('DEMO_ADMIN') or hasPermission(#clarificationId, 'CLARIFICATION.ACCESS')")
+    public ClarificationDto updateClarifications(@PathVariable int clarificationId, @RequestBody String content) {
+        return clarificationService.updateClarification(clarificationId, content);
+    }
+
     @GetMapping("/clarifications")
+    @PreAuthorize("hasRole('ROLE_STUDENT') or hasRole('DEMO_STUDENT')")
     public List<ClarificationDto> getClarificationsByUser(Principal principal) {
         User user = (User) ((Authentication) principal).getPrincipal();
         if(user == null){
             throw new TutorException(AUTHENTICATION_ERROR);
         }
         return clarificationService.getClarificationsByUser(user.getId());
-    }
-
-    @PutMapping("/clarifications")
-    public ClarificationDto updateClarifications(@RequestBody ClarificationDto clarificationDto) {
-        return clarificationService.updateClarifications(clarificationDto);
     }
 }

@@ -56,7 +56,7 @@ public class Clarification {
 
     public User getUser() { return user; }
 
-    public boolean isIsAnswered() { return isAnswered; }
+    public boolean isAnswered() { return isAnswered; }
 
     public void setId(Integer id) { this.id = id; }
 

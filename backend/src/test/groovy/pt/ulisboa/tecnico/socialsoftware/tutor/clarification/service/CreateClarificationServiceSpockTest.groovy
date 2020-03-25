@@ -22,6 +22,7 @@ class CreateClarificationServiceSpockTest extends Specification {
     static final String USERNAME2 = "test_user_2"
     static final Integer KEY = 1
     static final Integer KEY2 = 2
+    static final Integer ID = 10
     static final User.Role ROLE = User.Role.STUDENT
     static final String CONTENT = "I want a clarification in this question."
 
@@ -95,7 +96,7 @@ class CreateClarificationServiceSpockTest extends Specification {
     def "question is not saved in the database" () {
         given: "a question not saved"
         def questionNotSaved = new Question()
-        questionNotSaved.setId(KEY2)
+        questionNotSaved.setId(ID)
 
         when:
         clarificationService.createClarification(questionNotSaved, user, CONTENT)
@@ -117,7 +118,7 @@ class CreateClarificationServiceSpockTest extends Specification {
     def "user is not saved in the database" () {
         given: "a user not saved"
         def userNotSaved = new User(NAME, USERNAME, KEY2, ROLE)
-        userNotSaved.setId(KEY2)
+        userNotSaved.setId(ID)
 
         when:
         clarificationService.createClarification(question, userNotSaved, CONTENT)

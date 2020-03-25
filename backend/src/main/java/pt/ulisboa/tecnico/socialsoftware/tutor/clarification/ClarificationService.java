@@ -87,38 +87,29 @@ public class ClarificationService {
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public List<ClarificationDto> getClarificationsByQuestion(int questionId) {
-        Question question = questionRepository.findById(questionId).orElseThrow(() -> new TutorException(ErrorMessage.QUESTION_NOT_FOUND, questionId));
-        return Lists.newArrayList(question.getClarifications()).stream()
-                .map(ClarificationDto::new)
-                .sorted(Comparator
-                        .comparing(ClarificationDto::getId))
-                .collect(Collectors.toList());
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new TutorException(ErrorMessage.QUESTION_NOT_FOUND, questionId));
+        return convertClarificationsToList(question.getClarifications());
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public List<ClarificationDto> getClarificationsByUser(int userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new TutorException(ErrorMessage.USER_NOT_FOUND, userId));
-        return Lists.newArrayList(user.getClarifications()).stream()
-                .map(ClarificationDto::new)
-                .sorted(Comparator
-                        .comparing(ClarificationDto::getId))
-                .collect(Collectors.toList());
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new TutorException(ErrorMessage.USER_NOT_FOUND, userId));
+        return convertClarificationsToList(user.getClarifications());
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public List<ClarificationDto> getClarificationsByCourse(int courseId) {
-        Course course = courseRepository.findById(courseId).orElseThrow(() -> new TutorException(ErrorMessage.COURSE_NOT_FOUND_ID, courseId));
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new TutorException(ErrorMessage.COURSE_NOT_FOUND_ID, courseId));
         Set<Clarification> clarifications = new HashSet<>();
         List<Question> questions = new ArrayList<>(course.getQuestions());
         for (Question question : questions) {
             clarifications.addAll(question.getClarifications());
         }
 
-        return Lists.newArrayList(clarifications).stream()
-                .map(ClarificationDto::new)
-                .sorted(Comparator
-                        .comparing(ClarificationDto::getId))
-                .collect(Collectors.toList());
+        return convertClarificationsToList(clarifications);
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
@@ -134,11 +125,11 @@ public class ClarificationService {
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public ClarificationDto updateClarifications(ClarificationDto clarificationDto) {
-        Clarification clarification = clarificationRepository.findById(clarificationDto.getId()).orElseThrow(
-                () -> new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationDto.getId()));
+    public ClarificationDto updateClarification(int  clarificationId, String content) {
+        Clarification clarification = clarificationRepository.findById(clarificationId)
+                .orElseThrow(() -> new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationId));
 
-        clarification.setContent(clarificationDto.getContent());
+        clarification.setContent(content);
         return new ClarificationDto(clarification);
     }
 
@@ -153,8 +144,8 @@ public class ClarificationService {
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void removeClarification(int clarificationId) {
-        Clarification clarification = clarificationRepository.findById(clarificationId).orElseThrow(
-                () -> new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationId));
+        Clarification clarification = clarificationRepository.findById(clarificationId)
+                .orElseThrow(() -> new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationId));
 
         clarification.remove();
         clarificationRepository.delete(clarification);
@@ -217,5 +208,13 @@ public class ClarificationService {
     private void checkContent(String content, ErrorMessage errorMessage) {
         if (content == null || content.isBlank() || content.isEmpty())
             throw new TutorException(errorMessage);
+    }
+
+    private List<ClarificationDto> convertClarificationsToList(Set<Clarification> clarifications) {
+        return clarifications.stream()
+                .map(ClarificationDto::new)
+                .sorted(Comparator
+                        .comparing(ClarificationDto::getId))
+                .collect(Collectors.toList());
     }
 }
