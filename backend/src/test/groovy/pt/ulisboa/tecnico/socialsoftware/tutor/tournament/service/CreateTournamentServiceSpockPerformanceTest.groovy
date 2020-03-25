@@ -62,7 +62,9 @@ class CreateTournamentServiceSpockPerformanceTest extends Specification {
     }
 
     def "create tournament performance test"() {
-        given: "a course execution"
+        given: "a number of loops"
+        def loopTimes = 1
+        and: "a course execution"
         def course = new Course(COURSE_NAME, Course.Type.TECNICO)
         courseRepository.save(course)
         def courseExecution = new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
@@ -86,7 +88,7 @@ class CreateTournamentServiceSpockPerformanceTest extends Specification {
         when:
         def executionId = courseExecution.id
         def studentId = student.id
-        1.upto(100000,  {
+        1.upto(loopTimes,  {
             tournamentService.createTournament(studentId, executionId, tournamentDto)
         })
 

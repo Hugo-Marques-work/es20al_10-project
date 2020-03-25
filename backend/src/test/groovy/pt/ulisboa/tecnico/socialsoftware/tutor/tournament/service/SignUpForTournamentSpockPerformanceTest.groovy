@@ -43,10 +43,12 @@ class SignUpForTournamentSpockPerformanceTest extends Specification{
         userRepository.save(user)
     }
 
-    def "performance test for signing up for 10000 tournaments"() {
-        given: "10000 tournaments"
+    def "performance test for signing up for x tournaments"() {
+        given: "a number of loops"
+        def loopTimes = 1
+        and: "x tournaments"
         def currentDate = LocalDateTime.now()
-        1.upto(10000, {
+        1.upto(loopTimes, {
             def tournament = new Tournament(creator, "TEST",  currentDate.plusDays(1), currentDate.plusDays(2), 10)
             tournament.setId(it)
             tournament.setCourseExecution(user.getCourseExecutions()[0])
@@ -56,7 +58,7 @@ class SignUpForTournamentSpockPerformanceTest extends Specification{
         def userId = user.getId()
 
         when:
-        1.upto(10000, { tournamentService.signUp(userId, it)} )
+        1.upto(loopTimes, { tournamentService.signUp(userId, it)} )
 
         then:
         true
