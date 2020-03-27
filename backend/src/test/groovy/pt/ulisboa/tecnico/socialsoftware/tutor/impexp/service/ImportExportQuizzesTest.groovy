@@ -1,9 +1,10 @@
-package pt.ulisboa.tecnico.socialsoftware.tutor.impexp
+package pt.ulisboa.tecnico.socialsoftware.tutor.impexp.service
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
@@ -19,7 +20,6 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizRepository
 import spock.lang.Specification
 
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 @DataJpaTest
 class ImportExportQuizzesTest extends Specification {
@@ -36,7 +36,7 @@ class ImportExportQuizzesTest extends Specification {
     def creationDate
     def availableDate
     def conclusionDate
-    def formatter
+    def formatter = DateHandler.getFormatter()
 
     @Autowired
     QuizService quizService
@@ -54,8 +54,6 @@ class ImportExportQuizzesTest extends Specification {
     QuizRepository quizRepository
 
     def setup() {
-        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-
         def course = new Course(COURSE_NAME, Course.Type.TECNICO)
         courseRepository.save(course)
 
@@ -80,6 +78,8 @@ class ImportExportQuizzesTest extends Specification {
         def quizDto = new QuizDto()
         quizDto.setKey(1)
         quizDto.setScramble(false)
+        quizDto.setQrCodeOnly(true)
+        quizDto.setOneWay(false)
         quizDto.setTitle(QUIZ_TITLE)
         creationDate = LocalDateTime.now()
         availableDate = LocalDateTime.now()
@@ -97,12 +97,13 @@ class ImportExportQuizzesTest extends Specification {
 
     def 'export and import quizzes'() {
         given: 'a xml with a quiz'
-        def quizzesXml = quizService.exportQuizzes()
+        def quizzesXml = quizService.exportQuizzesToXml()
+        System.out.println(quizzesXml)
         and: 'delete quiz and quizQuestion'
         quizService.removeQuiz(quiz.getId())
 
         when:
-        quizService.importQuizzes(quizzesXml)
+        quizService.importQuizzesFromXml(quizzesXml)
 
         then:
         quizzesXml != null
@@ -110,6 +111,8 @@ class ImportExportQuizzesTest extends Specification {
         def quizResult = quizRepository.findAll().get(0)
         quizResult.getKey() == 1
         !quizResult.getScramble()
+        quizResult.isQrCodeOnly()
+        !quizResult.isOneWay()
         quizResult.getTitle() == QUIZ_TITLE
         quizResult.getCreationDate().format(formatter) == creationDate.format(formatter)
         quizResult.getAvailableDate().format(formatter) == availableDate.format(formatter)
@@ -122,6 +125,15 @@ class ImportExportQuizzesTest extends Specification {
         quizQuestionResult.getSequence() == 0
         quizQuestionResult.getQuiz() == quizResult
         quizQuestionResult.getQuestion().getKey() == 1
+    }
+
+    def 'export quiz to latex'() {
+        when:
+        def quizzesLatex = quizService.exportQuizzesToLatex(quiz.getId())
+
+        then:
+        quizzesLatex != null
+        System.out.println(quizzesLatex)
     }
 
     @TestConfiguration
