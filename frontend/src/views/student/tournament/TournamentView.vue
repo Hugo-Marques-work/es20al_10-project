@@ -10,6 +10,22 @@
     <template v-slot:item.topics="{ item }">
       <v-chip> {{getTopicNames(item)}}</v-chip>
     </template>
+    <template v-slot:item.actions="{ item }">
+      <v-icon
+        small
+        @click="signUp(item)"
+      >
+        signUp
+      </v-icon>
+    </template>
+
+    <sign-up-for-tournament-dialog
+      v-if="currentTournament"
+      v-model="signUpForTournamentDialog"
+      :course="currentTournament"
+      v-on:signUp="onSignUp"
+      v-on:close-dialog="onCloseDialog"
+    />
   </v-data-table>
 </template>
 
@@ -18,13 +34,15 @@ import { Component, Vue } from 'vue-property-decorator';
 import RemoteServices from '@/services/RemoteServices';
 import { Tournament } from '@/models/management/Tournament';
 import Topic from '@/models/management/Topic';
+import Course from '@/models/user/Course';
 
 @Component({
   components: {}
 })
 export default class TournamentView extends Vue {
   tournaments: Tournament[] = [];
-
+  signUpForTournamentDialog: boolean = false;
+  currentTournament: Tournament | null = null;
   search: string = '';
   headers: object = [
     {
@@ -43,13 +61,13 @@ export default class TournamentView extends Vue {
       text: 'Starting Date',
       value: 'startingDate',
       align: 'center',
-      width: '20%'
+      width: '15%'
     },
     {
       text: 'Conclusion Date',
       value: 'conclusionDate',
       align: 'center',
-      width: '20%'
+      width: '15%'
     },
     {
       text: 'Creator',
@@ -58,11 +76,17 @@ export default class TournamentView extends Vue {
       width: '10%'
     },
     {
+      text: 'Actions',
+      align: 'center',
+      sortable: false,
+      width: '10%'
+    },
+    {
       text: 'Topics',
       value: 'topics',
       align: 'center',
       sortable: false,
-      width: '30%'
+      width: '20%'
     }
   ];
 
@@ -76,8 +100,13 @@ export default class TournamentView extends Vue {
     await this.$store.dispatch('clearLoading');
   }
 
-  getTopicNames(topicItems ) : String {
-    var result = '';
+  onCloseDialog() {
+    this.signUpForTournamentDialog = false;
+    this.currentTournament= null;
+  }
+
+  getTopicNames(topicItems: any) : String {
+    let result = '';
     console.log(topicItems.topics);
     topicItems.topics.forEach(function(topic: Topic) {
       result += topic.name + ', ';
@@ -85,6 +114,10 @@ export default class TournamentView extends Vue {
     result = result.substring(0, result.length - 2);
     console.log(result);
     return result;
+  }
+
+  onSignUp() {
+    this.onCloseDialog();
   }
 }
 </script>
