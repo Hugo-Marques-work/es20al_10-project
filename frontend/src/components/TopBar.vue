@@ -112,12 +112,22 @@
             </v-btn>
           </template>
           <v-list dense>
-            <v-list-item to="/tournament/create">
+            <v-list-item to="tournament/create">
               <v-list-item-action>
                 <v-icon>create</v-icon>
               </v-list-item-action>
               <v-list-item-content>
                 <v-list-item-title>Create</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+          <v-list dense>
+            <v-list-item to="/student/tournament/">
+              <v-list-item-action>
+                <v-icon>list</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>List</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list>
