@@ -6,13 +6,18 @@
     :search="search"
     :items-per-page="20"
     class="elevation-1"
-  ></v-data-table>
+  >
+    <template v-slot:item.topics="{ item }">
+      <v-chip> {{getTopicNames(item)}}</v-chip>
+    </template>
+  </v-data-table>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import RemoteServices from '@/services/RemoteServices';
 import { Tournament } from '@/models/management/Tournament';
+import Topic from '@/models/management/Topic';
 
 @Component({
   components: {}
@@ -69,6 +74,17 @@ export default class TournamentView extends Vue {
       await this.$store.dispatch('error', error);
     }
     await this.$store.dispatch('clearLoading');
+  }
+
+  getTopicNames(topicItems ) : String {
+    var result = '';
+    console.log(topicItems.topics);
+    topicItems.topics.forEach(function(topic: Topic) {
+      result += topic.name + ', ';
+    });
+    result = result.substring(0, result.length - 2);
+    console.log(result);
+    return result;
   }
 }
 </script>
