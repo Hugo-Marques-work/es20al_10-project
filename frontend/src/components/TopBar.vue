@@ -123,6 +123,27 @@
           </v-list>
         </v-menu>
 
+        <!-- Clarifications -->
+        <v-menu offset-y v-if="(isStudent || isTeacher) && currentCourse" open-on-hover>
+          <template v-slot:activator="{ on }">
+            <v-btn v-on="on" text dark>
+              Clarifications
+              <v-icon>fas fa-question-circle</v-icon>
+            </v-btn>
+          </template>
+          <v-list dense>
+            <v-list-item to="/clarification/view">
+              <v-list-item-action>
+                <v-icon>fas fa-list-alt</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>List all</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+
+        <!-- Quizzes -->
         <v-menu offset-y v-if="isStudent && currentCourse" open-on-hover>
           <template v-slot:activator="{ on }">
             <v-btn v-on="on" text dark>
