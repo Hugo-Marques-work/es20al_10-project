@@ -555,6 +555,17 @@ export default class RemoteServices {
       });
   }
 
+  static async createClarification(questionId: number, content: string): Promise<Clarification>  {
+    return httpClient
+      .post('/question/' + questionId + '/clarifications', content)
+      .then(response => {
+        return new Clarification(response.data);
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      })
+  }
+
   // Get clarifications
   static getClarifications(): Promise<Clarification[]> {
     return httpClient

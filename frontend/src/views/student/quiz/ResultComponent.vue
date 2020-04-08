@@ -59,6 +59,7 @@
           v-html="convertMarkDown(question.options[index].content)"
         />
       </li>
+      <p></p>
       <v-btn @click="clarificationPopup = true">Ask for a clarification</v-btn>
       <p></p>
       <div>
@@ -69,15 +70,14 @@
             </v-card-title>
 
             <v-card-text class="text--black title">
-              <input class="clarificationMessage" v-model="message" placeholder="clarification message">
-              {{clarificationMessage}}
+              <v-textarea clearable auto-grow rows="1" ref="input" class="clarificationMessage" v-model="message" placeholder="write clarification message here"></v-textarea>
             </v-card-text>
 
             <v-divider />
 
             <v-card-actions>
               <v-spacer />
-              <v-btn color="secondary" text @click="clarificationPopup = false">
+              <v-btn color="secondary" text @click="cancelClarification">
                 Cancel
               </v-btn>
               <v-btn color="primary" text @click="createClarification">
@@ -109,7 +109,6 @@ export default class ResultComponent extends Vue {
   hover: boolean = false;
   optionLetters: string[] = ['A', 'B', 'C', 'D'];
   clarificationPopup: boolean = false;
-  clarificationMessage: string = "";
 
   @Emit()
   increaseOrder() {
@@ -123,7 +122,15 @@ export default class ResultComponent extends Vue {
 
   @Emit()
   createClarification() {
-    return this.clarificationMessage;
+    if (typeof this.message != 'undefined') {
+      this.clarificationPopup = false;
+      return this.message;
+    }
+  }
+
+  cancelClarification() {
+    this.clarificationPopup = false
+    this.message = '';
   }
 
   convertMarkDown(text: string, image: Image | null = null): string {
@@ -134,10 +141,7 @@ export default class ResultComponent extends Vue {
 
 <style lang="scss" scoped>
 .clarificationMessage{
-  text-align: center;
-  width: 90%;
-  height: 50pt;
-  margin-top: 12pt;
+  margin-top: 20pt;
 }
 .unanswered {
   .question {

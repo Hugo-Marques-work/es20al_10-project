@@ -55,6 +55,8 @@
 import { Component, Vue } from 'vue-property-decorator';
 import StatementManager from '@/models/statement/StatementManager';
 import ResultComponent from '@/views/student/quiz/ResultComponent.vue';
+import Clarification from '@/models/clarification/Clarification';
+import RemoteServices from '@/services/RemoteServices';
 
 @Component({
   components: {
@@ -64,6 +66,7 @@ import ResultComponent from '@/views/student/quiz/ResultComponent.vue';
 export default class ResultsView extends Vue {
   statementManager: StatementManager = StatementManager.getInstance;
   questionOrder: number = 0;
+  clarification: Clarification | null = null;
 
   async created() {
     if (this.statementManager.isEmpty()) {
@@ -99,8 +102,22 @@ export default class ResultsView extends Vue {
     }
   }
 
-  createClarification(message: string) : void {
-    
+  async createClarification(message: string) {
+    await this.$store.dispatch('loading');
+
+    try {
+      if (this.statementManager.statementQuiz != null) {
+        this.clarification = await RemoteServices.createClarification(
+          this.statementManager.statementQuiz.questions[this.questionOrder]
+            .quizQuestionId,
+          message
+        );
+      }
+    } catch (error) {
+      await this.$store.dispatch('error', error);
+    }
+
+    await this.$store.dispatch('clearLoading');
   }
 }
 </script>
