@@ -76,8 +76,8 @@ class GetClarificationsSpockTest extends Specification{
 
         then:
         result.get(0).content == CONTENT
-        result.get(0).questionId == question.getId()
-        result.get(0).userId == user.getId()
+        result.get(0).question.getId() == question.getId()
+        result.get(0).user.getId() == user.getId()
         !result.get(0).answered
     }
 
@@ -87,8 +87,8 @@ class GetClarificationsSpockTest extends Specification{
 
         then:
         result.get(0).content == CONTENT
-        result.get(0).questionId == question.getId()
-        result.get(0).userId == user.getId()
+        result.get(0).question.getId() == question.getId()
+        result.get(0).user.getId() == user.getId()
         !result.get(0).answered
     }
 
@@ -98,8 +98,8 @@ class GetClarificationsSpockTest extends Specification{
 
         then:
         result.get(0).content == CONTENT
-        result.get(0).questionId == question.getId()
-        result.get(0).userId == user.getId()
+        result.get(0).question.getId() == question.getId()
+        result.get(0).user.getId() == user.getId()
         !result.get(0).answered
     }
 
@@ -114,8 +114,8 @@ class GetClarificationsSpockTest extends Specification{
 
         then:
         result.get(0).content == CONTENT
-        result.get(0).questionId == question.getId()
-        result.get(0).userId == user.getId()
+        result.get(0).question.getId() == question.getId()
+        result.get(0).user.getId() == user.getId()
         result.get(0).answered
     }
 
@@ -130,8 +130,8 @@ class GetClarificationsSpockTest extends Specification{
 
         then:
         result.get(0).content == CONTENT
-        result.get(0).questionId == question.getId()
-        result.get(0).userId == user.getId()
+        result.get(0).question.getId() == question.getId()
+        result.get(0).user.getId() == user.getId()
         result.get(0).answered
     }
 
@@ -146,8 +146,8 @@ class GetClarificationsSpockTest extends Specification{
 
         then:
         result.get(0).content == CONTENT
-        result.get(0).questionId == question.getId()
-        result.get(0).userId == user.getId()
+        result.get(0).question.getId() == question.getId()
+        result.get(0).user.getId() == user.getId()
         result.get(0).answered
     }
 
