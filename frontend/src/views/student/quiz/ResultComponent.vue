@@ -59,6 +59,34 @@
           v-html="convertMarkDown(question.options[index].content)"
         />
       </li>
+      <v-btn @click="clarificationPopup = true">Ask for a clarification</v-btn>
+      <p></p>
+      <div>
+        <v-dialog v-model="clarificationPopup" width="50%">
+          <v-card>
+            <v-card-title primary-title class="secondary white--text headline">
+              Send Clarification
+            </v-card-title>
+
+            <v-card-text class="text--black title">
+              <input class="clarificationMessage" v-model="message" placeholder="clarification message">
+              {{clarificationMessage}}
+            </v-card-text>
+
+            <v-divider />
+
+            <v-card-actions>
+              <v-spacer />
+              <v-btn color="secondary" text @click="clarificationPopup = false">
+                Cancel
+              </v-btn>
+              <v-btn color="primary" text @click="createClarification">
+                Send
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </div>
     </ul>
   </div>
 </template>
@@ -80,6 +108,8 @@ export default class ResultComponent extends Vue {
   @Prop() readonly questionNumber!: number;
   hover: boolean = false;
   optionLetters: string[] = ['A', 'B', 'C', 'D'];
+  clarificationPopup: boolean = false;
+  clarificationMessage: string = "";
 
   @Emit()
   increaseOrder() {
@@ -91,6 +121,11 @@ export default class ResultComponent extends Vue {
     return 1;
   }
 
+  @Emit()
+  createClarification() {
+    return this.clarificationMessage;
+  }
+
   convertMarkDown(text: string, image: Image | null = null): string {
     return convertMarkDown(text, image);
   }
@@ -98,6 +133,12 @@ export default class ResultComponent extends Vue {
 </script>
 
 <style lang="scss" scoped>
+.clarificationMessage{
+  text-align: center;
+  width: 90%;
+  height: 50pt;
+  margin-top: 12pt;
+}
 .unanswered {
   .question {
     background-color: #761515 !important;

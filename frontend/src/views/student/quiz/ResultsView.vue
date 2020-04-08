@@ -46,6 +46,7 @@
       :questionNumber="statementManager.statementQuiz.questions.length"
       @increase-order="increaseOrder"
       @decrease-order="decreaseOrder"
+      @create-clarification="createClarification"
     />
   </div>
 </template>
@@ -96,6 +97,10 @@ export default class ResultsView extends Vue {
     if (n >= 0 && n < +this.statementManager.statementQuiz!.questions.length) {
       this.questionOrder = n;
     }
+  }
+
+  createClarification(message: string) : void {
+    
   }
 }
 </script>
