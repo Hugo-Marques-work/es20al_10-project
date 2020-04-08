@@ -132,7 +132,7 @@
             </v-btn>
           </template>
           <v-list dense>
-            <v-list-item to="/clarification/view">
+            <v-list-item to="/clarification/list">
               <v-list-item-action>
                 <v-icon>fas fa-list-alt</v-icon>
               </v-list-item-action>

@@ -1,17 +1,20 @@
+import User from '@/models/user/User';
+import Question from '../management/Question';
+
 export default class Clarification {
   id: number | null = null;
   content: string = '';
-  userId: number | null = null;
-  questionId: number | null = null;
-  isAnswered: Boolean = false;
+  user!: User;
+  question!: Question;
+  answered: Boolean = false;
 
   constructor(jsonObj?: Clarification) {
     if (jsonObj) {
       this.id = jsonObj.id;
       this.content = jsonObj.content;
-      this.userId = jsonObj.userId;
-      this.questionId = jsonObj.questionId;
-      this.isAnswered = jsonObj.isAnswered;
+      this.user = new User(jsonObj.user)
+      this.question = new Question(jsonObj.question);
+      this.answered = jsonObj.answered;
     }
   }
 }

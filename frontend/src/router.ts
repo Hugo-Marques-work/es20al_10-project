@@ -195,11 +195,20 @@ let router = new Router({
       component: ClarificationView,
       children: [
         {
-          path: 'view',
-          name: 'view-clarifications',
+          path: 'list',
+          name: 'list-clarifications',
           component: ClarificationListView,
           meta: {
             title: process.env.VUE_APP_NAME + ' - List Clarifications',
+            requiredAuth: 'Student Teacher'
+          }
+        },
+        {
+          path: 'view',
+          name: 'view-clarification',
+          component: ClarificationListView,
+          meta: {
+            title: process.env.VUE_APP_NAME + ' - View Clarification',
             requiredAuth: 'Student Teacher'
           }
         }

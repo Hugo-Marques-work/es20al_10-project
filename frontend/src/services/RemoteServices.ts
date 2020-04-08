@@ -106,6 +106,17 @@ export default class RemoteServices {
       });
   }
 
+  static async getQuestion(questionId: number | null): Promise<Question> {
+    return httpClient
+      .get(`/questions/${questionId}`)
+      .then(response => {
+        return new Question(response.data);
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
   static async exportCourseQuestions(): Promise<Blob> {
     return httpClient
       .get(
@@ -555,7 +566,10 @@ export default class RemoteServices {
       });
   }
 
-  static async createClarification(questionId: number, content: string): Promise<Clarification>  {
+  static async createClarification(
+    questionId: number,
+    content: string
+  ): Promise<Clarification> {
     return httpClient
       .post('/question/' + questionId + '/clarifications', content)
       .then(response => {
@@ -563,7 +577,7 @@ export default class RemoteServices {
       })
       .catch(async error => {
         throw Error(await this.errorMessage(error));
-      })
+      });
   }
 
   // Get clarifications
@@ -579,7 +593,6 @@ export default class RemoteServices {
         throw Error(await this.errorMessage(error));
       });
   }
-
 
   static async exportAll() {
     return httpClient

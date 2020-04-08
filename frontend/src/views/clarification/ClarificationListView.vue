@@ -20,36 +20,70 @@
         </v-card-title>
       </template>
 
-      <template v-slot:item.action="{ item }">
-        <!-- v-tooltip bottom>
-          <template v-slot:activator="{ on }">
-            <v-icon
-              small
-              class="mr-2"
-              v-on="on"
-              @click="createFromCourse(item)"
-              data-cy="createFromCourse"
-              >cached</v-icon
-            >
-          </template>
-          <span>Create from Course</span>
-        </v-tooltip>
+      <template v-slot:item.topic="{ item }">
+        <span v-for="topic in item.question.topics" :key="topic.name">
+          {{ topic.name }}
+        </span>
+      </template>
+
+      <template v-slot:item.question="{ item }">
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
             <v-icon
               small
               class="mr-2"
               v-on="on"
-              @click="deleteCourse(item)"
-              color="red"
-              data-cy="deleteCourse"
-              >delete</v-icon
+              @click="viewQuestion(item)"
+              data-cy="viewQuestion"
+              >mdi-eye</v-icon
             >
           </template>
-          <span>Delete Course</span>
-        </v-tooltip -->
+          <span>View Question</span>
+        </v-tooltip>
+      </template>
+
+      <template v-slot:item.answer="{ item }">
+        <v-tooltip bottom v-if="item.answered">
+          <template v-slot:activator="{ on }">
+            <v-icon medium class="mr-2" v-on="on" data-cy="answered" color="green">
+              mdi-check
+            </v-icon>
+          </template>
+          <span>Answered</span>
+        </v-tooltip>
+        <v-tooltip bottom v-if="!item.answered">
+          <template v-slot:activator="{ on }">
+            <v-icon medium class="mr-2" v-on="on" data-cy="notAnswered" color="red">
+              mdi-close
+            </v-icon>
+          </template>
+          <span>Not answered</span>
+        </v-tooltip>
+      </template>
+
+      <template v-slot:item.action="{ item }">
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-icon
+              small
+              class="mr-2"
+              v-on="on"
+              @click="viewClarification(item)"
+              data-cy="viewClarification"
+              >mdi-menu-open</v-icon
+            >
+          </template>
+          <span>View Clarification</span>
+        </v-tooltip>
       </template>
     </v-data-table>
+
+    <show-question-dialog
+      v-if="question"
+      :dialog="questionDialog"
+      :question="question"
+      v-on:close-show-question-dialog="onCloseShowQuestionDialog"
+    />
   </v-card>
 </template>
 
@@ -58,53 +92,96 @@ import { Component, Vue } from 'vue-property-decorator';
 import RemoteServices from '@/services/RemoteServices';
 import Clarification from '@/models/clarification/Clarification';
 import Course from '@/models/user/Course';
+import ClarificationManager from '@/models/clarification/ClarificationManager';
+import Question from '@/models/management/Question';
+import ShowQuestionDialog from '@/views/teacher/questions/ShowQuestionDialog.vue';
 
-@Component
+@Component({
+  components: {
+    'show-question-dialog': ShowQuestionDialog
+  }
+})
 export default class ClarificationListView extends Vue {
   clarifications: Clarification[] = [];
   currentCourse: Course | null = null;
+  question: Question | null = null;
+  questionDialog: boolean = false;
   search: string = '';
   headers: object = [
-    {
-      text: 'id',
-      value: 'id',
-      align: 'center',
-      width: '10%'
-    },
     {
       text: 'Content',
       value: 'content',
       align: 'center',
-      width: '10%'
+      width: '15%'
     },
     {
-      text: 'userId',
-      value: 'userId',
+      text: 'User',
+      value: 'user.name',
       align: 'center',
       width: '10%'
     },
+    // {
+    //   text: 'Topics',
+    //   value: 'topic',
+    //   align: 'center',
+    //   width: '10%'
+    // },
     {
-      text: 'questionId',
-      value: 'questionId',
+      text: 'Question',
+      value: 'question',
       align: 'center',
-      width: '10%'
+      width: '10%',
+      sortable: false
     },
     {
-      text: 'isAnswered',
-      value: 'isAnswered',
+      text: 'Answered',
+      value: 'answer',
       align: 'center',
-      width: '10%'
+      width: '5%'
+    },
+    {
+      text: 'Actions',
+      value: 'action',
+      align: 'center',
+      width: '7%',
+      sortable: false
     }
   ];
 
   async created() {
     await this.$store.dispatch('loading');
     try {
-      this.clarifications = await RemoteServices.getClarifications();
+      this.clarifications = (
+        await RemoteServices.getClarifications()
+      ).reverse();
     } catch (error) {
       await this.$store.dispatch('error', error);
     }
     await this.$store.dispatch('clearLoading');
+  }
+
+  async viewClarification(clarification: Clarification) {
+    let clarificationManager: ClarificationManager =
+      ClarificationManager.getInstance;
+    clarificationManager.clarification = clarification;
+
+    await this.$router.push({ name: 'view-clarification' });
+  }
+
+  async viewQuestion(clarification: Clarification) {
+    try {
+      let question: Question = await RemoteServices.getQuestion(
+        clarification.question.id
+      );
+      this.questionDialog = true;
+      this.question = question;
+    } catch (error) {
+      await this.$store.dispatch('error', error);
+    }
+  }
+
+  onCloseShowQuestionDialog() {
+    this.questionDialog = false;
   }
 }
 </script>
