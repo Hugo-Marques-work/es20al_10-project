@@ -57,15 +57,50 @@
 import { Component, Vue } from 'vue-property-decorator';
 import RemoteServices from '@/services/RemoteServices';
 import Clarification from '@/models/clarification/Clarification';
+import Course from '@/models/user/Course';
 
 @Component
-export default class AvailableQuizzesView extends Vue {
+export default class ClarificationListView extends Vue {
   clarifications: Clarification[] = [];
+  currentCourse: Course | null = null;
+  search: string = '';
+  headers: object = [
+    {
+      text: 'id',
+      value: 'id',
+      align: 'center',
+      width: '10%'
+    },
+    {
+      text: 'Content',
+      value: 'content',
+      align: 'center',
+      width: '10%'
+    },
+    {
+      text: 'userId',
+      value: 'userId',
+      align: 'center',
+      width: '10%'
+    },
+    {
+      text: 'questionId',
+      value: 'questionId',
+      align: 'center',
+      width: '10%'
+    },
+    {
+      text: 'isAnswered',
+      value: 'isAnswered',
+      align: 'center',
+      width: '10%'
+    }
+  ];
 
   async created() {
     await this.$store.dispatch('loading');
     try {
-      //this.quizzes = (await RemoteServices.getAvailableQuizzes()).reverse();
+      this.clarifications = await RemoteServices.getClarifications();
     } catch (error) {
       await this.$store.dispatch('error', error);
     }
