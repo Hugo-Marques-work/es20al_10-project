@@ -12,6 +12,8 @@ interface State {
   error: boolean;
   errorMessage: string;
   loading: boolean;
+  confirmation: boolean;
+  confirmationMessage: string;
 }
 
 const state: State = {
@@ -20,7 +22,9 @@ const state: State = {
   currentCourse: null,
   error: false,
   errorMessage: '',
-  loading: false
+  loading: false,
+  confirmation: false,
+  confirmationMessage: ''
 };
 
 Vue.use(Vuex);
@@ -46,6 +50,14 @@ export default new Vuex.Store({
       state.error = false;
       state.errorMessage = '';
     },
+    confirmation(state, confirmationMessage: string) {
+      state.confirmation = true;
+      state.confirmationMessage = confirmationMessage;
+    },
+    clearConfirmation(state) {
+      state.confirmation = false;
+      state.confirmationMessage = '';
+    },
     loading(state) {
       state.loading = true;
     },
@@ -62,6 +74,12 @@ export default new Vuex.Store({
     },
     clearError({ commit }) {
       commit('clearError');
+    },
+    confirmation({ commit }, confirmationMessage) {
+      commit('confirmation', confirmationMessage);
+    },
+    clearConfirmation({ commit }) {
+      commit('clearConfirmation');
     },
     loading({ commit }) {
       commit('loading');
@@ -151,6 +169,12 @@ export default new Vuex.Store({
     },
     getLoading(state): boolean {
       return state.loading;
+    },
+    getConfirmation(state) {
+      return state.confirmation;
+    },
+    getConfirmationMessage(state): string {
+      return state.confirmationMessage;
     }
   }
 });

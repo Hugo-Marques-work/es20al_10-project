@@ -105,6 +105,11 @@ export default class ResultsView extends Vue {
   async createClarification(message: string) {
     await this.$store.dispatch('loading');
 
+    if (message != null) {
+    } else {
+      await this.$store.dispatch('error', 'Clarification can not be empty');
+    }
+
     try {
       if (this.statementManager.statementQuiz != null) {
         this.clarification = await RemoteServices.createClarification(
@@ -112,6 +117,7 @@ export default class ResultsView extends Vue {
             .quizQuestionId,
           message
         );
+        await this.$store.dispatch('confirmation', 'Clarification created');
       }
     } catch (error) {
       await this.$store.dispatch('error', error);

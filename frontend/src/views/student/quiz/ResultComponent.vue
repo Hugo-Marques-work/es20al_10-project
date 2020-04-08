@@ -70,7 +70,16 @@
             </v-card-title>
 
             <v-card-text class="text--black title">
-              <v-textarea clearable auto-grow rows="1" ref="input" class="clarificationMessage" v-model="message" placeholder="write clarification message here"></v-textarea>
+              <v-textarea
+                      clearable
+                      auto-grow
+                      rows="1"
+                      ref="input"
+                      v-on:keydown.esc="cancelClarification"
+                      class="clarificationMessage"
+                      v-model="clarificationContent"
+                      placeholder="write clarification message here">
+              </v-textarea>
             </v-card-text>
 
             <v-divider />
@@ -109,6 +118,7 @@ export default class ResultComponent extends Vue {
   hover: boolean = false;
   optionLetters: string[] = ['A', 'B', 'C', 'D'];
   clarificationPopup: boolean = false;
+  clarificationContent: string = "";
 
   @Emit()
   increaseOrder() {
@@ -122,15 +132,19 @@ export default class ResultComponent extends Vue {
 
   @Emit()
   createClarification() {
-    if (typeof this.message != 'undefined') {
+    if (this.clarificationContent != '') {
       this.clarificationPopup = false;
-      return this.message;
+      var content = this.clarificationContent;
+      this.clarificationContent = "";
+      return content;
     }
+
+    return null;
   }
 
   cancelClarification() {
-    this.clarificationPopup = false
-    this.message = '';
+    this.clarificationContent = "";
+    this.clarificationPopup = false;
   }
 
   convertMarkDown(text: string, image: Image | null = null): string {
