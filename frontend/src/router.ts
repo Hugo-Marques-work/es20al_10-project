@@ -124,14 +124,14 @@ let router = new Router({
       component: StudentView,
       children: [
         {
-          path: 'tournament',
-          name: 'available-tournament',
+          path: 'tournaments',
+          name: 'available-tournaments',
           component: TournamentView,
-          meta : {
-              title: process.env.VUE_APP_NAME + ' - Available Tournaments',
-                requiredAuth: 'Student'
+          meta: {
+            title: process.env.VUE_APP_NAME + ' - Available Tournaments',
+            requiredAuth: 'Student'
           },
-          children: [],
+          children: []
         },
         {
           path: 'available',

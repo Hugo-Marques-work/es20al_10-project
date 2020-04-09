@@ -601,9 +601,22 @@ export default class RemoteServices {
           '/tournaments/open'
       )
       .then(response => {
+        console.log(response);
         return response.data.map((tournament: any) => {
           return new Tournament(tournament);
         });
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+  static async signUp(tournamentId: number) {
+    return httpClient
+      .post(
+        '/tournaments/' + tournamentId + '/signUp'
+      )
+      .then(response => {
+        return;
       })
       .catch(async error => {
         throw Error(await this.errorMessage(error));
