@@ -112,7 +112,6 @@ import { Component, Vue } from 'vue-property-decorator';
 import RemoteServices from '@/services/RemoteServices';
 import Clarification from '@/models/clarification/Clarification';
 import Course from '@/models/user/Course';
-import ClarificationManager from '@/models/clarification/ClarificationManager';
 import Question from '@/models/management/Question';
 import ShowQuestionDialog from '@/views/teacher/questions/ShowQuestionDialog.vue';
 import ShowClarificationDialog from '@/views/clarification/ShowClarificationDialog.vue';

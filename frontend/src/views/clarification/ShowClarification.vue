@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator';
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 import { convertMarkDown } from '@/services/ConvertMarkdownService';
 import Image from '@/models/management/Image';
 import Clarification from '@/models/clarification/Clarification';
@@ -33,18 +33,32 @@ export default class ShowClarification extends Vue {
   answers: ClarificationAnswer[] = [];
   hasAnswers: boolean = false;
 
-  async created() {
+  @Watch('clarification')
+  async onChildChanged(val: Clarification, oldVal: Clarification) {
     await this.$store.dispatch('loading');
     try {
       this.answers = await RemoteServices.getClarificationAnswers(
         this.clarification
       );
-      if (this.answers.length != 0) this.hasAnswers = true;
+      this.hasAnswers = this.answers.length != 0;
     } catch (error) {
       await this.$store.dispatch('error', error);
     }
     await this.$store.dispatch('clearLoading');
   }
+
+  // async created() {
+  //   await this.$store.dispatch('loading');
+  //   try {
+  //     this.answers = await RemoteServices.getClarificationAnswers(
+  //       this.clarification
+  //     );
+  //     if (this.answers.length != 0) this.hasAnswers = true;
+  //   } catch (error) {
+  //     await this.$store.dispatch('error', error);
+  //   }
+  //   await this.$store.dispatch('clearLoading');
+  // }
 
   convertMarkDown(text: string, image: Image | null = null): string {
     return convertMarkDown(text, image);

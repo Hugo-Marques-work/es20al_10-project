@@ -50,7 +50,7 @@
 </template>
 
 <script lang="ts">
-  import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
+import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
 import Clarification from '@/models/clarification/Clarification';
 import ShowQuestion from '@/views/teacher/questions/ShowQuestion.vue';
 import ShowClarification from '@/views/clarification/ShowClarification.vue';
