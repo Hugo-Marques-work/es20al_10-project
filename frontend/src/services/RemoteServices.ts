@@ -15,6 +15,8 @@ import StatementAnswer from '@/models/statement/StatementAnswer';
 import { QuizAnswer } from '@/models/management/QuizAnswer';
 import { QuizAnswers } from '@/models/management/QuizAnswers';
 import Clarification from '@/models/clarification/Clarification';
+import User from '@/models/user/User';
+import ClarificationAnswer from '@/models/clarification/ClarificationAnswer';
 
 const httpClient = axios.create();
 httpClient.defaults.timeout = 10000;
@@ -566,6 +568,9 @@ export default class RemoteServices {
       });
   }
 
+  /*------------------------------------------------------------------*/
+
+  // Create clarification
   static async createClarification(
     questionId: number,
     content: string
@@ -580,8 +585,8 @@ export default class RemoteServices {
       });
   }
 
-  // Get clarifications
-  static getClarifications(): Promise<Clarification[]> {
+  // Get clarifications by current courseId
+  static async getClarifications(): Promise<Clarification[]> {
     return httpClient
       .get(`/course/${Store.getters.getCurrentCourse.courseId}/clarifications`)
       .then(response => {
@@ -593,6 +598,38 @@ export default class RemoteServices {
         throw Error(await this.errorMessage(error));
       });
   }
+
+  // Get clarifications by current user (student)
+  static async getClarificationsByUser(): Promise<Clarification[]> {
+    return httpClient
+      .get('/clarifications')
+      .then(response => {
+        return response.data.map((clarification: any) => {
+          return new Clarification(clarification);
+        });
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  // Get clarification answers
+  static async getClarificationAnswers(
+    clarification: Clarification
+  ): Promise<ClarificationAnswer[]> {
+    return httpClient
+      .get(`/clarification/${clarification.id}/answers`)
+      .then(response => {
+        return response.data.map((clarificationAnswer: any) => {
+          return new ClarificationAnswer(clarificationAnswer);
+        });
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  /*------------------------------------------------------------------*/
 
   static async exportAll() {
     return httpClient

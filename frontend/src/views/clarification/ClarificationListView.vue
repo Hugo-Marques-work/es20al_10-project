@@ -45,7 +45,13 @@
       <template v-slot:item.answer="{ item }">
         <v-tooltip bottom v-if="item.answered">
           <template v-slot:activator="{ on }">
-            <v-icon medium class="mr-2" v-on="on" data-cy="answered" color="green">
+            <v-icon
+              medium
+              class="mr-2"
+              v-on="on"
+              data-cy="answered"
+              color="green"
+            >
               mdi-check
             </v-icon>
           </template>
@@ -53,7 +59,13 @@
         </v-tooltip>
         <v-tooltip bottom v-if="!item.answered">
           <template v-slot:activator="{ on }">
-            <v-icon medium class="mr-2" v-on="on" data-cy="notAnswered" color="red">
+            <v-icon
+              medium
+              class="mr-2"
+              v-on="on"
+              data-cy="notAnswered"
+              color="red"
+            >
               mdi-close
             </v-icon>
           </template>
@@ -70,7 +82,7 @@
               v-on="on"
               @click="viewClarification(item)"
               data-cy="viewClarification"
-              >mdi-menu-open</v-icon
+              >mdi-eye</v-icon
             >
           </template>
           <span>View Clarification</span>
@@ -79,10 +91,16 @@
     </v-data-table>
 
     <show-question-dialog
-      v-if="question"
+      v-if="currentQuestion"
       :dialog="questionDialog"
-      :question="question"
+      :question="currentQuestion"
       v-on:close-show-question-dialog="onCloseShowQuestionDialog"
+    />
+    <show-clarification-dialog
+      v-if="currentClarification"
+      :dialog="clarificationDialog"
+      :clarification="currentClarification"
+      v-on:close-show-clarification-dialog="onCloseShowClarificationDialog"
     />
   </v-card>
 </template>
@@ -95,17 +113,21 @@ import Course from '@/models/user/Course';
 import ClarificationManager from '@/models/clarification/ClarificationManager';
 import Question from '@/models/management/Question';
 import ShowQuestionDialog from '@/views/teacher/questions/ShowQuestionDialog.vue';
+import ShowClarificationDialog from '@/views/clarification/ShowClarificationDialog.vue';
 
 @Component({
   components: {
-    'show-question-dialog': ShowQuestionDialog
+    'show-question-dialog': ShowQuestionDialog,
+    'show-clarification-dialog': ShowClarificationDialog
   }
 })
 export default class ClarificationListView extends Vue {
   clarifications: Clarification[] = [];
   currentCourse: Course | null = null;
-  question: Question | null = null;
+  currentQuestion: Question | null = null;
+  currentClarification: Clarification | null = null;
   questionDialog: boolean = false;
+  clarificationDialog: boolean = false;
   search: string = '';
   headers: object = [
     {
@@ -151,9 +173,14 @@ export default class ClarificationListView extends Vue {
   async created() {
     await this.$store.dispatch('loading');
     try {
-      this.clarifications = (
-        await RemoteServices.getClarifications()
-      ).reverse();
+      if (this.$store.getters.isTeacher || this.$store.getters.isAdmin)
+        this.clarifications = (
+          await RemoteServices.getClarifications()
+        ).reverse();
+      else
+        this.clarifications = (
+          await RemoteServices.getClarificationsByUser()
+        ).reverse();
     } catch (error) {
       await this.$store.dispatch('error', error);
     }
@@ -161,11 +188,13 @@ export default class ClarificationListView extends Vue {
   }
 
   async viewClarification(clarification: Clarification) {
-    let clarificationManager: ClarificationManager =
-      ClarificationManager.getInstance;
-    clarificationManager.clarification = clarification;
-
-    await this.$router.push({ name: 'view-clarification' });
+    // let clarificationManager: ClarificationManager =
+    //   ClarificationManager.getInstance;
+    // clarificationManager.clarification = clarification;
+    //
+    // await this.$router.push({ name: 'view-clarification' });
+    this.clarificationDialog = true;
+    this.currentClarification = clarification;
   }
 
   async viewQuestion(clarification: Clarification) {
@@ -174,7 +203,7 @@ export default class ClarificationListView extends Vue {
         clarification.question.id
       );
       this.questionDialog = true;
-      this.question = question;
+      this.currentQuestion = question;
     } catch (error) {
       await this.$store.dispatch('error', error);
     }
@@ -182,6 +211,10 @@ export default class ClarificationListView extends Vue {
 
   onCloseShowQuestionDialog() {
     this.questionDialog = false;
+  }
+
+  onCloseShowClarificationDialog() {
+    this.clarificationDialog = false;
   }
 }
 </script>
