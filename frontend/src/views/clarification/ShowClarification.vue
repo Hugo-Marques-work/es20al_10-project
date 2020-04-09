@@ -4,7 +4,7 @@
     <br />
     <br />
     <div v-if="hasAnswers">
-<!--      TODO: Improve title and text-->
+      <!--      TODO: Improve title and text-->
       <span class="headline">Answer</span>
       <ul>
         <li v-for="answer in answers" :key="answer.id">
@@ -12,8 +12,8 @@
         </li>
       </ul>
     </div>
-    <div v-else>Answer now
-<!--    TODO: Add textarea to answer  -->
+    <div v-else>
+      <b><span v-html="convertMarkDown('No answers')"/></b>
     </div>
   </div>
 </template>

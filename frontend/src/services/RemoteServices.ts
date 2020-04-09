@@ -613,6 +613,21 @@ export default class RemoteServices {
       });
   }
 
+  // Create clarification answers
+  static async createClarificationAnswer(
+    clarificationId: number,
+    answer: string
+  ): Promise<ClarificationAnswer> {
+    return httpClient
+      .post('/clarification/' + clarificationId + '/answer', answer)
+      .then(response => {
+        return new ClarificationAnswer(response.data);
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
   // Get clarification answers
   static async getClarificationAnswers(
     clarification: Clarification

@@ -108,6 +108,7 @@ export default class ResultsView extends Vue {
     if (message != null) {
     } else {
       await this.$store.dispatch('error', 'Clarification can not be empty');
+      return;
     }
 
     try {
