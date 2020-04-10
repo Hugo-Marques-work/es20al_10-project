@@ -102,13 +102,13 @@
       :clarification="currentClarification"
       :isTeacher="isTeacher"
       v-on:close-show-clarification-dialog="onCloseShowClarificationDialog"
-      @send-clarification-answer="sendClarificationAnswer"
+      @update-answered-status="updateAnsweredStatus"
     />
   </v-card>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+  import { Component, Vue, Watch } from 'vue-property-decorator';
 import RemoteServices from '@/services/RemoteServices';
 import Clarification from '@/models/clarification/Clarification';
 import Course from '@/models/user/Course';
@@ -126,7 +126,6 @@ import { stringifyQuery } from 'vue-router/src/util/query';
 })
 export default class ClarificationListView extends Vue {
   isTeacher: boolean = false;
-  clarificationAnswer: ClarificationAnswer | null = null;
   clarifications: Clarification[] = [];
   currentCourse: Course | null = null;
   currentQuestion: Question | null = null;
@@ -193,6 +192,23 @@ export default class ClarificationListView extends Vue {
     await this.$store.dispatch('clearLoading');
   }
 
+  @Watch('refreshAnswered')
+  async updateAnsweredStatus() {
+    console.log('update');
+    await this.$store.dispatch('loading');
+    try {
+      if (this.$store.getters.isTeacher || this.$store.getters.isAdmin) {
+        this.clarifications = (
+          await RemoteServices.getClarifications()
+        ).reverse();
+        this.isTeacher = true;
+      }
+    } catch (error) {
+      await this.$store.dispatch('error', error);
+    }
+    await this.$store.dispatch('clearLoading');
+  }
+
   async viewClarification(clarification: Clarification) {
     // let clarificationManager: ClarificationManager =
     //   ClarificationManager.getInstance;
@@ -221,33 +237,6 @@ export default class ClarificationListView extends Vue {
 
   onCloseShowClarificationDialog() {
     this.clarificationDialog = false;
-  }
-
-  async sendClarificationAnswer(answer: string) {
-    await this.$store.dispatch('loading');
-
-    if (answer != null) {
-    } else {
-      await this.$store.dispatch('error', 'Answer can not be empty');
-      return;
-    }
-
-    try {
-      if (
-        this.currentClarification != null &&
-        this.currentClarification.id != null
-      ) {
-        this.clarificationAnswer = await RemoteServices.createClarificationAnswer(
-          this.currentClarification.id,
-          answer
-        );
-        await this.$store.dispatch('confirmation', 'Answer sent');
-      }
-    } catch (error) {
-      await this.$store.dispatch('error', error);
-    }
-
-    await this.$store.dispatch('clearLoading');
   }
 }
 </script>

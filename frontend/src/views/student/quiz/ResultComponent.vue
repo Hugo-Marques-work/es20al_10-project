@@ -76,6 +76,9 @@
                       rows="1"
                       ref="input"
                       v-on:keydown.esc="cancelClarification"
+                      v-on:keydown.enter="createClarification"
+                      v-on:keydown.shift="canSend = false"
+                      v-on:keyup.shift="canSend = true"
                       class="clarificationMessage"
                       v-model="clarificationContent"
                       placeholder="write clarification message here">
@@ -119,6 +122,7 @@ export default class ResultComponent extends Vue {
   optionLetters: string[] = ['A', 'B', 'C', 'D'];
   clarificationPopup: boolean = false;
   clarificationContent: string = "";
+  canSend: boolean = false;
 
   @Emit()
   increaseOrder() {
