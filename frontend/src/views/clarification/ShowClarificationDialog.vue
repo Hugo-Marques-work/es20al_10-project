@@ -4,21 +4,23 @@
     v-model="dialog"
     @keydown.esc="closeClarificationDialog"
     max-width="95%"
+    content-class="ClarificationDialog"
   >
-    <v-card>
+    <v-card class="InformationCard">
       <v-card-title>
         <span class="headline">{{ clarification.question.title }}</span>
       </v-card-title>
 
       <v-card-text class="text-left">
         <show-question :question="clarification.question" />
+        <v-divider />
+        <show-clarification :clarification="clarification" :refresh="refresh" />
       </v-card-text>
     </v-card>
 
-    <v-card>
-      <v-card-text class="text-left">
-        <show-clarification :clarification="clarification" :refresh="refresh" />
-        <div v-if="isTeacher">
+    <v-card class="WriteAnswer">
+      <v-card-text style="padding-bottom: 0">
+        <div v-if="isTeacher" style="margin-top: -3pt">
           <v-textarea
             clearable
             auto-grow
@@ -33,7 +35,6 @@
           </v-textarea>
         </div>
       </v-card-text>
-
       <v-card-actions>
         <v-spacer />
         <v-btn dark color="secondary" @click="closeClarificationDialog"
@@ -112,4 +113,17 @@ export default class ShowClarificationDialog extends Vue {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="css">
+.ClarificationDialog {
+  height: 80% !important;
+  overflow: hidden !important;
+}
+.InformationCard {
+  height: 84% !important;
+  overflow: auto !important;
+}
+
+.WriteAnswer {
+  height: 16%;
+}
+</style>
