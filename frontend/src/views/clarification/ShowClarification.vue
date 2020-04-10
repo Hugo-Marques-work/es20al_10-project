@@ -48,7 +48,7 @@ export default class ShowClarification extends Vue {
   @Prop({ type: Boolean, required: true })
   readonly refresh!: boolean;
   answers: ClarificationAnswer[] = [];
-  hasAnswers: boolean = false;
+  hasAnswers: boolean = true;
 
   @Watch('clarification')
   @Watch('refresh')

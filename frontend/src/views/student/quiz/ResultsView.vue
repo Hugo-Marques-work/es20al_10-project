@@ -46,7 +46,6 @@
       :questionNumber="statementManager.statementQuiz.questions.length"
       @increase-order="increaseOrder"
       @decrease-order="decreaseOrder"
-      @create-clarification="createClarification"
     />
   </div>
 </template>
@@ -66,7 +65,6 @@ import RemoteServices from '@/services/RemoteServices';
 export default class ResultsView extends Vue {
   statementManager: StatementManager = StatementManager.getInstance;
   questionOrder: number = 0;
-  clarification: Clarification | null = null;
 
   async created() {
     if (this.statementManager.isEmpty()) {
@@ -100,31 +98,6 @@ export default class ResultsView extends Vue {
     if (n >= 0 && n < +this.statementManager.statementQuiz!.questions.length) {
       this.questionOrder = n;
     }
-  }
-
-  async createClarification(message: string) {
-    await this.$store.dispatch('loading');
-
-    if (message != null) {
-    } else {
-      await this.$store.dispatch('error', 'Clarification can not be empty');
-      return;
-    }
-
-    try {
-      if (this.statementManager.statementQuiz != null) {
-        this.clarification = await RemoteServices.createClarification(
-          this.statementManager.statementQuiz.questions[this.questionOrder]
-            .quizQuestionId,
-          message
-        );
-        await this.$store.dispatch('confirmation', 'Clarification created');
-      }
-    } catch (error) {
-      await this.$store.dispatch('error', error);
-    }
-
-    await this.$store.dispatch('clearLoading');
   }
 }
 </script>

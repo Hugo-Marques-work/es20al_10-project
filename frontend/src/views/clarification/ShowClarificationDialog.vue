@@ -1,5 +1,6 @@
 <template>
   <v-dialog
+    v-on:click:outside="closeClarificationDialog"
     v-model="dialog"
     @keydown.esc="closeClarificationDialog"
     max-width="95%"

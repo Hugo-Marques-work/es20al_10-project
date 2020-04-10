@@ -62,43 +62,11 @@
       <p></p>
       <v-btn @click="clarificationPopup = true">Ask for a clarification</v-btn>
       <p></p>
-      <div>
-        <v-dialog v-model="clarificationPopup" width="50%">
-          <v-card>
-            <v-card-title primary-title class="secondary white--text headline">
-              Send Clarification
-            </v-card-title>
-
-            <v-card-text class="text--black title">
-              <v-textarea
-                      clearable
-                      auto-grow
-                      rows="1"
-                      ref="input"
-                      v-on:keydown.esc="cancelClarification"
-                      v-on:keydown.enter="createClarification"
-                      v-on:keydown.shift="canSend = false"
-                      v-on:keyup.shift="canSend = true"
-                      class="clarificationMessage"
-                      v-model="clarificationContent"
-                      placeholder="write clarification message here">
-              </v-textarea>
-            </v-card-text>
-
-            <v-divider />
-
-            <v-card-actions>
-              <v-spacer />
-              <v-btn color="secondary" text @click="cancelClarification">
-                Cancel
-              </v-btn>
-              <v-btn color="primary" text @click="createClarification">
-                Send
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </div>
+      <create-clarification-dialog
+        :dialog="clarificationPopup"
+        :question="question"
+        @cancel-clarification="cancelClarification"
+      />
     </ul>
   </div>
 </template>
@@ -110,8 +78,13 @@ import StatementQuestion from '@/models/statement/StatementQuestion';
 import StatementAnswer from '@/models/statement/StatementAnswer';
 import StatementCorrectAnswer from '@/models/statement/StatementCorrectAnswer';
 import Image from '@/models/management/Image';
+import CreateClarificationDialog from '@/views/clarification/CreateClarificationDialog.vue';
 
-@Component
+@Component({
+  components: {
+    'create-clarification-dialog': CreateClarificationDialog
+  }
+})
 export default class ResultComponent extends Vue {
   @Model('questionOrder', Number) questionOrder: number | undefined;
   @Prop(StatementQuestion) readonly question!: StatementQuestion;
@@ -121,8 +94,6 @@ export default class ResultComponent extends Vue {
   hover: boolean = false;
   optionLetters: string[] = ['A', 'B', 'C', 'D'];
   clarificationPopup: boolean = false;
-  clarificationContent: string = "";
-  canSend: boolean = false;
 
   @Emit()
   increaseOrder() {
@@ -134,20 +105,7 @@ export default class ResultComponent extends Vue {
     return 1;
   }
 
-  @Emit()
-  createClarification() {
-    if (this.clarificationContent != '') {
-      this.clarificationPopup = false;
-      var content = this.clarificationContent;
-      this.clarificationContent = "";
-      return content;
-    }
-
-    return null;
-  }
-
   cancelClarification() {
-    this.clarificationContent = "";
     this.clarificationPopup = false;
   }
 
@@ -158,9 +116,6 @@ export default class ResultComponent extends Vue {
 </script>
 
 <style lang="scss" scoped>
-.clarificationMessage{
-  margin-top: 20pt;
-}
 .unanswered {
   .question {
     background-color: #761515 !important;
