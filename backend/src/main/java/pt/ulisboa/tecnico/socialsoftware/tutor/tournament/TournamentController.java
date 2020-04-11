@@ -66,7 +66,7 @@ public class TournamentController {
     }
 
     private void formatDates(TournamentDto tournament) {
-        DateHandler.formatFromRequest(tournament.getStartingDate());
-        DateHandler.formatFromRequest(tournament.getConclusionDate());
+        tournament.setStartingDate(DateHandler.formatFromRequest(tournament.getStartingDate()));
+        tournament.setConclusionDate(DateHandler.formatFromRequest(tournament.getConclusionDate()));
     }
 }
