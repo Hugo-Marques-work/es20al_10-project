@@ -11,6 +11,7 @@ public class DateHandler {
     }
 
     public static String format(LocalDateTime date) {
+        if (date == null) return "";
         return date.format(formatter);
     }
 
