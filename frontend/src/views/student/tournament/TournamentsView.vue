@@ -292,7 +292,7 @@ export default class TournamentsView extends Vue {
   }
 
   async onCreateTournament(tournament: Tournament) {
-    this.tournaments.unshift(tournament);
+    await this.refresh();
     this.createTournamentDialog = false;
   }
 
