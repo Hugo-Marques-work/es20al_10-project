@@ -70,7 +70,7 @@ public class QuizController {
     }
 
     private void formatDates(QuizDto quiz) {
-        DateHandler.formatFromRequest(quiz.getAvailableDate());
-        DateHandler.formatFromRequest(quiz.getConclusionDate());
+        quiz.setAvailableDate(DateHandler.formatFromRequest(quiz.getAvailableDate()));
+        quiz.setConclusionDate(DateHandler.formatFromRequest(quiz.getConclusionDate()));
     }
 }
