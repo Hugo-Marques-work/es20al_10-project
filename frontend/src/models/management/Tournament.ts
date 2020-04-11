@@ -11,6 +11,7 @@ export enum TournamentStatus {
 export class Tournament {
   id!: number;
   title!: string;
+  numberOfQuestions!: number;
   startingDate!: string | undefined;
   conclusionDate!: string | undefined;
   creator!: SimpleUser;
@@ -22,6 +23,7 @@ export class Tournament {
     if (jsonObj) {
       this.id = jsonObj.id;
       this.title = jsonObj.title;
+      this.numberOfQuestions = jsonObj.numberOfQuestions;
       this.startingDate = jsonObj.startingDate;
       this.conclusionDate = jsonObj.conclusionDate;
       if (jsonObj.status.toString() == 'OPEN')
