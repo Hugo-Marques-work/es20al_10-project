@@ -23,7 +23,7 @@
             />
 
             <!--SEARCH BY STATUS-->
-            <div class="text-center" style="padding-right:2%">
+            <div class="text-center">
               <v-menu open-on-hover bottom offset-y>
                 <template v-slot:activator="{ on }">
                   <v-btn v-on="on">
@@ -44,6 +44,14 @@
                   </v-list-item>
                 </v-list>
               </v-menu>
+
+              <v-btn
+                color="primary"
+                dark
+                @click="newTournament"
+                data-cy="createButton"
+                >New Tournament</v-btn
+              >
             </div>
 
             <!-- REFRESH -->
@@ -92,7 +100,7 @@
               >fas fa-sign-in-alt</v-icon
             >
           </template>
-          <span>Enter Tournament</span>
+          <span>Join Tournament</span>
         </v-tooltip>
       </template>
       <!-- TOPICS -->
@@ -100,7 +108,6 @@
       <template v-slot:expanded-item="{ headers, item }">
         <td :colspan="headers.length">{{ getTopicNames(item) }}</td>
       </template>
-
     </v-data-table>
     <!-- DIALOG -->
     <sign-up-for-tournament-dialog
@@ -110,6 +117,12 @@
       v-on:signedUp="onSignUp"
       v-on:close-dialog="onCloseDialog"
     ></sign-up-for-tournament-dialog>
+    <create-tournament-dialog
+      v-if="createTournamentDialog"
+      v-model="createTournamentDialog"
+      v-on:new-tournament="onCreateTournament"
+      v-on:close-dialog="onCloseTournamentDialog"
+    ></create-tournament-dialog>
   </v-card>
 </template>
 
@@ -119,13 +132,16 @@ import RemoteServices from '@/services/RemoteServices';
 import { Tournament, TournamentStatus } from '@/models/management/Tournament';
 import Topic from '@/models/management/Topic';
 import SignUpForTournamentDialog from '@/views/student/tournament/SignUpForTournamentDialog.vue';
+import CreateTournamentDialog from '@/views/student/tournament/CreateTournamentDialog.vue';
 
 @Component({
   components: {
-    'sign-up-for-tournament-dialog': SignUpForTournamentDialog
+    'sign-up-for-tournament-dialog': SignUpForTournamentDialog,
+    'create-tournament-dialog': CreateTournamentDialog
   }
 })
-export default class TournamentView extends Vue {
+export default class TournamentsView extends Vue {
+  createTournamentDialog: boolean = false;
   expanded: any = [];
   tournaments: Tournament[] = [];
   signUpForTournamentDialog: boolean = false;
@@ -269,6 +285,19 @@ export default class TournamentView extends Vue {
 
   async refresh() {
     await this.getTournaments();
+  }
+
+  newTournament() {
+    this.createTournamentDialog = true;
+  }
+
+  async onCreateTournament(tournament: Tournament) {
+    this.tournaments.unshift(tournament);
+    this.createTournamentDialog = false;
+  }
+
+  onCloseTournamentDialog() {
+    this.createTournamentDialog = false;
   }
 }
 </script>

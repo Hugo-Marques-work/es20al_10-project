@@ -52,7 +52,7 @@ public class QuestionController {
     }
 
     @GetMapping("/courses/{courseId}/questions/available")
-    @PreAuthorize("hasRole('ROLE_TEACHER') and hasPermission(#courseId, 'COURSE.ACCESS')")
+    @PreAuthorize("hasPermission(#courseId, 'COURSE.ACCESS')")
     public List<QuestionDto> getAvailableQuestions(@PathVariable int courseId){
         return this.questionService.findAvailableQuestions(courseId);
     }

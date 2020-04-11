@@ -177,7 +177,8 @@ public class Tournament {
             throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Conclusion date " + conclusionDate);
         }
         if (this.startingDate != null && !conclusionDate.isAfter(startingDate)) {
-            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Conclusion date " + conclusionDate + startingDate);
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Conclusion date " + conclusionDate
+                    + " and starting date "  + startingDate);
         }
         setConclusionDate(conclusionDate);
     }
