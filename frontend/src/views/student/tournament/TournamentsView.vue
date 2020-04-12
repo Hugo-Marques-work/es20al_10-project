@@ -169,7 +169,7 @@ export default class TournamentsView extends Vue {
     'Open Tournaments',
     'Signed Up Tournaments',
     'Running Tournaments',
-    'Created Tournaments'
+    'My Tournaments'
   ];
   activeFilters: { (tournament: Tournament): boolean }[] = [];
   statusSearch: string = this.statusSearchList[0];
