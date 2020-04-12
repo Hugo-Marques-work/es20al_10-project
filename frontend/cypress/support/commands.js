@@ -24,6 +24,9 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 /// <reference types="Cypress" />
+
+/* LOGIN Commands */
+/* Demo Login - Admin */
 Cypress.Commands.add('demoAdminLogin', () => {
     cy.visit('/');
     cy.get('[data-cy="adminButton"]').click();
@@ -31,24 +34,55 @@ Cypress.Commands.add('demoAdminLogin', () => {
     cy.contains('Manage Courses').click()
 });
 
-Cypress.Commands.add('demoStudentLogin', () => {
+/* Demo Login - Teacher/Student */
+Cypress.Commands.add('demoLogin', (type) => {
     cy.visit('/');
-    cy.get('[data-cy="studentButton"]').click();
+    cy.get('[data-cy="' + type + 'Button"]').click();
+});
+/* ----------------------- */
+
+/* Teacher Commands */
+/* Create a clarificationAnswer given a message*/
+Cypress.Commands.add('createClarificationAnswer', (title, message) => {
+    cy.get('[data-cy="clarificationsButton"]').click();
+    cy.contains('List all').click();
+    cy.contains(title)
+      .parent()
+      .should('have.length', 1)
+      .find('[data-cy="viewClarification"]')
+      .click();
+    if (message != null) {
+        cy.get('[data-cy="answerClarification"]').type(message);
+    }
+    cy.get('[data-cy="sendClarificationAnswerButton"]').click();
+    cy.get('[data-cy="closeClarificationDialog"]').click();
 });
 
+/* Check if clarification answer exists*/
+Cypress.Commands.add('checkForClarificationAnswer', (message) => {
+    cy.contains(message);
+});
+/* ----------------------- */
+
+/* Student Commands */
+/* Get first solved quiz */
 Cypress.Commands.add('firstSolvedQuiz', () => {
     cy.get('[data-cy="quizzesButton"]').click();
     cy.contains('Solved').click();
     cy.get('.list-row').eq(0).should('have.class', 'list-row').click();
-})
+});
 
+/* Create a clarification given a message */
 Cypress.Commands.add('createClarification', (clarificationMessage) => {
     cy.get('[data-cy="createClarificationButton"]').click();
     if (clarificationMessage != null)
         cy.get('[data-cy="clarificationText"]').type(clarificationMessage);
     cy.get('[data-cy="sendClarificationButton"]').click();
-})
+});
+/* ----------------------- */
 
+/* ADMIN Commands */
+/* Create a course execution given a name, acronym and academic Term */
 Cypress.Commands.add('createCourseExecution', (name, acronym, academicTerm) => {
     cy.get('[data-cy="createButton"]').click();
     cy.get('[data-cy="Name"]').type(name);
@@ -57,40 +91,47 @@ Cypress.Commands.add('createCourseExecution', (name, acronym, academicTerm) => {
     cy.get('[data-cy="saveButton"]').click()
 });
 
-Cypress.Commands.add('closeErrorMessage', (name, acronym, academicTerm) => {
-    cy.contains('Error')
-        .parent()
-        .find('button')
-        .click()
+/* Create a course execution from another course execution given a name, acronym and academic Term */
+Cypress.Commands.add('createFromCourseExecution', (name, acronym, academicTerm) => {
+    cy.contains(name)
+      .parent()
+      .should('have.length', 1)
+      .children()
+      .should('have.length', 7)
+      .find('[data-cy="createFromCourse"]')
+      .click();
+    cy.get('[data-cy="Acronym"]').type(acronym);
+    cy.get('[data-cy="AcademicTerm"]').type(academicTerm);
+    cy.get('[data-cy="saveButton"]').click()
 });
 
+/* Delete a course execution given an acronym */
+Cypress.Commands.add('deleteCourseExecution', (acronym) => {
+    cy.contains(acronym)
+      .parent()
+      .should('have.length', 1)
+      .children()
+      .should('have.length', 7)
+      .find('[data-cy="deleteCourse"]')
+      .click()
+});
+/* ----------------------- */
+
+/* Universal Commands */
+/* Close an error message */
+Cypress.Commands.add('closeErrorMessage', () => {
+    cy.contains('Error')
+      .parent()
+      .find('button')
+      .click()
+});
+
+/* Close a success message given the message */
 Cypress.Commands.add('closeSuccessMessage', (successMessage) => {
     cy.contains(successMessage)
       .parent()
       .find('button')
       .click()
 });
-
-Cypress.Commands.add('deleteCourseExecution', (acronym) => {
-    cy.contains(acronym)
-        .parent()
-        .should('have.length', 1)
-        .children()
-        .should('have.length', 7)
-        .find('[data-cy="deleteCourse"]')
-        .click()
-});
-
-Cypress.Commands.add('createFromCourseExecution', (name, acronym, academicTerm) => {
-    cy.contains(name)
-        .parent()
-        .should('have.length', 1)
-        .children()
-        .should('have.length', 7)
-        .find('[data-cy="createFromCourse"]')
-        .click();
-    cy.get('[data-cy="Acronym"]').type(acronym);
-    cy.get('[data-cy="AcademicTerm"]').type(academicTerm);
-    cy.get('[data-cy="saveButton"]').click()
-});
+/* ----------------------- */
 

@@ -26,6 +26,7 @@
       <v-spacer />
 
       <v-toolbar-items class="hidden-sm-and-down" hide-details>
+        <!-- Administration -->
         <v-menu offset-y v-if="isAdmin" open-on-hover>
           <template v-slot:activator="{ on }">
             <v-btn v-on="on" text dark>
@@ -45,6 +46,7 @@
           </v-list>
         </v-menu>
 
+        <!-- Management -->
         <v-menu offset-y v-if="isTeacher && currentCourse" open-on-hover>
           <template v-slot:activator="{ on }">
             <v-btn v-on="on" text dark>
@@ -104,25 +106,6 @@
           </v-list>
         </v-menu>
 
-        <v-menu offset-y v-if="isStudent" open-on-hover>
-          <template v-slot:activator="{ on }">
-            <v-btn v-on="on" text dark>
-              Tournaments
-              <v-icon>fas fa-trophy</v-icon>
-            </v-btn>
-          </template>
-          <v-list dense>
-            <v-list-item to="/tournament/create">
-              <v-list-item-action>
-                <v-icon>create</v-icon>
-              </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>Create</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-
         <!-- Clarifications -->
         <v-menu
           offset-y
@@ -130,7 +113,7 @@
           open-on-hover
         >
           <template v-slot:activator="{ on }">
-            <v-btn v-on="on" text dark>
+            <v-btn v-on="on" text dark data-cy="clarificationsButton">
               Clarifications
               <v-icon>fas fa-question-circle</v-icon>
             </v-btn>
@@ -191,6 +174,7 @@
           </v-list>
         </v-menu>
 
+        <!-- Stats -->
         <v-btn to="/student/stats" v-if="isStudent && currentCourse" text dark>
           Stats
           <v-icon>fas fa-user</v-icon>

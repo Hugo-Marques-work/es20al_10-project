@@ -1,6 +1,6 @@
 describe('Create Clarifications', () => {
   beforeEach(() => {
-    cy.demoStudentLogin();
+    cy.demoLogin('student');
     cy.firstSolvedQuiz();
   });
 

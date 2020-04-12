@@ -31,6 +31,7 @@
             v-on:keydown.enter="sendClarificationAnswer"
             v-on:keydown.shift="canSend = false"
             v-on:keyup.shift="canSend = true"
+            data-cy="answerClarification"
           >
           </v-textarea>
         </div>
@@ -38,9 +39,14 @@
       <v-card-actions>
         <v-spacer />
         <v-btn dark color="secondary" @click="closeClarificationDialog"
+               data-cy="closeClarificationDialog"
           >close</v-btn
         >
-        <v-btn dark color="blue darken-1" @click="sendClarificationAnswer"
+        <v-btn
+          dark
+          color="blue darken-1"
+          @click="sendClarificationAnswer"
+          data-cy="sendClarificationAnswerButton"
           >send</v-btn
         >
       </v-card-actions>
