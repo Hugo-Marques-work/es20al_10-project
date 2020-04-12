@@ -74,7 +74,7 @@
 
       <!-- ACTIONS -->
       <template v-slot:item.action="{ item }">
-        <!-- OPEN ACTIONS-->
+        <!-- sign up for tournament -->
         <v-tooltip v-if="signUpTournamentConditions(item)" bottom>
           <template v-slot:activator="{ on }">
             <v-icon
@@ -103,7 +103,7 @@
           </template>
           <span>Cancel Tournament</span>
         </v-tooltip>
-        <!-- SIGNED UP ACTIONS-->
+        <!-- enter tournament -->
         <v-tooltip v-if="enterTournamentConditions(item)" bottom>
           <template v-slot:activator="{ on }">
             <v-icon small class="mr-2" v-on="on">fas fa-sign-in-alt</v-icon>
@@ -112,10 +112,7 @@
         </v-tooltip>
       </template>
 
-
-
       <!-- TOPICS -->
-
       <template v-slot:expanded-item="{ headers, item }">
         <td :colspan="headers.length">{{ getTopicNames(item) }}</td>
       </template>
@@ -288,23 +285,31 @@ export default class TournamentsView extends Vue {
 
   async getTournaments() {
     let tournaments: Tournament[] = await RemoteServices.getTournaments();
-    this.activeFilters.forEach(
-      filter =>
-        (tournaments = tournaments.filter(tournament => filter(tournament)))
-    );
+    this.activeFilters.forEach(filter => {
+      tournaments = tournaments.filter(tournament => filter(tournament));
+    });
     this.tournaments = tournaments;
   }
 
-  signUpTournamentConditions(tournament: Tournament){
-    return !this.userSignedInTournament(tournament) && this.hasStatus(tournament, TournamentStatus.Open);
+  signUpTournamentConditions(tournament: Tournament) {
+    return (
+      !this.userSignedInTournament(tournament) &&
+      this.hasStatus(tournament, TournamentStatus.Open)
+    );
   }
 
-  cancelTournamentConditions(tournament: Tournament){
-    return this.userCreatedTournament(tournament) && this.hasStatus(tournament, TournamentStatus.Open);
+  cancelTournamentConditions(tournament: Tournament) {
+    return (
+      this.userCreatedTournament(tournament) &&
+      this.hasStatus(tournament, TournamentStatus.Open)
+    );
   }
 
-  enterTournamentConditions(tournament: Tournament){
-    return this.userSignedInTournament(tournament) && this.hasStatus(tournament, TournamentStatus.Running)
+  enterTournamentConditions(tournament: Tournament) {
+    return (
+      this.userSignedInTournament(tournament) &&
+      this.hasStatus(tournament, TournamentStatus.Running)
+    );
   }
 
   async searchStatus(item: string) {
@@ -318,20 +323,18 @@ export default class TournamentsView extends Vue {
         break;
       case this.statusSearchList[1]:
         this.activeFilters = [
-          t => this.userSignedInTournament(t),
+          this.userSignedInTournament,
           t => this.hasStatus(t, TournamentStatus.Open)
         ];
         break;
       case this.statusSearchList[2]:
         this.activeFilters = [
-          t => this.userSignedInTournament(t),
+          this.userSignedInTournament,
           t => this.hasStatus(t, TournamentStatus.Running)
         ];
         break;
       case this.statusSearchList[3]:
-        this.activeFilters = [
-          t => this.userCreatedTournament(t),
-        ];
+        this.activeFilters = [this.userCreatedTournament];
         break;
     }
     await this.getTournaments();
