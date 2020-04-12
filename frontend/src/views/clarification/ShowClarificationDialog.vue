@@ -6,7 +6,7 @@
     max-width="95%"
     content-class="ClarificationDialog"
   >
-    <v-card class="InformationCard">
+    <v-card class="InformationCard" id="info">
       <v-card-title>
         <span class="headline">{{ clarification.question.title }}</span>
       </v-card-title>
@@ -18,9 +18,9 @@
       </v-card-text>
     </v-card>
 
-    <v-card class="WriteAnswer">
+    <v-card class="WriteAnswerTeacher" v-if="isTeacher">
       <v-card-text style="padding-bottom: 0">
-        <div v-if="isTeacher" style="margin-top: -3pt">
+        <div style="margin-top: -3pt">
           <v-textarea
             clearable
             auto-grow
@@ -40,12 +40,18 @@
         <v-btn dark color="secondary" @click="closeClarificationDialog"
           >close</v-btn
         >
-        <v-btn
-          dark
-          color="blue darken-1"
-          @click="sendClarificationAnswer"
-          v-if="isTeacher"
+        <v-btn dark color="blue darken-1" @click="sendClarificationAnswer"
           >send</v-btn
+        >
+      </v-card-actions>
+    </v-card>
+
+    <v-card class="WriteAnswerStudent" v-else>
+      <v-card-text style="padding-bottom: 6pt"> </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn dark color="secondary" @click="closeClarificationDialog"
+          >close</v-btn
         >
       </v-card-actions>
     </v-card>
@@ -119,16 +125,24 @@ export default class ShowClarificationDialog extends Vue {
 
 <style lang="css">
 .ClarificationDialog {
-  height: 88% !important;
+  height: 88%;
   overflow: hidden !important;
-  margin-bottom: -5% !important;
+  margin-bottom: -2% !important;
 }
 .InformationCard {
-  height: 80% !important;
+  height: 84% !important;
   overflow: auto !important;
 }
 
-.WriteAnswer {
-  height: 20% !important;
+.InformationCardStudent {
+  height: 92% !important;
+  overflow: auto !important;
+}
+
+.WriteAnswerTeacher {
+  height: 16% !important;
+}
+.WriteAnswerStudent {
+  height: 8% !important;
 }
 </style>

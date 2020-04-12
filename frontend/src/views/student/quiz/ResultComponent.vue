@@ -60,7 +60,7 @@
         />
       </li>
       <p></p>
-      <v-btn @click="clarificationPopup = true">Ask for a clarification</v-btn>
+      <v-btn @click="clarificationPopup = true" data-cy="createClarificationButton">Ask for a clarification</v-btn>
       <p></p>
       <create-clarification-dialog
         :dialog="clarificationPopup"

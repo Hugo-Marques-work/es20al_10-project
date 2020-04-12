@@ -25,26 +25,49 @@
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 /// <reference types="Cypress" />
 Cypress.Commands.add('demoAdminLogin', () => {
-    cy.visit('/')
-    cy.get('[data-cy="adminButton"]').click()
-    cy.contains('Administration').click()
+    cy.visit('/');
+    cy.get('[data-cy="adminButton"]').click();
+    cy.contains('Administration').click();
     cy.contains('Manage Courses').click()
+});
+
+Cypress.Commands.add('demoStudentLogin', () => {
+    cy.visit('/');
+    cy.get('[data-cy="studentButton"]').click();
+});
+
+Cypress.Commands.add('firstSolvedQuiz', () => {
+    cy.get('[data-cy="quizzesButton"]').click();
+    cy.contains('Solved').click();
+    cy.get('.list-row').eq(0).should('have.class', 'list-row').click();
+})
+
+Cypress.Commands.add('createClarification', (clarificationMessage) => {
+    cy.get('[data-cy="clarificationText"]').type(clarificationMessage);
+    cy.get('[data-cy="sendClarificationButton"]').click();
 })
 
 Cypress.Commands.add('createCourseExecution', (name, acronym, academicTerm) => {
-    cy.get('[data-cy="createButton"]').click()
-    cy.get('[data-cy="Name"]').type(name)
-    cy.get('[data-cy="Acronym"]').type(acronym)
-    cy.get('[data-cy="AcademicTerm"]').type(academicTerm)
+    cy.get('[data-cy="createButton"]').click();
+    cy.get('[data-cy="Name"]').type(name);
+    cy.get('[data-cy="Acronym"]').type(acronym);
+    cy.get('[data-cy="AcademicTerm"]').type(academicTerm);
     cy.get('[data-cy="saveButton"]').click()
-})
+});
 
 Cypress.Commands.add('closeErrorMessage', (name, acronym, academicTerm) => {
     cy.contains('Error')
         .parent()
         .find('button')
         .click()
-})
+});
+
+Cypress.Commands.add('closeSuccessMessage', (successMessage) => {
+    cy.contains(successMessage)
+      .parent()
+      .find('button')
+      .click()
+});
 
 Cypress.Commands.add('deleteCourseExecution', (acronym) => {
     cy.contains(acronym)
@@ -54,7 +77,7 @@ Cypress.Commands.add('deleteCourseExecution', (acronym) => {
         .should('have.length', 7)
         .find('[data-cy="deleteCourse"]')
         .click()
-})
+});
 
 Cypress.Commands.add('createFromCourseExecution', (name, acronym, academicTerm) => {
     cy.contains(name)
@@ -63,9 +86,9 @@ Cypress.Commands.add('createFromCourseExecution', (name, acronym, academicTerm) 
         .children()
         .should('have.length', 7)
         .find('[data-cy="createFromCourse"]')
-        .click()
-    cy.get('[data-cy="Acronym"]').type(acronym)
-    cy.get('[data-cy="AcademicTerm"]').type(academicTerm)
+        .click();
+    cy.get('[data-cy="Acronym"]').type(acronym);
+    cy.get('[data-cy="AcademicTerm"]').type(academicTerm);
     cy.get('[data-cy="saveButton"]').click()
-})
+});
 
