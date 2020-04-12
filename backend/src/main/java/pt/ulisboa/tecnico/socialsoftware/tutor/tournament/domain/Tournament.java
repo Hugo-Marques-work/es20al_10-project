@@ -117,7 +117,7 @@ public class Tournament {
         Set<Topic> validTopics = courseExecution.getCourse().getTopics();
 
         if (validTopics.stream().noneMatch(other -> topic == other)) {
-            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Topic" + topic);
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " topic" + topic);
         }
         topics.add(topic);
     }
@@ -164,20 +164,20 @@ public class Tournament {
 
     void checkStartingDate(LocalDateTime startingDate) {
         if (startingDate == null || startingDate.isBefore(LocalDateTime.now())) {
-            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Starting date" + startingDate);
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " starting date" + startingDate);
         }
         if (this.conclusionDate != null && !conclusionDate.isAfter(startingDate)) {
-            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Starting date" + startingDate + conclusionDate);
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " starting date" + startingDate + conclusionDate);
         }
         setStartingDate(startingDate);
     }
 
     void checkConclusionDate(LocalDateTime conclusionDate) {
         if (conclusionDate == null) {
-            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Conclusion date " + conclusionDate);
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " conclusion date " + conclusionDate);
         }
         if (this.startingDate != null && !conclusionDate.isAfter(startingDate)) {
-            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Conclusion date " + conclusionDate
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " conclusion date " + conclusionDate
                     + " and starting date "  + startingDate);
         }
         setConclusionDate(conclusionDate);
@@ -209,10 +209,6 @@ public class Tournament {
     public void cancel() {
         checkAbleToBeCanceled();
         status = Status.CANCELED;
-    }
-
-    public boolean isCreator(User user){
-        return creator.equals(user);
     }
 
     public Status getValidatedStatus() {

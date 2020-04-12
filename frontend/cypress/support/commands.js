@@ -31,6 +31,38 @@ Cypress.Commands.add('demoAdminLogin', () => {
     cy.contains('Manage Courses').click()
 })
 
+Cypress.Commands.add('demoStudentLoginTournaments', () => {
+    cy.visit('/')
+    cy.get('[data-cy="studentButton"]').click()
+    cy.contains('Tournaments').click()
+})
+
+Cypress.Commands.add('createTournament', (name, startShift, endShift) => {
+    let start = new Date()
+    let end = new Date()
+    start.setDate(start.getDate() + startShift)
+    end.setDate(end.getDate() + endShift)
+
+    cy.get('[data-cy="createButton"]').click()
+
+    cy.get('label').contains('Starting Date').parent().children('input').click()
+    cy.get('button:contains(' + start.getDate() +')').eq(0).click()
+    cy.get('button:contains("OK")').eq(0).click()
+
+    cy.get('label').contains('Conclusion Date').parent().children('input').click()
+    cy.get('button:contains(' + end.getDate() +')').eq(1).click()
+    cy.get('button:contains("OK")').eq(1).click()
+
+    cy.get('[data-cy="Topics"]').click()
+    cy.get('[role="listbox"]').children().eq(0).click()
+    cy.get('[role="listbox"]').children().eq(1).click()
+    if (name) {
+        cy.get('[data-cy="Title"]').type(name)
+    }
+
+    cy.get('[data-cy="saveButton"]').click()
+})
+
 Cypress.Commands.add('createCourseExecution', (name, acronym, academicTerm) => {
     cy.get('[data-cy="createButton"]').click()
     cy.get('[data-cy="Name"]').type(name)

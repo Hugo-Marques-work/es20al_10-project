@@ -20,7 +20,7 @@
               <v-text-field
                 v-model="tournament.title"
                 label="Title"
-                data-cy="Name"
+                data-cy="Title"
               />
             </v-flex>
           </v-layout>
@@ -62,6 +62,7 @@
               multiple
               @change="updateMaxQuestions"
               return-object
+              data-cy="Topics"
             ></v-autocomplete>
           </v-layout>
         </v-container>
@@ -79,6 +80,7 @@
               :min="minQuestions"
               thumb-label="always"
               hide-details
+              data-cy="Number Questions"
             ></v-slider>
           </v-layout>
         </v-container>
@@ -95,7 +97,7 @@
         <v-btn
           color="blue darken-1"
           @click="createTournament"
-          data-cy="createButton"
+          data-cy="saveButton"
           >Save</v-btn
         >
       </v-card-actions>
@@ -149,7 +151,7 @@ export default class CreateTournamentDialog extends Vue {
     if (!this.validTournament()) {
       await this.$store.dispatch(
         'error',
-        'Tournament must have a title, starting and ending date, and at least one topic'
+        'Error: Tournament must have a title, starting and ending date, and at least one topic'
       );
       return;
     }
@@ -157,7 +159,7 @@ export default class CreateTournamentDialog extends Vue {
     if (this.tournament) {
       try {
         const result = await RemoteServices.createTournament(this.tournament);
-        this.$emit('new-tournament');
+        this.$emit('new-tournament', result);
       } catch (error) {
         await this.$store.dispatch('error', error);
       }

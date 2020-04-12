@@ -348,8 +348,10 @@ export default class TournamentsView extends Vue {
     this.createTournamentDialog = true;
   }
 
-  async onCreateTournament() {
-    await this.refresh();
+  async onCreateTournament(tournament: Tournament) {
+    if (this.activeFilters.every(filter => filter(tournament))) {
+      this.tournaments.unshift(tournament);
+    }
     this.createTournamentDialog = false;
   }
 
