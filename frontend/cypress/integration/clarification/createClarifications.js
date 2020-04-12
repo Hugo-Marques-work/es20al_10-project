@@ -9,15 +9,13 @@ describe('Create Clarifications', () => {
   });
 
   it('login and created a clarification', () => {
-    cy.get('[data-cy="createClarificationButton"]').click();
     cy.createClarification('This is a new Clarification.');
     cy.closeSuccessMessage('Clarification created');
   });
-  
-  // it('login and created an empty clarification', () => {
-  //   cy.get('[data-cy="createClarificationButton"]').click();
-  //   cy.createClarification('\n');
-  //   cy.closeErrorMessage();
-  // });
+
+  it('login and created an empty clarification', () => {
+    cy.createClarification(null);
+    cy.closeErrorMessage();
+  });
 
 });

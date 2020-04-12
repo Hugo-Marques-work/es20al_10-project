@@ -43,7 +43,9 @@ Cypress.Commands.add('firstSolvedQuiz', () => {
 })
 
 Cypress.Commands.add('createClarification', (clarificationMessage) => {
-    cy.get('[data-cy="clarificationText"]').type(clarificationMessage);
+    cy.get('[data-cy="createClarificationButton"]').click();
+    if (clarificationMessage != null)
+        cy.get('[data-cy="clarificationText"]').type(clarificationMessage);
     cy.get('[data-cy="sendClarificationButton"]').click();
 })
 
