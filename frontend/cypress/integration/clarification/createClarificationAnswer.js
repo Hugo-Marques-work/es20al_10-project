@@ -13,18 +13,16 @@ describe('Create Clarification Answer', () => {
   beforeEach(() => {
     cy.demoLogin('teacher');
   });
-
-  afterEach(() => {
-    cy.contains('Logout').click();
-  });
-
+  
   it('login, answers a clarification and sees it', () => {
+    cy.clarificationList();
     cy.createClarificationAnswer(clarificationTitle, clarificationAnswer);
     cy.closeSuccessMessage('Answer sent');
-    cy.checkForClarificationAnswer(clarificationAnswer);
+    cy.contains(clarificationAnswer);
   });
 
   it('login, answers a clarification with empty string and sees error', () => {
+    cy.clarificationList();
     cy.createClarificationAnswer(clarificationTitle, null);
     cy.closeErrorMessage();
   });

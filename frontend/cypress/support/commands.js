@@ -58,10 +58,6 @@ Cypress.Commands.add('createClarificationAnswer', (title, message) => {
     cy.get('[data-cy="closeClarificationDialog"]').click();
 });
 
-/* Check if clarification answer exists*/
-Cypress.Commands.add('checkForClarificationAnswer', (message) => {
-    cy.contains(message);
-});
 /* ----------------------- */
 
 /* Student Commands */
@@ -72,6 +68,12 @@ Cypress.Commands.add('firstSolvedQuiz', () => {
     cy.get('.list-row').eq(0).should('have.class', 'list-row').click();
 });
 
+/* Get to clarification list */
+Cypress.Commands.add('clarificationList', () => {
+    cy.get('[data-cy="clarificationsButton"]').click();
+    cy.contains('List all').click();
+});
+
 /* Create a clarification given a message */
 Cypress.Commands.add('createClarification', (clarificationMessage) => {
     cy.get('[data-cy="createClarificationButton"]').click();
@@ -79,6 +81,25 @@ Cypress.Commands.add('createClarification', (clarificationMessage) => {
         cy.get('[data-cy="clarificationText"]').type(clarificationMessage);
     cy.get('[data-cy="sendClarificationButton"]').click();
 });
+
+/* Check if clarification is answered or not given a title */
+Cypress.Commands.add('checkClarificationAnswered', (title, isAnswered) => {
+    let icon = (isAnswered) ? 'answered' : 'notAnswered';
+    cy.contains(title).parent()
+      .children().should('have.length', 5)
+      .find('[data-cy="' + icon + '"]').should('have.length', 1);
+});
+
+/* Check if clarification answer exists*/
+Cypress.Commands.add('checkForClarificationAnswer', (title, message) => {
+    cy.contains(title)
+      .parent()
+      .should('have.length', 1)
+      .find('[data-cy="viewClarification"]')
+      .click();
+    cy.contains(message);
+});
+
 /* ----------------------- */
 
 /* ADMIN Commands */
@@ -113,7 +134,7 @@ Cypress.Commands.add('deleteCourseExecution', (acronym) => {
       .children()
       .should('have.length', 7)
       .find('[data-cy="deleteCourse"]')
-      .click()
+      .click();
 });
 /* ----------------------- */
 
@@ -123,7 +144,7 @@ Cypress.Commands.add('closeErrorMessage', () => {
     cy.contains('Error')
       .parent()
       .find('button')
-      .click()
+      .click();
 });
 
 /* Close a success message given the message */
@@ -131,7 +152,13 @@ Cypress.Commands.add('closeSuccessMessage', (successMessage) => {
     cy.contains(successMessage)
       .parent()
       .find('button')
-      .click()
+      .click();
 });
+
+/* Logout */
+Cypress.Commands.add('logout', () => {
+    cy.get('[data-cy="logout"]').click();
+});
+
 /* ----------------------- */
 
