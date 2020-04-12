@@ -248,7 +248,10 @@ router.beforeEach(async (to, from, next) => {
     next();
   } else if (to.meta.requiredAuth == 'Student' && Store.getters.isStudent) {
     next();
-  } else if (to.meta.requiredAuth == 'Student Teacher' && (Store.getters.isStudent || Store.getters.isTeacher)) {
+  } else if (
+    to.meta.requiredAuth == 'Student Teacher' &&
+    (Store.getters.isStudent || Store.getters.isTeacher)
+  ) {
     next();
   } else {
     next('/');

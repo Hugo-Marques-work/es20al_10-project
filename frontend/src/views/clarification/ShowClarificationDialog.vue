@@ -40,7 +40,11 @@
         <v-btn dark color="secondary" @click="closeClarificationDialog"
           >close</v-btn
         >
-        <v-btn dark color="blue darken-1" @click="sendClarificationAnswer"
+        <v-btn
+          dark
+          color="blue darken-1"
+          @click="sendClarificationAnswer"
+          v-if="isTeacher"
           >send</v-btn
         >
       </v-card-actions>
@@ -115,15 +119,16 @@ export default class ShowClarificationDialog extends Vue {
 
 <style lang="css">
 .ClarificationDialog {
-  height: 80% !important;
+  height: 88% !important;
   overflow: hidden !important;
+  margin-bottom: -5% !important;
 }
 .InformationCard {
-  height: 84% !important;
+  height: 80% !important;
   overflow: auto !important;
 }
 
 .WriteAnswer {
-  height: 16%;
+  height: 20% !important;
 }
 </style>

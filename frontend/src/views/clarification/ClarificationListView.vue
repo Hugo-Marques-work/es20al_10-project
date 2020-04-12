@@ -11,12 +11,27 @@
     >
       <template v-slot:top>
         <v-card-title>
+          <!-- Search -->
           <v-text-field
             v-model="search"
             append-icon="search"
             label="Search"
             class="mx-2"
           />
+          <!-- Refresh -->
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-icon
+                small
+                class="mr-2"
+                v-on="on"
+                @click="refresh()"
+                data-cy="refresh"
+                >fas fa-sync-alt</v-icon
+              >
+            </template>
+            <span>Refresh</span>
+          </v-tooltip>
         </v-card-title>
       </template>
 
@@ -173,13 +188,17 @@ export default class ClarificationListView extends Vue {
   ];
 
   async created() {
+    await this.getClarifications();
+  }
+
+  async getClarifications() {
     await this.$store.dispatch('loading');
     try {
+      this.isTeacher = this.$store.getters.isTeacher || this.$store.getters.isAdmin;
       if (this.$store.getters.isTeacher || this.$store.getters.isAdmin) {
         this.clarifications = (
           await RemoteServices.getClarifications()
         ).reverse();
-        this.isTeacher = true;
       } else
         this.clarifications = (
           await RemoteServices.getClarificationsByUser()
@@ -199,7 +218,6 @@ export default class ClarificationListView extends Vue {
         this.clarifications = (
           await RemoteServices.getClarifications()
         ).reverse();
-        this.isTeacher = true;
       }
     } catch (error) {
       await this.$store.dispatch('error', error);
@@ -208,11 +226,6 @@ export default class ClarificationListView extends Vue {
   }
 
   async viewClarification(clarification: Clarification) {
-    // let clarificationManager: ClarificationManager =
-    //   ClarificationManager.getInstance;
-    // clarificationManager.clarification = clarification;
-    //
-    // await this.$router.push({ name: 'view-clarification' });
     this.clarificationDialog = true;
     this.currentClarification = clarification;
   }
@@ -227,6 +240,10 @@ export default class ClarificationListView extends Vue {
     } catch (error) {
       await this.$store.dispatch('error', error);
     }
+  }
+
+  async refresh() {
+    await this.getClarifications();
   }
 
   onCloseShowQuestionDialog() {

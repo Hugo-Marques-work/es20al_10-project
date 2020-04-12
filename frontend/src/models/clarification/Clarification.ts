@@ -12,7 +12,7 @@ export default class Clarification {
     if (jsonObj) {
       this.id = jsonObj.id;
       this.content = jsonObj.content;
-      this.user = new User(jsonObj.user)
+      this.user = new User(jsonObj.user);
       this.question = new Question(jsonObj.question);
       this.answered = jsonObj.answered;
     }
