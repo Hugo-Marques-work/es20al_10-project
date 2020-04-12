@@ -89,18 +89,18 @@
           <span>Sign Up For Tournament</span>
         </v-tooltip>
         <v-tooltip v-if="statusSearch == statusSearchList[0]" bottom>
-        <template v-slot:activator="{ on }">
-          <v-icon
-                  small
-                  color="red"
-                  class="mr-2"
-                  v-on="on"
-                  @click="cancel(item)"
-                  data-cy="cancel"
-          >cancel</v-icon
-          >
-        </template>
-        <span>Cancel Tournament</span>
+          <template v-slot:activator="{ on }">
+            <v-icon
+              small
+              color="red"
+              class="mr-2"
+              v-on="on"
+              @click="cancel(item)"
+              data-cy="cancel"
+              >cancel</v-icon
+            >
+          </template>
+          <span>Cancel Tournament</span>
         </v-tooltip>
         <!-- SIGNED UP ACTIONS-->
         <v-tooltip v-if="statusSearch == statusSearchList[2]" bottom>
@@ -138,11 +138,11 @@
       v-on:close-dialog="onCloseTournamentDialog"
     ></create-tournament-dialog>
     <cancel-tournament-dialog
-            v-if="currentTournamentToCancel"
-            :tournament="currentTournamentToCancel"
-            v-on:canceled="onCancel"
-            v-on:close-dialog="onCloseCancelDialog"
-            v-on:error="onCloseCancelDialog"
+      v-if="currentTournamentToCancel"
+      :tournament="currentTournamentToCancel"
+      v-on:canceled="onCancel"
+      v-on:close-dialog="onCloseCancelDialog"
+      v-on:error="onCloseCancelDialog"
     ></cancel-tournament-dialog>
   </v-card>
 </template>
