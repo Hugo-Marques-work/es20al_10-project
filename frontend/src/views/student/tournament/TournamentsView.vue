@@ -88,6 +88,20 @@
           </template>
           <span>Sign Up For Tournament</span>
         </v-tooltip>
+        <v-tooltip v-if="statusSearch == statusSearchList[0]" bottom>
+        <template v-slot:activator="{ on }">
+          <v-icon
+                  small
+                  color="red"
+                  class="mr-2"
+                  v-on="on"
+                  @click="cancel(item)"
+                  data-cy="cancel"
+          >cancel</v-icon
+          >
+        </template>
+        <span>Cancel Tournament</span>
+        </v-tooltip>
         <!-- SIGNED UP ACTIONS-->
         <v-tooltip v-if="statusSearch == statusSearchList[2]" bottom>
           <template v-slot:activator="{ on }">
@@ -123,6 +137,13 @@
       v-on:new-tournament="onCreateTournament"
       v-on:close-dialog="onCloseTournamentDialog"
     ></create-tournament-dialog>
+    <cancel-tournament-dialog
+            v-if="currentTournamentToCancel"
+            :tournament="currentTournamentToCancel"
+            v-on:canceled="onCancel"
+            v-on:close-dialog="onCloseCancelDialog"
+            v-on:error="onCloseCancelDialog"
+    ></cancel-tournament-dialog>
   </v-card>
 </template>
 
@@ -133,11 +154,13 @@ import { Tournament, TournamentStatus } from '@/models/management/Tournament';
 import Topic from '@/models/management/Topic';
 import SignUpForTournamentDialog from '@/views/student/tournament/SignUpForTournamentDialog.vue';
 import CreateTournamentDialog from '@/views/student/tournament/CreateTournamentDialog.vue';
+import CancelTournamentDialog from '@/views/student/tournament/CancelTournamentDialog.vue';
 
 @Component({
   components: {
     'sign-up-for-tournament-dialog': SignUpForTournamentDialog,
-    'create-tournament-dialog': CreateTournamentDialog
+    'create-tournament-dialog': CreateTournamentDialog,
+    'cancel-tournament-dialog': CancelTournamentDialog
   }
 })
 export default class TournamentsView extends Vue {
@@ -146,6 +169,7 @@ export default class TournamentsView extends Vue {
   tournaments: Tournament[] = [];
   signUpForTournamentDialog: boolean = false;
   currentTournament: Tournament | null = null;
+  currentTournamentToCancel: Tournament | null = null;
   search: string = '';
   statusSearchList: string[] = [
     'Open tournaments',
@@ -219,6 +243,10 @@ export default class TournamentsView extends Vue {
     this.currentTournament = null;
   }
 
+  onCloseCancelDialog() {
+    this.currentTournamentToCancel = null;
+  }
+
   getTopicNames(topicItems: any): String {
     let result = '';
 
@@ -238,9 +266,18 @@ export default class TournamentsView extends Vue {
     this.onCloseDialog();
   }
 
+  async onCancel() {
+    await this.getTournaments();
+    this.onCloseCancelDialog();
+  }
+
   async signUp(tournament: Tournament) {
     this.currentTournament = tournament;
     this.signUpForTournamentDialog = true;
+  }
+
+  async cancel(tournament: Tournament) {
+    this.currentTournamentToCancel = tournament;
   }
 
   async getTournaments() {
