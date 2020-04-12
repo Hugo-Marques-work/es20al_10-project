@@ -157,7 +157,7 @@ export default class CreateTournamentDialog extends Vue {
     if (this.tournament) {
       try {
         const result = await RemoteServices.createTournament(this.tournament);
-        this.$emit('new-tournament', result);
+        this.$emit('new-tournament');
       } catch (error) {
         await this.$store.dispatch('error', error);
       }
