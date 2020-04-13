@@ -33,7 +33,12 @@
         <v-btn color="secondary" text @click="cancelClarification">
           Cancel
         </v-btn>
-        <v-btn color="primary" text @click="createClarification" data-cy="sendClarificationButton">
+        <v-btn
+          color="primary"
+          text
+          @click="createClarification"
+          data-cy="sendClarificationButton"
+        >
           Send
         </v-btn>
       </v-card-actions>
@@ -61,7 +66,10 @@ export default class CreateClarificationDialog extends Vue {
 
       if (this.clarificationContent != '') {
       } else {
-        await this.$store.dispatch('error', 'Error: Clarification can not be empty');
+        await this.$store.dispatch(
+          'error',
+          'Error: Clarification can not be empty'
+        );
         return;
       }
 

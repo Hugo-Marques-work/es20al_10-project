@@ -1,6 +1,11 @@
 <template>
   <v-dialog v-model="dialog">
-    <v-alert v-model="dialog" type="success" close-text="Close Alert" dismissible>
+    <v-alert
+      v-model="dialog"
+      type="success"
+      close-text="Close Alert"
+      dismissible
+    >
       {{ confirmationMessage }}
     </v-alert>
   </v-dialog>

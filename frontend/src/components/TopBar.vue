@@ -311,7 +311,6 @@
               <v-list-item-title>List all</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-
         </v-list-group>
 
         <!-- Student Group-->

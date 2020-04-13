@@ -194,7 +194,8 @@ export default class ClarificationListView extends Vue {
   async getClarifications() {
     await this.$store.dispatch('loading');
     try {
-      this.isTeacher = this.$store.getters.isTeacher || this.$store.getters.isAdmin;
+      this.isTeacher =
+        this.$store.getters.isTeacher || this.$store.getters.isAdmin;
       if (this.$store.getters.isTeacher || this.$store.getters.isAdmin) {
         this.clarifications = (
           await RemoteServices.getClarifications()

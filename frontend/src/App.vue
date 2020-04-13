@@ -5,7 +5,7 @@
       <error-message />
       <loading />
       <router-view />
-      <confirmation-message/>
+      <confirmation-message />
     </div>
   </v-app>
 </template>
