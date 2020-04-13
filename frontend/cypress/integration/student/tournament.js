@@ -19,6 +19,24 @@ describe('Tournament walkthrough', () => {
     //TODO: cancel tournament as tearDown
   });
 
+  it('login creates a tournament and cancel it', () => {
+    let name = Math.random().toString(36);
+    cy.createTournament(name, 12, 13)
+    cy.cancelTournament(name)
+
+    cy.wait(500)
+    cy.contains(name).should('not.exist')
+
+    cy.seeSignedUpTournaments()
+    cy.contains(name).should('not.exist')
+
+    cy.seeRunningTournaments()
+    cy.contains(name).should('not.exist')
+
+    cy.seeMyTournaments()
+    cy.contains(name).should('not.exist')
+  });
+
   it('login create tournaments with missing title', () => {
     cy.createTournament('', 12, 13)
     cy.closeErrorMessage()

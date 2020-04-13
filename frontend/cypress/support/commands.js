@@ -61,6 +61,34 @@ Cypress.Commands.add('createTournament', (name, start, end) => {
     cy.get('[data-cy="saveButton"]').click()
 })
 
+Cypress.Commands.add('cancelTournament', (name) => {
+    cy.contains(name)
+        .parent()
+        .should('have.length', 1)
+        .children()
+        .should('have.length', 7)
+        .find('[data-cy="cancel"]')
+        .click()
+
+    cy.get('[data-cy="executeCancelButton"]').click()
+
+})
+
+Cypress.Commands.add('seeSignedUpTournaments', () => {
+    cy.get('[data-cy="filter"]').click()
+    cy.contains('Signed Up Tournaments').click()
+})
+
+Cypress.Commands.add('seeRunningTournaments', () => {
+    cy.get('[data-cy="filter"]').click()
+    cy.contains('Running Tournaments').click()
+})
+
+Cypress.Commands.add('seeMyTournaments', () => {
+    cy.get('[data-cy="filter"]').click()
+    cy.contains('My Tournaments').click()
+})
+
 Cypress.Commands.add('createCourseExecution', (name, acronym, academicTerm) => {
     cy.get('[data-cy="createButton"]').click()
     cy.get('[data-cy="Name"]').type(name)
