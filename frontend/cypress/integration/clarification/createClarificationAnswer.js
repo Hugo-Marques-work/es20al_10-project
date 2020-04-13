@@ -4,10 +4,10 @@ describe('Create Clarification Answer', () => {
 
   before(() => {
     cy.demoLogin('student');
-    cy.firstSolvedQuiz();
+    cy.makeAndSolveQuiz();
     cy.createClarification(clarificationTitle);
     cy.closeSuccessMessage('Clarification created');
-    cy.contains('Logout').click();
+    cy.logout();
   });
 
   beforeEach(() => {

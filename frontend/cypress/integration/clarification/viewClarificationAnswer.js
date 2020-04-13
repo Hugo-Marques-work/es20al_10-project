@@ -4,7 +4,7 @@ describe('View Clarification Answer', () => {
 
   before(() => {
     cy.demoLogin('student');
-    cy.firstSolvedQuiz();
+    cy.makeAndSolveQuiz();
     cy.createClarification(clarificationTitle);
     cy.closeSuccessMessage('Clarification created');
     cy.logout();

@@ -55,27 +55,18 @@ Cypress.Commands.add('createClarificationAnswer', (title, message) => {
         cy.get('[data-cy="answerClarification"]').type(message);
     }
     cy.get('[data-cy="sendClarificationAnswerButton"]').click();
-    cy.get('[data-cy="closeClarificationDialog"]').click();
 });
-
 /* ----------------------- */
 
 /* Student Commands */
 
-/* Make and solve a quiz */
+/* Make and solve the first quiz */
 Cypress.Commands.add('makeAndSolveQuiz', () => {
     cy.get('[data-cy="quizzesButton"]').click();
     cy.contains('Create').click();
     cy.get('[data-cy="createQuizButton"]').click();
     cy.get('[data-cy="endQuizButton"]').click();
     cy.get('[data-cy="endQuizImSureButton"]').click();
-});
-
-/* Get first solved quiz */
-Cypress.Commands.add('firstSolvedQuiz', () => {
-    cy.get('[data-cy="quizzesButton"]').click();
-    cy.contains('Solved').click();
-    cy.get('.list-row').eq(0).should('have.class', 'list-row').click();
 });
 
 /* Get to clarification list */
