@@ -38,8 +38,11 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn dark color="secondary" @click="closeClarificationDialog"
-               data-cy="closeClarificationDialog"
+        <v-btn
+          dark
+          color="secondary"
+          @click="closeClarificationDialog"
+          data-cy="closeClarificationDialog"
           >close</v-btn
         >
         <v-btn

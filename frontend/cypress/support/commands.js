@@ -61,6 +61,16 @@ Cypress.Commands.add('createClarificationAnswer', (title, message) => {
 /* ----------------------- */
 
 /* Student Commands */
+
+/* Make and solve a quiz */
+Cypress.Commands.add('makeAndSolveQuiz', () => {
+    cy.get('[data-cy="quizzesButton"]').click();
+    cy.contains('Create').click();
+    cy.get('[data-cy="createQuizButton"]').click();
+    cy.get('[data-cy="endQuizButton"]').click();
+    cy.get('[data-cy="endQuizImSureButton"]').click();
+});
+
 /* Get first solved quiz */
 Cypress.Commands.add('firstSolvedQuiz', () => {
     cy.get('[data-cy="quizzesButton"]').click();

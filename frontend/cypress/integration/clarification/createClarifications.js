@@ -1,7 +1,7 @@
 describe('Create Clarifications', () => {
   beforeEach(() => {
     cy.demoLogin('student');
-    cy.firstSolvedQuiz();
+    cy.makeAndSolveQuiz();
   });
 
   afterEach(() => {
