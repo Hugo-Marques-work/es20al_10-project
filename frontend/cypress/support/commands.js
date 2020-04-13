@@ -37,20 +37,18 @@ Cypress.Commands.add('demoStudentLoginTournaments', () => {
     cy.contains('Tournaments').click()
 })
 
-Cypress.Commands.add('createTournament', (name, startShift, endShift) => {
-    let start = new Date()
-    let end = new Date()
-    start.setDate(start.getDate() + startShift)
-    end.setDate(end.getDate() + endShift)
-
+Cypress.Commands.add('createTournament', (name, start, end) => {
     cy.get('[data-cy="createButton"]').click()
 
     cy.get('label').contains('Starting Date').parent().children('input').click()
-    cy.get('button:contains(' + start.getDate() +')').eq(0).click()
+    cy.get('.v-date-picker-header').eq(0).children().eq(2).click()
+    //TODO: matches multiple buttons because contains returns all buttons containing it, for example 1 returns 1, 11, 12, etc.
+    cy.get('button:contains(' + start +')').eq(1).click()
     cy.get('button:contains("OK")').eq(0).click()
 
     cy.get('label').contains('Conclusion Date').parent().children('input').click()
-    cy.get('button:contains(' + end.getDate() +')').eq(1).click()
+    cy.get('.v-date-picker-header').eq(1).children().eq(2).click()
+    cy.get('button:contains(' + end +')').eq(2).click()
     cy.get('button:contains("OK")').eq(1).click()
 
     cy.get('[data-cy="Topics"]').click()
