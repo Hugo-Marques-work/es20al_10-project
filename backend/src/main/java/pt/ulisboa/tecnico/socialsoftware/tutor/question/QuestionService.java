@@ -17,12 +17,16 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.LatexQuestionExport
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.QuestionsXmlImport;
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.XMLQuestionExportVisitor;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Image;
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Option;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.ImageRepository;
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.OptionRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicRepository;
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.QuizQuestion;
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizQuestionRepository;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -54,6 +58,12 @@ public class QuestionService {
 
     @Autowired
     private ImageRepository imageRepository;
+
+    @Autowired
+    private QuizQuestionRepository quizQuestionRepository;
+
+    @Autowired
+    private OptionRepository optionRepository;
 
     @Retryable(
       value = { SQLException.class },
@@ -162,7 +172,10 @@ public class QuestionService {
             imageRepository.save(image);
         }
 
-        question.getImage().setUrl(question.getKey() + "." + type);
+        question.getImage().setUrl(question.getCourse().getName().replaceAll("\\s", "") +
+                question.getCourse().getType() +
+                question.getKey() +
+                "." + type);
     }
 
     @Retryable(
@@ -191,6 +204,10 @@ public class QuestionService {
         xmlImporter.importQuestions(questionsXML, this, courseRepository);
     }
 
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public String exportQuestionsToLatex() {
         LatexQuestionExportVisitor latexExporter = new LatexQuestionExportVisitor();
@@ -198,6 +215,10 @@ public class QuestionService {
         return latexExporter.export(questionRepository.findAll());
     }
 
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public ByteArrayOutputStream exportCourseQuestions(int courseId) {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new TutorException(COURSE_NOT_FOUND, courseId));
@@ -222,15 +243,12 @@ public class QuestionService {
             copyToZipStream(zos, in);
             zos.closeEntry();
 
-            zos.close();
-
             baos.flush();
 
             return baos;
         } catch (IOException ex) {
             throw new TutorException(ErrorMessage.CANNOT_OPEN_FILE);
         }
-
     }
 
     private void copyToZipStream(ZipOutputStream zos, InputStream in) throws IOException {
@@ -242,5 +260,40 @@ public class QuestionService {
         in.close();
     }
 
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void deleteQuizQuestion(QuizQuestion quizQuestion) {
+        Question question = quizQuestion.getQuestion();
+        quizQuestion.remove();
+        quizQuestionRepository.delete(quizQuestion);
+
+        if (question.getQuizQuestions().isEmpty()) {
+            this.deleteQuestion(question);
+        }
+    }
+
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void deleteQuestion(Question question) {
+        for (Option option : question.getOptions()) {
+            option.remove();
+            optionRepository.delete(option);
+        }
+
+        if (question.getImage() != null) {
+            imageRepository.delete(question.getImage());
+        }
+
+        question.getTopics().forEach(topic -> topic.getQuestions().remove(question));
+        question.getTopics().clear();
+
+        questionRepository.delete(question);
+
+    }
 }
 
