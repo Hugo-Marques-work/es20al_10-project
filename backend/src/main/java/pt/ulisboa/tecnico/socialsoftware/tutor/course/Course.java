@@ -14,8 +14,6 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.CO
 @Entity
 @Table(name = "courses")
 public class Course {
-    public static final String DEMO_COURSE = "Demo Course";
-
     public enum Type {TECNICO, EXTERNAL}
 
     @Id
@@ -106,13 +104,13 @@ public class Course {
     public void setType(Type type) {
         this.type = type;
     }
-
-    public boolean equals(Object obj) {
-        if (obj instanceof Course) {
-            return false;
-        }
-        Course course = (Course) obj;
-
-        return this.id == course.getId();
-    }
+//
+//    public boolean equals(Object obj) {
+//        if (obj instanceof Course) {
+//            return false;
+//        }
+//        Course course = (Course) obj;
+//
+//        return this.id == course.getId();
+//    }
 }
