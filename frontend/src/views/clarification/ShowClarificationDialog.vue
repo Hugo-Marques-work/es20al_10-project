@@ -6,7 +6,12 @@
     max-width="95%"
     content-class="ClarificationDialog"
   >
-    <v-card class="InformationCard" id="info">
+    <v-card
+      v-bind:class="{
+        InformationCardTeacher: isTeacher,
+        InformationCardStudent: !isTeacher
+      }"
+    >
       <v-card-title>
         <span class="headline">{{ clarification.question.title }}</span>
       </v-card-title>
@@ -36,7 +41,7 @@
           </v-textarea>
         </div>
       </v-card-text>
-      <v-card-actions>
+      <v-card-actions style="margin-top: -1pt">
         <v-spacer />
         <v-btn
           dark
@@ -57,7 +62,7 @@
 
     <v-card class="WriteAnswerStudent" v-else>
       <v-card-text style="padding-bottom: 6pt"> </v-card-text>
-      <v-card-actions>
+      <v-card-actions style="margin-top: -1pt">
         <v-spacer />
         <v-btn dark color="secondary" @click="closeClarificationDialog"
           >close</v-btn
@@ -138,7 +143,7 @@ export default class ShowClarificationDialog extends Vue {
   overflow: hidden !important;
   margin-bottom: -2% !important;
 }
-.InformationCard {
+.InformationCardTeacher {
   height: 84% !important;
   overflow: auto !important;
 }

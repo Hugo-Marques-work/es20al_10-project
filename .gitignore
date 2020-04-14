@@ -6,3 +6,8 @@ scripts
 
 backend/src/main/resources/static/images/questions/
 data/
+cypress/integration
+cypress/fixtures
+cypress/plugins
+cypress/support
+cypress.json
