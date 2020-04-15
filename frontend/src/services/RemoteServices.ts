@@ -602,7 +602,6 @@ export default class RemoteServices {
         tournament
       )
       .then(response => {
-        console.log(response);
         return new Tournament(response.data);
       })
       .catch(async error => {
