@@ -3,10 +3,6 @@ describe('Tournament walkthrough', () => {
     cy.demoStudentLoginTournaments()
   })
 
-  afterEach(() => {
-    cy.contains('Logout').click()
-  })
-
   it('login creates a tournament and sees it on open tournaments', () => {
     let name = Math.random().toString(36);
     cy.createTournament(name, 12, 13)
@@ -37,6 +33,24 @@ describe('Tournament walkthrough', () => {
     cy.contains(name).should('not.exist')
   });
 
+  it('login creates a tournament, signs up and sees it on sign up tournaments', () => {
+    let name = Math.random().toString(36);
+    cy.createTournament(name, 12, 13)
+    cy.signUpForTournament(name);
+
+    cy.wait(500)
+    cy.contains(name).should('not.exist')
+
+    cy.seeSignedUpTournaments()
+    cy.contains(name).should('exist')
+
+    cy.seeRunningTournaments()
+    cy.contains(name).should('not.exist')
+
+    cy.seeMyTournaments()
+    cy.contains(name).should('not.exist')
+  });
+
   it('login create tournaments with missing title', () => {
     cy.createTournament('', 12, 13)
     cy.closeErrorMessage()
@@ -45,7 +59,7 @@ describe('Tournament walkthrough', () => {
   it('login create tournaments with starting date before today', () => {
     cy.get('[data-cy="createButton"]').click()
 
-    // Go back one month
+    // Go back one month instead of forward one month
     cy.get('label').contains('Starting Date').parent().children('input').click()
     cy.get('.v-date-picker-header').eq(0).children().eq(0).click()
     cy.get('button:contains(' + 11 +')').eq(1).click()

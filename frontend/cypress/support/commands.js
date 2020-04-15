@@ -42,7 +42,6 @@ Cypress.Commands.add('createTournament', (name, start, end) => {
 
     cy.get('label').contains('Starting Date').parent().children('input').click()
     cy.get('.v-date-picker-header').eq(0).children().eq(2).click()
-    //TODO: matches multiple buttons because contains returns all buttons containing it, for example 1 returns 1, 11, 12, etc.
     cy.get('button:contains(' + start +')').eq(1).click()
     cy.get('button:contains("OK")').eq(0).click()
 
@@ -72,6 +71,19 @@ Cypress.Commands.add('cancelTournament', (name) => {
 
     cy.get('[data-cy="executeCancelButton"]').click()
 
+})
+
+
+Cypress.Commands.add('signUpForTournament', (name) => {
+    cy.contains(name)
+      .parent()
+      .should('have.length', 1)
+      .children()
+      .should('have.length', 7)
+      .find('[data-cy="signUp"]')
+      .click()
+
+    cy.get('[data-cy="executeSignUpButton"]').click()
 })
 
 Cypress.Commands.add('seeSignedUpTournaments', () => {
