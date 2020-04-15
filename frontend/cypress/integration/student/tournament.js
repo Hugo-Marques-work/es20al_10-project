@@ -3,10 +3,6 @@ describe('Tournament walkthrough', () => {
     cy.demoStudentLoginTournaments()
   })
 
-  afterEach(() => {
-    cy.contains('Logout').click()
-  })
-
   it('login creates a tournament and sees it on open tournaments', () => {
     let name = Math.random().toString(36);
     cy.createTournament(name, 12, 13)

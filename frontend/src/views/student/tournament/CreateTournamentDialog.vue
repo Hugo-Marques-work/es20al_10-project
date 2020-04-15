@@ -110,6 +110,7 @@ import { Component, Model, Vue, Watch } from 'vue-property-decorator';
 import RemoteServices from '@/services/RemoteServices';
 import { Tournament } from '@/models/management/Tournament';
 import Topic from '@/models/management/Topic';
+import Question from '@/models/management/Question';
 
 @Component
 export default class CreateTournamentDialog extends Vue {
@@ -120,23 +121,20 @@ export default class CreateTournamentDialog extends Vue {
   maxQuestions: number = 0;
 
   allTopics: Topic[] = [];
+  allQuestions: Question[] = [];
 
   async created() {
     this.allTopics = await RemoteServices.getTopics();
+    this.allQuestions = await RemoteServices.getAvailableQuestions();
   }
 
   async updateMaxQuestions() {
-    this.maxQuestions = await RemoteServices.getAvailableQuestions().then(
-      questions => {
-        let topicIds: Set<number> = new Set(
-          this.tournament.topics.map(topic => topic.id)
-        );
-        return questions
-          .map(question => question.topics.map(topic => topic.id))
-          .filter(topics => topics.some(topicId => topicIds.has(topicId)))
-          .length;
-      }
+    let topicIds: Set<number> = new Set(
+      this.tournament.topics.map(topic => topic.id)
     );
+    this.maxQuestions = this.allQuestions
+      .map(question => question.topics.map(topic => topic.id))
+      .filter(topics => topics.some(topicId => topicIds.has(topicId))).length;
     await this.clampNumberQuestions();
   }
 
