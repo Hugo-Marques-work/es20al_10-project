@@ -41,8 +41,7 @@ Cypress.Commands.add('demoLogin', type => {
 });
 
 Cypress.Commands.add('demoStudentLoginTournaments', () => {
-  cy.visit('/');
-  cy.get('[data-cy="studentButton"]').click();
+  cy.demoLogin('student');
   cy.contains('Tournaments').click();
 });
 
