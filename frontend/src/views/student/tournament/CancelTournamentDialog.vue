@@ -33,7 +33,7 @@
 <script lang="ts">
 import { Component, Model, Prop, Vue } from 'vue-property-decorator';
 import RemoteServices from '@/services/RemoteServices';
-import { Tournament } from '@/models/management/Tournament';
+import { Tournament } from '@/models/tournament/Tournament';
 
 @Component
 export default class CancelTournamentDialog extends Vue {

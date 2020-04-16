@@ -108,7 +108,7 @@
 <script lang="ts">
 import { Component, Model, Vue, Watch } from 'vue-property-decorator';
 import RemoteServices from '@/services/RemoteServices';
-import { Tournament } from '@/models/management/Tournament';
+import { Tournament } from '@/models/tournament/Tournament';
 import Topic from '@/models/management/Topic';
 import Question from '@/models/management/Question';
 

@@ -144,7 +144,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import RemoteServices from '@/services/RemoteServices';
-import { Tournament, TournamentStatus } from '@/models/management/Tournament';
+import { Tournament, TournamentStatus } from '@/models/tournament/Tournament';
 import Topic from '@/models/management/Topic';
 import SignUpForTournamentDialog from '@/views/student/tournament/SignUpForTournamentDialog.vue';
 import CreateTournamentDialog from '@/views/student/tournament/CreateTournamentDialog.vue';

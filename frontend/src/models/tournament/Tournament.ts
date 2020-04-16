@@ -1,6 +1,5 @@
 import User from '@/models/user/User';
 import Topic from '@/models/management/Topic';
-import { SimpleUser } from '@/models/user/SimpleUser';
 
 export enum TournamentStatus {
   Open = 'Open',
@@ -14,10 +13,10 @@ export class Tournament {
   numberOfQuestions!: number;
   startingDate!: string | undefined;
   conclusionDate!: string | undefined;
-  creator!: SimpleUser;
+  creator!: User;
   status!: TournamentStatus;
   topics: Topic[] = [];
-  signedUpUsers: SimpleUser[] = [];
+  signedUpUsers: User[] = [];
 
   constructor(jsonObj?: Tournament) {
     if (jsonObj) {
@@ -36,7 +35,7 @@ export class Tournament {
         this.status = TournamentStatus.Canceled;
       else this.status = jsonObj.status;
       if (jsonObj.creator) {
-        this.creator = new SimpleUser(jsonObj.creator);
+        this.creator = new User(jsonObj.creator);
       }
       if (jsonObj.topics) {
         this.topics = jsonObj.topics.map((topic: Topic) => new Topic(topic));
@@ -46,7 +45,7 @@ export class Tournament {
       }
       if (jsonObj.signedUpUsers) {
         this.signedUpUsers = jsonObj.signedUpUsers.map(
-          (user: SimpleUser) => new SimpleUser(user)
+          (user: User) => new User(user)
         );
       }
     }

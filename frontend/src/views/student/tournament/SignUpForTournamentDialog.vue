@@ -41,7 +41,7 @@
           >Sign Up
         </v-btn>
 
-        <!-- FUTURE SIGN OFF
+        <!-- FUTURE SIGN OUT
         <v-btn
           v-if="isSignedUp"
           color="blue darken-1"
@@ -58,9 +58,7 @@
 <script lang="ts">
 import { Component, Model, Prop, Vue } from 'vue-property-decorator';
 import RemoteServices from '@/services/RemoteServices';
-import { Tournament } from '@/models/management/Tournament';
-import User from '@/models/user/User';
-import { SimpleUser } from '@/models/user/SimpleUser';
+import { Tournament } from '@/models/tournament/Tournament';
 
 @Component
 export default class SignUpForTournamentDialog extends Vue {
