@@ -68,7 +68,7 @@ class GetClarificationAnswerSpockTest extends Specification {
         and: "the correct clarification answer is obtained"
         def clarificationAnswerObtained = result.get(0)
         clarificationAnswerObtained.getContent() == CONTENT
-        clarificationAnswerObtained.getUserId() == user.getId()
+        clarificationAnswerObtained.getUser().getId() == user.getId()
     }
 
     def "a clarification answer exists but it is given an invalid clarification id"(){

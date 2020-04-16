@@ -59,6 +59,18 @@
           v-html="convertMarkDown(question.options[index].content)"
         />
       </li>
+      <p></p>
+      <v-btn
+        @click="clarificationPopup = true"
+        data-cy="createClarificationButton"
+        >Ask for a clarification</v-btn
+      >
+      <p></p>
+      <create-clarification-dialog
+        :dialog="clarificationPopup"
+        :question="question"
+        @cancel-clarification="cancelClarification"
+      />
     </ul>
   </div>
 </template>
@@ -70,8 +82,13 @@ import StatementQuestion from '@/models/statement/StatementQuestion';
 import StatementAnswer from '@/models/statement/StatementAnswer';
 import StatementCorrectAnswer from '@/models/statement/StatementCorrectAnswer';
 import Image from '@/models/management/Image';
+import CreateClarificationDialog from '@/views/clarification/CreateClarificationDialog.vue';
 
-@Component
+@Component({
+  components: {
+    'create-clarification-dialog': CreateClarificationDialog
+  }
+})
 export default class ResultComponent extends Vue {
   @Model('questionOrder', Number) questionOrder: number | undefined;
   @Prop(StatementQuestion) readonly question!: StatementQuestion;
@@ -80,6 +97,7 @@ export default class ResultComponent extends Vue {
   @Prop() readonly questionNumber!: number;
   hover: boolean = false;
   optionLetters: string[] = ['A', 'B', 'C', 'D'];
+  clarificationPopup: boolean = false;
 
   @Emit()
   increaseOrder() {
@@ -89,6 +107,10 @@ export default class ResultComponent extends Vue {
   @Emit()
   decreaseOrder() {
     return 1;
+  }
+
+  cancelClarification() {
+    this.clarificationPopup = false;
   }
 
   convertMarkDown(text: string, image: Image | null = null): string {

@@ -5,6 +5,7 @@
       <error-message />
       <loading />
       <router-view />
+      <confirmation-message />
     </div>
   </v-app>
 </template>
@@ -18,10 +19,11 @@ import Loading from '@/components/Loading.vue';
 import '@/assets/css/_global.scss';
 import '@/assets/css/_scrollbar.scss';
 import '@/assets/css/_question.scss';
+import ConfirmationMessage from '@/components/ConfirmationMessage.vue';
 require('typeface-roboto');
 
 @Component({
-  components: { TopBar, ErrorMessage, Loading }
+  components: { TopBar, ErrorMessage, Loading, ConfirmationMessage }
 })
 export default class App extends Vue {
   created() {

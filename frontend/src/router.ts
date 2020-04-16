@@ -25,6 +25,8 @@ import ImpExpView from '@/views/teacher/impexp/ImpExpView.vue';
 import AssessmentsView from '@/views/teacher/assessments/AssessmentsView.vue';
 import CreateQuizzesView from '@/views/student/CreateQuizzesView.vue';
 import CoursesView from '@/views/admin/Courses/CoursesView.vue';
+import ClarificationView from '@/views/clarification/ClarificationView.vue';
+import ClarificationListView from '@/views/clarification/ClarificationListView.vue';
 
 Vue.use(Router);
 
@@ -188,6 +190,31 @@ let router = new Router({
       ]
     },
     {
+      path: '/clarification',
+      name: 'clarification',
+      component: ClarificationView,
+      children: [
+        {
+          path: 'list',
+          name: 'list-clarifications',
+          component: ClarificationListView,
+          meta: {
+            title: process.env.VUE_APP_NAME + ' - List Clarifications',
+            requiredAuth: 'Student Teacher'
+          }
+        },
+        {
+          path: 'view',
+          name: 'view-clarification',
+          component: ClarificationListView,
+          meta: {
+            title: process.env.VUE_APP_NAME + ' - View Clarification',
+            requiredAuth: 'Student Teacher'
+          }
+        }
+      ]
+    },
+    {
       path: '/admin',
       name: 'admin',
       component: AdminManagementView,
@@ -220,6 +247,11 @@ router.beforeEach(async (to, from, next) => {
   } else if (to.meta.requiredAuth == 'Teacher' && Store.getters.isTeacher) {
     next();
   } else if (to.meta.requiredAuth == 'Student' && Store.getters.isStudent) {
+    next();
+  } else if (
+    to.meta.requiredAuth == 'Student Teacher' &&
+    (Store.getters.isStudent || Store.getters.isTeacher)
+  ) {
     next();
   } else {
     next('/');

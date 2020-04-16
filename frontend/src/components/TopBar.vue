@@ -26,6 +26,7 @@
       <v-spacer />
 
       <v-toolbar-items class="hidden-sm-and-down" hide-details>
+        <!-- Administration -->
         <v-menu offset-y v-if="isAdmin" open-on-hover>
           <template v-slot:activator="{ on }">
             <v-btn v-on="on" text dark>
@@ -45,6 +46,7 @@
           </v-list>
         </v-menu>
 
+        <!-- Management -->
         <v-menu offset-y v-if="isTeacher && currentCourse" open-on-hover>
           <template v-slot:activator="{ on }">
             <v-btn v-on="on" text dark>
@@ -104,28 +106,34 @@
           </v-list>
         </v-menu>
 
-        <v-menu offset-y v-if="isStudent" open-on-hover>
+        <!-- Clarifications -->
+        <v-menu
+          offset-y
+          v-if="(isStudent || isTeacher) && currentCourse"
+          open-on-hover
+        >
           <template v-slot:activator="{ on }">
-            <v-btn v-on="on" text dark>
-              Tournaments
-              <v-icon>fas fa-trophy</v-icon>
+            <v-btn v-on="on" text dark data-cy="clarificationsButton">
+              Clarifications
+              <v-icon>fas fa-question-circle</v-icon>
             </v-btn>
           </template>
           <v-list dense>
-            <v-list-item to="/tournament/create">
+            <v-list-item to="/clarification/list">
               <v-list-item-action>
-                <v-icon>create</v-icon>
+                <v-icon>fas fa-list-alt</v-icon>
               </v-list-item-action>
               <v-list-item-content>
-                <v-list-item-title>Create</v-list-item-title>
+                <v-list-item-title>List all</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list>
         </v-menu>
 
+        <!-- Quizzes -->
         <v-menu offset-y v-if="isStudent && currentCourse" open-on-hover>
           <template v-slot:activator="{ on }">
-            <v-btn v-on="on" text dark>
+            <v-btn v-on="on" text dark data-cy="quizzesButton">
               Quizzes
               <v-icon>fas fa-file-alt</v-icon>
             </v-btn>
@@ -166,6 +174,7 @@
           </v-list>
         </v-menu>
 
+        <!-- Stats -->
         <v-btn to="/student/stats" v-if="isStudent && currentCourse" text dark>
           Stats
           <v-icon>fas fa-user</v-icon>
@@ -182,7 +191,7 @@
           <v-icon>fa fa-book</v-icon>
         </v-btn>
 
-        <v-btn v-if="isLoggedIn" @click="logout" text dark>
+        <v-btn v-if="isLoggedIn" @click="logout" text dark data-cy="logout">
           Logout
           <v-icon>fas fa-sign-out-alt</v-icon>
         </v-btn>
@@ -280,6 +289,26 @@
             </v-list-item-action>
             <v-list-item-content>
               <v-list-item-title>ImpExp</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-group>
+
+        <!-- Clarifications -->
+        <v-list-group
+          prepend-icon="account_circle"
+          :value="false"
+          v-if="(isStudent || isTeacher) && currentCourse"
+        >
+          <template v-slot:activator>
+            <v-list-item-title>Clarifications</v-list-item-title>
+          </template>
+
+          <v-list-item to="/clarification/list">
+            <v-list-item-action>
+              <v-icon>list</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>List all</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list-group>

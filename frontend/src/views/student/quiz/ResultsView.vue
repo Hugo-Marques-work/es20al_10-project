@@ -54,6 +54,8 @@
 import { Component, Vue } from 'vue-property-decorator';
 import StatementManager from '@/models/statement/StatementManager';
 import ResultComponent from '@/views/student/quiz/ResultComponent.vue';
+import Clarification from '@/models/clarification/Clarification';
+import RemoteServices from '@/services/RemoteServices';
 
 @Component({
   components: {

@@ -13,6 +13,9 @@ import Assessment from '@/models/management/Assessment';
 import AuthDto from '@/models/user/AuthDto';
 import StatementAnswer from '@/models/statement/StatementAnswer';
 import { QuizAnswers } from '@/models/management/QuizAnswers';
+import Clarification from '@/models/clarification/Clarification';
+import User from '@/models/user/User';
+import ClarificationAnswer from '@/models/clarification/ClarificationAnswer';
 
 const httpClient = axios.create();
 httpClient.defaults.timeout = 10000;
@@ -98,6 +101,17 @@ export default class RemoteServices {
         return response.data.map((question: any) => {
           return new Question(question);
         });
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static async getQuestion(questionId: number | null): Promise<Question> {
+    return httpClient
+      .get(`/questions/${questionId}`)
+      .then(response => {
+        return new Question(response.data);
       })
       .catch(async error => {
         throw Error(await this.errorMessage(error));
@@ -552,6 +566,79 @@ export default class RemoteServices {
         throw Error(await this.errorMessage(error));
       });
   }
+
+  /*------------------------------------------------------------------*/
+
+  static async createClarification(
+    questionId: number,
+    content: string
+  ): Promise<Clarification> {
+    return httpClient
+      .post('/question/' + questionId + '/clarifications', content)
+      .then(response => {
+        return new Clarification(response.data);
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static async getClarificationsByCurrentCourse(): Promise<Clarification[]> {
+    return httpClient
+      .get(`/course/${Store.getters.getCurrentCourse.courseId}/clarifications`)
+      .then(response => {
+        return response.data.map((clarification: any) => {
+          return new Clarification(clarification);
+        });
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static async getClarificationsByUser(): Promise<Clarification[]> {
+    return httpClient
+      .get('/clarifications')
+      .then(response => {
+        return response.data.map((clarification: any) => {
+          return new Clarification(clarification);
+        });
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static async createClarificationAnswer(
+    clarificationId: number,
+    answer: string
+  ): Promise<ClarificationAnswer> {
+    return httpClient
+      .post('/clarification/' + clarificationId + '/answer', answer)
+      .then(response => {
+        return new ClarificationAnswer(response.data);
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static async getClarificationAnswers(
+    clarification: Clarification
+  ): Promise<ClarificationAnswer[]> {
+    return httpClient
+      .get(`/clarification/${clarification.id}/answers`)
+      .then(response => {
+        return response.data.map((clarificationAnswer: any) => {
+          return new ClarificationAnswer(clarificationAnswer);
+        });
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  /*------------------------------------------------------------------*/
 
   static async exportAll() {
     return httpClient
