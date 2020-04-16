@@ -14,7 +14,7 @@ describe('Tournament walkthrough', () => {
         expect(item).to.have.length(1);
       });
 
-    //TODO: cancel tournament as tearDown
+    cy.cancelTournament(name);
   });
 
   it('login creates a tournament and cancel it', () => {

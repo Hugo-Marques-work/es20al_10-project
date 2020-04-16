@@ -42,7 +42,7 @@ export default class CancelTournamentDialog extends Vue {
   async executeCancel() {
     this.$store.dispatch('loading');
     try {
-      const result = await RemoteServices.cancel(this.tournament.id);
+      const result = await RemoteServices.cancelTournament(this.tournament.id);
       this.$emit('canceled', result);
     } catch (error) {
       this.$emit('error');

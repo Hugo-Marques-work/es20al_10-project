@@ -711,7 +711,7 @@ export default class RemoteServices {
         throw Error(await this.errorMessage(error));
       });
   }
-  static async signUp(tournamentId: number) {
+  static async signUpForTournament(tournamentId: number) {
     return httpClient
       .post('/tournaments/' + tournamentId + '/signUp')
       .then(response => {
@@ -722,7 +722,7 @@ export default class RemoteServices {
       });
   }
 
-  static async cancel(tournamentId: number) {
+  static async cancelTournament(tournamentId: number) {
     return httpClient
       .post('/tournaments/' + tournamentId + '/cancel')
       .then(response => {
