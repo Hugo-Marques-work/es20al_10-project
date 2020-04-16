@@ -569,7 +569,6 @@ export default class RemoteServices {
 
   /*------------------------------------------------------------------*/
 
-  // Create clarification
   static async createClarification(
     questionId: number,
     content: string
@@ -584,8 +583,7 @@ export default class RemoteServices {
       });
   }
 
-  // Get clarifications by current courseId
-  static async getClarifications(): Promise<Clarification[]> {
+  static async getClarificationsByCurrentCourse(): Promise<Clarification[]> {
     return httpClient
       .get(`/course/${Store.getters.getCurrentCourse.courseId}/clarifications`)
       .then(response => {
@@ -598,7 +596,6 @@ export default class RemoteServices {
       });
   }
 
-  // Get clarifications by current user (student)
   static async getClarificationsByUser(): Promise<Clarification[]> {
     return httpClient
       .get('/clarifications')
@@ -612,7 +609,6 @@ export default class RemoteServices {
       });
   }
 
-  // Create clarification answers
   static async createClarificationAnswer(
     clarificationId: number,
     answer: string
@@ -627,7 +623,6 @@ export default class RemoteServices {
       });
   }
 
-  // Get clarification answers
   static async getClarificationAnswers(
     clarification: Clarification
   ): Promise<ClarificationAnswer[]> {

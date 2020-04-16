@@ -159,12 +159,6 @@ export default class ClarificationListView extends Vue {
       align: 'center',
       width: '10%'
     },
-    // {
-    //   text: 'Topics',
-    //   value: 'topic',
-    //   align: 'center',
-    //   width: '10%'
-    // },
     {
       text: 'Question',
       value: 'question',
@@ -198,7 +192,7 @@ export default class ClarificationListView extends Vue {
         this.$store.getters.isTeacher || this.$store.getters.isAdmin;
       if (this.$store.getters.isTeacher || this.$store.getters.isAdmin) {
         this.clarifications = (
-          await RemoteServices.getClarifications()
+          await RemoteServices.getClarificationsByCurrentCourse()
         ).reverse();
       } else
         this.clarifications = (
@@ -217,7 +211,7 @@ export default class ClarificationListView extends Vue {
     try {
       if (this.$store.getters.isTeacher || this.$store.getters.isAdmin) {
         this.clarifications = (
-          await RemoteServices.getClarifications()
+          await RemoteServices.getClarificationsByCurrentCourse()
         ).reverse();
       }
     } catch (error) {

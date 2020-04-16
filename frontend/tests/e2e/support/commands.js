@@ -39,10 +39,10 @@ Cypress.Commands.add('demoLogin', type => {
   cy.visit('/');
   cy.get('[data-cy="' + type + 'Button"]').click();
 });
-/* ----------------------- */
 
+/* ----------------------- */
 /* Teacher Commands */
-/* Create a clarificationAnswer given a message*/
+
 Cypress.Commands.add('createClarificationAnswer', (title, message) => {
   cy.get('[data-cy="clarificationsButton"]').click();
   cy.contains('List all').click();
@@ -57,10 +57,8 @@ Cypress.Commands.add('createClarificationAnswer', (title, message) => {
   cy.get('[data-cy="sendClarificationAnswerButton"]').click();
 });
 /* ----------------------- */
-
 /* Student Commands */
 
-/* Make and solve the first quiz */
 Cypress.Commands.add('makeAndSolveQuiz', () => {
   cy.get('[data-cy="quizzesButton"]').click();
   cy.contains('Create').click();
@@ -69,13 +67,11 @@ Cypress.Commands.add('makeAndSolveQuiz', () => {
   cy.get('[data-cy="endQuizImSureButton"]').click();
 });
 
-/* Get to clarification list */
 Cypress.Commands.add('clarificationList', () => {
   cy.get('[data-cy="clarificationsButton"]').click();
   cy.contains('List all').click();
 });
 
-/* Create a clarification given a message */
 Cypress.Commands.add('createClarification', clarificationMessage => {
   cy.get('[data-cy="createClarificationButton"]').click();
   if (clarificationMessage != null)
@@ -83,7 +79,6 @@ Cypress.Commands.add('createClarification', clarificationMessage => {
   cy.get('[data-cy="sendClarificationButton"]').click();
 });
 
-/* Check if clarification is answered or not given a title */
 Cypress.Commands.add('checkClarificationAnswered', (title, isAnswered) => {
   let icon = isAnswered ? 'answered' : 'notAnswered';
   cy.contains(title)
@@ -94,7 +89,6 @@ Cypress.Commands.add('checkClarificationAnswered', (title, isAnswered) => {
     .should('have.length', 1);
 });
 
-/* Check if clarification answer exists*/
 Cypress.Commands.add('checkForClarificationAnswer', (title, message) => {
   cy.contains(title)
     .parent()
@@ -105,9 +99,8 @@ Cypress.Commands.add('checkForClarificationAnswer', (title, message) => {
 });
 
 /* ----------------------- */
-
 /* ADMIN Commands */
-/* Create a course execution given a name, acronym and academic Term */
+
 Cypress.Commands.add('createCourseExecution', (name, acronym, academicTerm) => {
   cy.get('[data-cy="createButton"]').click();
   cy.get('[data-cy="Name"]').type(name);
@@ -116,7 +109,6 @@ Cypress.Commands.add('createCourseExecution', (name, acronym, academicTerm) => {
   cy.get('[data-cy="saveButton"]').click();
 });
 
-/* Create a course execution from another course execution given a name, acronym and academic Term */
 Cypress.Commands.add(
   'createFromCourseExecution',
   (name, acronym, academicTerm) => {
@@ -133,7 +125,6 @@ Cypress.Commands.add(
   }
 );
 
-/* Delete a course execution given an acronym */
 Cypress.Commands.add('deleteCourseExecution', acronym => {
   cy.contains(acronym)
     .parent()
@@ -144,9 +135,8 @@ Cypress.Commands.add('deleteCourseExecution', acronym => {
     .click();
 });
 /* ----------------------- */
-
 /* Universal Commands */
-/* Close an error message */
+
 Cypress.Commands.add('closeErrorMessage', () => {
   cy.contains('Error')
     .parent()
@@ -154,7 +144,6 @@ Cypress.Commands.add('closeErrorMessage', () => {
     .click();
 });
 
-/* Close a success message given the message */
 Cypress.Commands.add('closeSuccessMessage', successMessage => {
   cy.contains(successMessage)
     .parent()
