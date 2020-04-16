@@ -40,6 +40,7 @@ export default class CancelTournamentDialog extends Vue {
   @Prop({ type: Tournament, required: true }) readonly tournament!: Tournament;
 
   async executeCancel() {
+    this.$store.dispatch('loading');
     try {
       const result = await RemoteServices.cancel(this.tournament.id);
       this.$emit('canceled', result);
@@ -47,6 +48,7 @@ export default class CancelTournamentDialog extends Vue {
       this.$emit('error');
       await this.$store.dispatch('error', error);
     }
+    this.$store.dispatch('clearLoading');
   }
 }
 </script>

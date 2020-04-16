@@ -284,11 +284,17 @@ export default class TournamentsView extends Vue {
   }
 
   async getTournaments() {
-    let tournaments: Tournament[] = await RemoteServices.getTournaments();
-    this.activeFilters.forEach(filter => {
-      tournaments = tournaments.filter(tournament => filter(tournament));
-    });
-    this.tournaments = tournaments;
+    await this.$store.dispatch('loading');
+    try {
+      let tournaments: Tournament[] = await RemoteServices.getTournaments();
+      this.activeFilters.forEach(filter => {
+        tournaments = tournaments.filter(tournament => filter(tournament));
+      });
+      this.tournaments = tournaments;
+    } catch (error) {
+      await this.$store.dispatch('error', error);
+    }
+    await this.$store.dispatch('clearLoading');
   }
 
   signUpTournamentConditions(tournament: Tournament) {
