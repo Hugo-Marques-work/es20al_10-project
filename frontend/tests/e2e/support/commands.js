@@ -151,7 +151,6 @@ Cypress.Commands.add('closeSuccessMessage', successMessage => {
     .click();
 });
 
-/* Logout */
 Cypress.Commands.add('logout', () => {
   cy.get('[data-cy="logout"]').click();
 });
