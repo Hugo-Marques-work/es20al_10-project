@@ -84,7 +84,7 @@ export default class SignUpForTournamentDialog extends Vue {
 
   async executeSignUp() {
     if (this.isSignedUp) {
-      await this.$store.dispatch('error', 'can\'t sign in');
+      await this.$store.dispatch('error', 'cannot sign in');
     }
 
     try {

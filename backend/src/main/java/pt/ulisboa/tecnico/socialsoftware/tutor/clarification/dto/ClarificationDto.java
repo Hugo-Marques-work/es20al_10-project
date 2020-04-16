@@ -3,14 +3,16 @@ package pt.ulisboa.tecnico.socialsoftware.tutor.clarification.dto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.domain.Clarification;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
 import java.io.Serializable;
 
 public class ClarificationDto implements Serializable {
     private Integer id;
     private String content;
-    private Integer userId;
-    private Integer questionId;
+    private UserDto user;
+    private QuestionDto question;
     private boolean isAnswered;
 
     public ClarificationDto() {}
@@ -25,11 +27,11 @@ public class ClarificationDto implements Serializable {
             this.content = clarification.getContent();
 
         if (clarification.getUser() != null)
-            this.userId = clarification.getUser().getId();
+            this.user = new UserDto(clarification.getUser());
         else throw new TutorException(ErrorMessage.USER_NOT_FOUND, clarification.getUser().getId());
 
         if (clarification.getQuestion() != null)
-            this.questionId = clarification.getQuestion().getId();
+            this.question = new QuestionDto(clarification.getQuestion());
         else throw new TutorException(ErrorMessage.QUESTION_NOT_FOUND, clarification.getQuestion().getId());
     }
 
@@ -37,9 +39,13 @@ public class ClarificationDto implements Serializable {
 
     public String getContent() { return content; }
 
-    public Integer getUserId() { return userId; }
+    public UserDto getUser() {
+        return user;
+    }
 
-    public Integer getQuestionId() { return questionId; }
+    public void setUser(UserDto user) {
+        this.user = user;
+    }
 
     public boolean isAnswered() { return isAnswered; }
 
@@ -47,9 +53,13 @@ public class ClarificationDto implements Serializable {
 
     public void setContent(String content) { this.content = content; }
 
-    public void setUserId(Integer userId) { this.userId = userId; }
+    public QuestionDto getQuestion() {
+        return question;
+    }
 
-    public void setQuestionId(Integer questionId) { this.questionId = questionId; }
+    public void setQuestion(QuestionDto question) {
+        this.question = question;
+    }
 
     public void setAnswered(boolean answered) { this.isAnswered = answered; }
 
@@ -58,8 +68,8 @@ public class ClarificationDto implements Serializable {
         return "ClarificationDto{" +
                 "id=" + id +
                 ", content='" + content + '\'' +
-                ", userId=" + userId +
-                ", questionId=" + questionId +
+                ", userId=" + user.getId() +
+                ", questionId=" + question.getId() +
                 ", isAnswered=" + isAnswered +
                 '}';
     }

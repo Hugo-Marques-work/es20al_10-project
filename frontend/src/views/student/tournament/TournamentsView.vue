@@ -24,7 +24,7 @@
 
             <!--SEARCH BY STATUS-->
             <div class="text-center" data-cy="filter">
-              <v-menu open-on-hover bottom offset-y >
+              <v-menu open-on-hover bottom offset-y>
                 <template v-slot:activator="{ on }">
                   <v-btn v-on="on">
                     {{ statusSearch }}

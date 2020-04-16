@@ -65,7 +65,7 @@ public class QuestionController {
     }
 
     @GetMapping("/questions/{questionId}")
-    @PreAuthorize("hasRole('ROLE_TEACHER') and hasPermission(#questionId, 'QUESTION.ACCESS')")
+    @PreAuthorize("hasPermission(#questionId, 'QUESTION.ACCESS')")
     public QuestionDto getQuestion(@PathVariable Integer questionId) {
         return this.questionService.findQuestionById(questionId);
     }

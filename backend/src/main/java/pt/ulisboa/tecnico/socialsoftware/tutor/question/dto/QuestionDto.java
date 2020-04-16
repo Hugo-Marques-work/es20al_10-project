@@ -31,7 +31,6 @@ public class QuestionDto implements Serializable {
     private ImageDto image;
     private List<TopicDto> topics = new ArrayList<>();
     private Integer sequence;
-    private List<ClarificationDto> clarification;
 
     public QuestionDto() {
     }
@@ -58,8 +57,6 @@ public class QuestionDto implements Serializable {
             this.image = new ImageDto(question.getImage());
         if (question.getCreationDate() != null)
             this.creationDate = question.getCreationDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-        if (!question.getClarifications().isEmpty())
-            this.clarification = question.getClarifications().stream().sorted(Comparator.comparing(Clarification::getId)).map(ClarificationDto::new).collect(Collectors.toList());
 
     }
 
