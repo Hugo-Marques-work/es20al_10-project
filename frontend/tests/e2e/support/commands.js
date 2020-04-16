@@ -44,8 +44,6 @@ Cypress.Commands.add('demoLogin', type => {
 /* Teacher Commands */
 
 Cypress.Commands.add('createClarificationAnswer', (title, message) => {
-  cy.get('[data-cy="clarificationsButton"]').click();
-  cy.contains('List all').click();
   cy.contains(title)
     .parent()
     .should('have.length', 1)
@@ -70,6 +68,7 @@ Cypress.Commands.add('makeAndSolveQuiz', () => {
 Cypress.Commands.add('clarificationList', () => {
   cy.get('[data-cy="clarificationsButton"]').click();
   cy.contains('List all').click();
+  cy.get('[data-cy="clarificationsButton"]').click();
 });
 
 Cypress.Commands.add('createClarification', clarificationMessage => {
