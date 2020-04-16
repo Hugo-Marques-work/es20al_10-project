@@ -1,13 +1,23 @@
-describe('View Clarification Answer', () => {
+describe('Clarifications creating, answering and viewing', () => {
   const clarificationTitle = 'Clarification test for viewing';
   const clarificationAnswer = 'Clarification Answer test for viewing';
 
-  before(() => {
+  afterEach(() => {
+    cy.logout();
+  });
+
+  it('login and created a clarification', () => {
     cy.demoLogin('student');
     cy.makeAndSolveQuiz();
     cy.createClarification(clarificationTitle);
     cy.closeSuccessMessage('Clarification created');
-    cy.logout();
+  });
+
+  it('login and created an empty clarification', () => {
+    cy.demoLogin('student');
+    cy.makeAndSolveQuiz();
+    cy.createClarification(null);
+    cy.closeErrorMessage();
   });
 
   it('login, check that clarification is unanswered', () => {
@@ -16,19 +26,26 @@ describe('View Clarification Answer', () => {
     cy.checkClarificationAnswered(clarificationTitle, false);
   });
 
-  it('login, teacher sends an answer then student sees it answered', () => {
-    cy.log('Create the answer for clarification: ' + clarificationTitle);
+  /* Answering Clarifications */
+  it('login, answers a clarification and sees it', () => {
     cy.demoLogin('teacher');
     cy.clarificationList();
     cy.createClarificationAnswer(clarificationTitle, clarificationAnswer);
     cy.closeSuccessMessage('Answer sent');
-    cy.logout();
+    cy.contains(clarificationAnswer);
+  });
 
-    cy.log('Check if student sees it');
+  it('login, answers a clarification with empty string and sees error', () => {
+    cy.demoLogin('teacher');
+    cy.clarificationList();
+    cy.createClarificationAnswer(clarificationTitle, null);
+    cy.closeErrorMessage();
+  });
+
+  it('login, student sees clarification answered', () => {
     cy.demoLogin('student');
     cy.clarificationList();
     cy.checkClarificationAnswered(clarificationTitle, true);
     cy.checkForClarificationAnswer(clarificationTitle, clarificationAnswer);
   });
-
 });
