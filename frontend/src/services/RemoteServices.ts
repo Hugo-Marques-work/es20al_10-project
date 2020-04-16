@@ -13,6 +13,7 @@ import Assessment from '@/models/management/Assessment';
 import AuthDto from '@/models/user/AuthDto';
 import StatementAnswer from '@/models/statement/StatementAnswer';
 import { QuizAnswers } from '@/models/management/QuizAnswers';
+import { Tournament } from '@/models/tournament/Tournament';
 import Clarification from '@/models/clarification/Clarification';
 import User from '@/models/user/User';
 import ClarificationAnswer from '@/models/clarification/ClarificationAnswer';
@@ -676,5 +677,59 @@ export default class RemoteServices {
       console.log(error);
       return 'Unknown Error - Contact admin';
     }
+  }
+
+  static async createTournament(tournament: Tournament): Promise<Tournament> {
+    return httpClient
+      .post(
+        '/executions/' +
+          Store.getters.getCurrentCourse.courseExecutionId +
+          '/tournaments/',
+        tournament
+      )
+      .then(response => {
+        return new Tournament(response.data);
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static async getTournaments(): Promise<Tournament[]> {
+    return httpClient
+      .get(
+        '/executions/' +
+          Store.getters.getCurrentCourse.courseExecutionId +
+          '/tournaments/open'
+      )
+      .then(response => {
+        return response.data.map((tournament: any) => {
+          return new Tournament(tournament);
+        });
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+  static async signUpForTournament(tournamentId: number) {
+    return httpClient
+      .post('/tournaments/' + tournamentId + '/signUp')
+      .then(response => {
+        return;
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static async cancelTournament(tournamentId: number) {
+    return httpClient
+      .post('/tournaments/' + tournamentId + '/cancel')
+      .then(response => {
+        return;
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
   }
 }

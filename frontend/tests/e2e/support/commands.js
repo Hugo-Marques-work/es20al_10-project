@@ -40,6 +40,11 @@ Cypress.Commands.add('demoLogin', type => {
   cy.get('[data-cy="' + type + 'Button"]').click();
 });
 
+Cypress.Commands.add('demoStudentLoginTournaments', () => {
+  cy.demoLogin('student');
+  cy.contains('Tournaments').click();
+});
+
 /* ----------------------- */
 /* Teacher Commands */
 
@@ -95,6 +100,98 @@ Cypress.Commands.add('checkForClarificationAnswer', (title, message) => {
     .find('[data-cy="viewClarification"]')
     .click();
   cy.contains(message);
+});
+
+Cypress.Commands.add('createTournament', (name, start, end) => {
+  cy.get('[data-cy="createButton"]').click();
+
+  cy.get('label')
+    .contains('Starting Date')
+    .parent()
+    .children('input')
+    .click();
+  cy.get('.v-date-picker-header')
+    .eq(0)
+    .children()
+    .eq(2)
+    .click();
+  cy.get('button:contains(' + start + ')')
+    .eq(1)
+    .click();
+  cy.get('button:contains("OK")')
+    .eq(0)
+    .click();
+
+  cy.get('label')
+    .contains('Conclusion Date')
+    .parent()
+    .children('input')
+    .click();
+  cy.get('.v-date-picker-header')
+    .eq(1)
+    .children()
+    .eq(2)
+    .click();
+  cy.get('button:contains(' + end + ')')
+    .eq(2)
+    .click();
+  cy.get('button:contains("OK")')
+    .eq(1)
+    .click();
+
+  cy.get('[data-cy="Topics"]').click();
+  cy.get('[role="listbox"]')
+    .children()
+    .eq(0)
+    .click();
+  cy.get('[role="listbox"]')
+    .children()
+    .eq(1)
+    .click();
+  if (name) {
+    cy.get('[data-cy="Title"]').type(name);
+  }
+
+  cy.get('[data-cy="saveButton"]').click();
+});
+
+Cypress.Commands.add('cancelTournament', name => {
+  cy.contains(name)
+    .parent()
+    .should('have.length', 1)
+    .children()
+    .should('have.length', 7)
+    .find('[data-cy="cancel"]')
+    .click();
+
+  cy.get('[data-cy="executeCancelButton"]').click();
+});
+
+Cypress.Commands.add('signUpForTournament', name => {
+  cy.contains(name)
+    .parent()
+    .should('have.length', 1)
+    .children()
+    .should('have.length', 7)
+    .find('[data-cy="signUp"]')
+    .click();
+
+  cy.get('[data-cy="executeSignUpButton"]').click();
+});
+
+Cypress.Commands.add('seeSignedUpTournaments', () => {
+  cy.get('[data-cy="filter"]').click();
+  cy.contains('Signed Up Tournaments').click();
+});
+
+Cypress.Commands.add('seeRunningTournaments', () => {
+  cy.get('[data-cy="filter"]').click();
+  cy.contains('Running Tournaments').click();
+});
+
+Cypress.Commands.add('seeMyTournaments', () => {
+  cy.get('[data-cy="filter"]').click();
+  cy.contains('My Tournaments').click();
 });
 
 /* ----------------------- */

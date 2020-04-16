@@ -174,6 +174,17 @@
           </v-list>
         </v-menu>
 
+        <!-- Tournaments -->
+        <v-btn
+          to="/student/tournaments"
+          v-if="isStudent && currentCourse"
+          text
+          dark
+        >
+          Tournaments
+          <v-icon>fas fa-trophy</v-icon>
+        </v-btn>
+
         <!-- Stats -->
         <v-btn to="/student/stats" v-if="isStudent && currentCourse" text dark>
           Stats
@@ -352,6 +363,13 @@
               <v-icon>done</v-icon>
             </v-list-item-action>
             <v-list-item-content>Solved Quizzes</v-list-item-content>
+          </v-list-item>
+
+          <v-list-item to="/student/tournaments">
+            <v-list-item-action>
+              <v-icon>fas fa-trophy</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>Tournaments</v-list-item-content>
           </v-list-item>
 
           <v-list-item to="/student/stats">

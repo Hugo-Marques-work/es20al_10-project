@@ -36,3 +36,6 @@ application-prod.properties
 
 ### jmeter ###
 /jmeter.log
+
+### Script for running backend
+/run.sh
