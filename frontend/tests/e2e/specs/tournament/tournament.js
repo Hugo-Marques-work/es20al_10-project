@@ -22,7 +22,6 @@ describe('Tournament walkthrough', () => {
     cy.createTournament(name, 12, 13);
     cy.cancelTournament(name);
 
-    cy.wait(500);
     cy.contains(name).should('not.exist');
 
     cy.seeSignedUpTournaments();
@@ -40,7 +39,6 @@ describe('Tournament walkthrough', () => {
     cy.createTournament(name, 12, 13);
     cy.signUpForTournament(name);
 
-    cy.wait(500);
     cy.contains(name).should('not.exist');
 
     cy.seeSignedUpTournaments();
