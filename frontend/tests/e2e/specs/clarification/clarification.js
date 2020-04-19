@@ -25,7 +25,7 @@ describe('Clarifications creating, answering and viewing', () => {
     cy.clarificationList();
     cy.checkClarificationAnswered(clarificationTitle, false);
   });
-  
+
   it('login, answers a clarification and sees it', () => {
     cy.demoLogin('teacher');
     cy.clarificationList();
