@@ -58,8 +58,8 @@ class CancelTournamentSpockPerformanceTest extends Specification{
     String CONCLUSION_DATE
 
     def setup() {
-        START_DATE = DateHandler.format(LocalDateTime.now().plusDays(1))
-        CONCLUSION_DATE = DateHandler.format(LocalDateTime.now().plusDays(2))
+        START_DATE = DateHandler.toISOString(LocalDateTime.now().plusDays(1))
+        CONCLUSION_DATE = DateHandler.toISOString(LocalDateTime.now().plusDays(2))
     }
 
     def "cancel tournament performance test"() {
@@ -83,14 +83,14 @@ class CancelTournamentSpockPerformanceTest extends Specification{
         tournamentDto.setNumberOfQuestions(NUMBER_QUESTIONS)
         tournamentDto.addTopic(topicDto)
         and: "10000 tournaments"
-        1.upto(10000,  {
+        1.upto(1,  {
             def tournament = new Tournament(student, tournamentDto)
             tournament.setId(it)
             tournamentRepository.save(tournament)
         })
 
         when:
-        1.upto(10000,  {
+        1.upto(1,  {
             tournamentService.cancelTournament(it)
         })
 

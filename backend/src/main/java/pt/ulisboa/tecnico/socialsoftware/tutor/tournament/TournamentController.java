@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
@@ -36,7 +35,6 @@ public class TournamentController {
         User user = (User) ((Authentication) principal).getPrincipal();
         checkUserAuth(user);
 
-        formatDates(tournamentDto);
         return tournamentService.createTournament(user.getId(), executionId, tournamentDto);
     }
 
@@ -63,10 +61,5 @@ public class TournamentController {
         if(user == null) {
             throw new TutorException(AUTHENTICATION_ERROR);
         }
-    }
-
-    private void formatDates(TournamentDto tournament) {
-        tournament.setStartingDate(DateHandler.formatFromRequest(tournament.getStartingDate()));
-        tournament.setConclusionDate(DateHandler.formatFromRequest(tournament.getConclusionDate()));
     }
 }

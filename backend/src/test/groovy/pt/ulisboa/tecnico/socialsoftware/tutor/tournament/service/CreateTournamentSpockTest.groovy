@@ -91,8 +91,8 @@ class CreateTournamentSpockTest extends Specification {
     }
 
     def setupSpec() {
-        START_DATE = DateHandler.format(LocalDateTime.now().plusDays(1))
-        CONCLUSION_DATE = DateHandler.format(LocalDateTime.now().plusDays(2))
+        START_DATE = DateHandler.toISOString(LocalDateTime.now().plusDays(1))
+        CONCLUSION_DATE = DateHandler.toISOString(LocalDateTime.now().plusDays(2))
     }
 
     def "create a tournament"() {
@@ -124,8 +124,8 @@ class CreateTournamentSpockTest extends Specification {
         result.getId() == resultDto.getId()
         result.getStatus() == resultDto.getStatus()
         result.getTitle() == title
-        DateHandler.format((result.getStartingDate())) == START_DATE
-        DateHandler.format((result.getConclusionDate())) == CONCLUSION_DATE
+        DateHandler.toISOString((result.getStartingDate())) == START_DATE
+        DateHandler.toISOString((result.getConclusionDate())) == CONCLUSION_DATE
         result.getNumberOfQuestions() == NUMBER_QUESTIONS
         result.getTopics() == topics
         result.getSignedUpUsers().size() == 0

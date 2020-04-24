@@ -1,6 +1,7 @@
 describe('Tournament walkthrough', () => {
   beforeEach(() => {
-    cy.demoStudentLoginTournaments();
+    cy.demoStudentLogin();
+    cy.contains('Tournaments').click();
   });
 
   it('login creates a tournament and sees it on open tournaments', () => {

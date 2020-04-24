@@ -22,7 +22,6 @@ class CreateClarificationServiceSpockTest extends Specification {
     static final String USERNAME2 = "test_user_2"
     static final Integer KEY = 1
     static final Integer KEY2 = 2
-    static final Integer ID = 10
     static final User.Role ROLE = User.Role.STUDENT
     static final String CONTENT = "I want a clarification in this question."
 
@@ -46,6 +45,7 @@ class CreateClarificationServiceSpockTest extends Specification {
         userRepository.save(user)
         question = new Question()
         question.setKey(KEY)
+        question.setTitle("Title")
         questionRepository.save(question)
     }
 
@@ -96,7 +96,9 @@ class CreateClarificationServiceSpockTest extends Specification {
     def "question is not saved in the database" () {
         given: "a question not saved"
         def questionNotSaved = new Question()
-        questionNotSaved.setId(ID)
+        questionNotSaved.setTitle("Title")
+        questionRepository.save(questionNotSaved)
+        questionRepository.delete(questionNotSaved)
 
         when:
         clarificationService.createClarification(questionNotSaved, user, CONTENT)
@@ -112,13 +114,15 @@ class CreateClarificationServiceSpockTest extends Specification {
 
         then: "throws exception"
         def error = thrown(TutorException)
-        error.errorMessage == ErrorMessage.QUESTION_MISSING_DATA
+        error.errorMessage == ErrorMessage.QUESTION_NOT_FOUND
     }
 
     def "user is not saved in the database" () {
         given: "a user not saved"
-        def userNotSaved = new User(NAME, USERNAME, KEY2, ROLE)
-        userNotSaved.setId(ID)
+        def userNotSaved = new User()
+        userNotSaved.setKey(userRepository.getMaxUserNumber()+1)
+        userRepository.save(userNotSaved)
+        userRepository.delete(userNotSaved)
 
         when:
         clarificationService.createClarification(question, userNotSaved, CONTENT)

@@ -1,28 +1,46 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.config;
 
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 
 public class DateHandler {
-    final static private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    public static DateTimeFormatter getFormatter() {
-        return formatter;
-    }
+    private DateHandler() {}
 
-    public static String format(LocalDateTime date) {
-        if (date == null) return "";
-        return date.format(formatter);
-    }
-
-    public static LocalDateTime parse(String date) {
-        return LocalDateTime.parse(date, formatter);
-    }
-
-    public static String formatFromRequest(String date) {
-        if (date != null && !date.matches("(\\d{4})-(\\d{2})-(\\d{2}) (\\d{2}):(\\d{2})")) {
-            return LocalDateTime.parse(date.replaceAll(".$", ""), DateTimeFormatter.ISO_DATE_TIME).format(formatter);
+    /**
+     *  Converts LocalDateTime to ISO8601 string format
+     */
+    public static String toISOString(LocalDateTime time) {
+        if (time == null) {
+            return null;
         }
-        return date;
+        return ZonedDateTime.of(time, ZoneId.of("UTC")).format(DateTimeFormatter.ISO_INSTANT);
+    }
+
+    /**
+     *  Converts ISO8601 string format to LocalDateTime
+     */
+    public static LocalDateTime toLocalDateTime(String date) {
+        try {
+            return ZonedDateTime.parse(date).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     *  Frontend converts ISO8601 format to yyyy-MM-dd HH:mm in client timezone
+     *
+     *  If it returns that format, it means the date wasn't changed
+     *  Because the component v-datetime-picker returns ISO8601 string format
+     *
+     *  Do not convert this string to LocalDateTime because it does not have timezone information
+     */
+    public static boolean isValidDateFormat(String string) {
+        return string == null || !string.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}");
+    }
+
+    public static LocalDateTime now() {
+        return LocalDateTime.now(ZoneOffset.UTC);
     }
 }

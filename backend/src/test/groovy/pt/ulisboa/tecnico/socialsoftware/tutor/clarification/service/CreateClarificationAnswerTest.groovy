@@ -122,7 +122,8 @@ class CreateClarificationAnswerTest extends Specification {
                 userRepository.save(user)
                 return user
             case unitType.INEXISTENT:
-                user.setId(1)
+                userRepository.save(user)
+                userRepository.delete(user)
                 return user
             case unitType.NULL:
             default:
