@@ -25,26 +25,6 @@
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 /// <reference types="Cypress" />
 
-/* LOGIN Commands */
-/* Demo Login - Admin */
-Cypress.Commands.add('demoAdminLogin', () => {
-  cy.visit('/');
-  cy.get('[data-cy="adminButton"]').click();
-  cy.contains('Administration').click();
-  cy.contains('Manage Courses').click();
-});
-
-/* Demo Login - Teacher/Student */
-Cypress.Commands.add('demoLogin', type => {
-  cy.visit('/');
-  cy.get('[data-cy="' + type + 'Button"]').click();
-});
-
-Cypress.Commands.add('demoStudentLoginTournaments', () => {
-  cy.demoLogin('student');
-  cy.contains('Tournaments').click();
-});
-
 /* ----------------------- */
 /* Teacher Commands */
 
@@ -77,6 +57,14 @@ Cypress.Commands.add('clarificationList', () => {
 });
 
 Cypress.Commands.add('createClarification', clarificationMessage => {
+  cy.get('[data-cy="quizzesButton"]').click();
+  cy.contains('Solved').click();
+  cy.contains('Generated Quiz')
+    .parent()
+    .children()
+    .eq(3)
+    .find('i')
+    .click();
   cy.get('[data-cy="createClarificationButton"]').click();
   if (clarificationMessage != null)
     cy.get('[data-cy="clarificationText"]').type(clarificationMessage);
@@ -199,9 +187,9 @@ Cypress.Commands.add('seeMyTournaments', () => {
 
 Cypress.Commands.add('createCourseExecution', (name, acronym, academicTerm) => {
   cy.get('[data-cy="createButton"]').click();
-  cy.get('[data-cy="Name"]').type(name);
-  cy.get('[data-cy="Acronym"]').type(acronym);
-  cy.get('[data-cy="AcademicTerm"]').type(academicTerm);
+  cy.get('[data-cy="courseExecutionNameInput"]').type(name);
+  cy.get('[data-cy="courseExecutionAcronymInput"]').type(acronym);
+  cy.get('[data-cy="courseExecutionAcademicTermInput"]').type(academicTerm);
   cy.get('[data-cy="saveButton"]').click();
 });
 
@@ -215,8 +203,8 @@ Cypress.Commands.add(
       .should('have.length', 7)
       .find('[data-cy="createFromCourse"]')
       .click();
-    cy.get('[data-cy="Acronym"]').type(acronym);
-    cy.get('[data-cy="AcademicTerm"]').type(academicTerm);
+    cy.get('[data-cy="courseExecutionAcronymInput"]').type(acronym);
+    cy.get('[data-cy="courseExecutionAcademicTermInput"]').type(academicTerm);
     cy.get('[data-cy="saveButton"]').click();
   }
 );
@@ -245,10 +233,6 @@ Cypress.Commands.add('closeSuccessMessage', successMessage => {
     .parent()
     .find('button')
     .click();
-});
-
-Cypress.Commands.add('logout', () => {
-  cy.get('[data-cy="logout"]').click();
 });
 
 /* ----------------------- */

@@ -55,8 +55,8 @@ class GetOpenTournamentsServiceSpockPerformanceTest extends Specification {
     String CONCLUSION_DATE
 
     def setup() {
-        START_DATE = DateHandler.format(LocalDateTime.now().plusDays(1))
-        CONCLUSION_DATE = DateHandler.format(LocalDateTime.now().plusDays(2))
+        START_DATE = DateHandler.toISOString(LocalDateTime.now().plusDays(1))
+        CONCLUSION_DATE = DateHandler.toISOString(LocalDateTime.now().plusDays(2))
     }
 
     def "get open tournaments performance test"() {

@@ -7,27 +7,27 @@ describe('Clarifications creating, answering and viewing', () => {
   });
 
   it('login and created a clarification', () => {
-    cy.demoLogin('student');
+    cy.demoStudentLogin();
     cy.makeAndSolveQuiz();
     cy.createClarification(clarificationTitle);
     cy.closeSuccessMessage('Clarification created');
   });
 
   it('login and created an empty clarification', () => {
-    cy.demoLogin('student');
+    cy.demoStudentLogin();
     cy.makeAndSolveQuiz();
     cy.createClarification(null);
     cy.closeErrorMessage();
   });
 
   it('login, check that clarification is unanswered', () => {
-    cy.demoLogin('student');
+    cy.demoStudentLogin();
     cy.clarificationList();
     cy.checkClarificationAnswered(clarificationTitle, false);
   });
 
   it('login, answers a clarification and sees it', () => {
-    cy.demoLogin('teacher');
+    cy.demoTeacherLogin();
     cy.clarificationList();
     cy.createClarificationAnswer(clarificationTitle, clarificationAnswer);
     cy.closeSuccessMessage('Answer sent');
@@ -35,14 +35,14 @@ describe('Clarifications creating, answering and viewing', () => {
   });
 
   it('login, answers a clarification with empty string and sees error', () => {
-    cy.demoLogin('teacher');
+    cy.demoTeacherLogin();
     cy.clarificationList();
     cy.createClarificationAnswer(clarificationTitle, null);
     cy.closeErrorMessage();
   });
 
   it('login, student sees clarification answered', () => {
-    cy.demoLogin('student');
+    cy.demoStudentLogin();
     cy.clarificationList();
     cy.checkClarificationAnswered(clarificationTitle, true);
     cy.checkForClarificationAnswer(clarificationTitle, clarificationAnswer);

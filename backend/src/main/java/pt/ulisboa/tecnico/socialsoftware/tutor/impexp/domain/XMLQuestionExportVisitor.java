@@ -9,7 +9,6 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Image;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Option;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class XMLQuestionExportVisitor implements Visitor {
@@ -43,8 +42,6 @@ public class XMLQuestionExportVisitor implements Visitor {
 
     @Override
     public void visitQuestion(Question question) {
-        DateTimeFormatter formatter = DateHandler.getFormatter();
-
         Element questionElement = new Element("question");
         questionElement.setAttribute("courseType", question.getCourse().getType().name());
         questionElement.setAttribute("courseName", question.getCourse().getName());
@@ -53,7 +50,7 @@ public class XMLQuestionExportVisitor implements Visitor {
         questionElement.setAttribute("title", question.getTitle());
         questionElement.setAttribute("status", question.getStatus().name());
         if (question.getCreationDate() != null)
-            questionElement.setAttribute("creationDate", question.getCreationDate().format(formatter));
+            questionElement.setAttribute("creationDate", DateHandler.toISOString(question.getCreationDate()));
         this.currentElement.addContent(questionElement);
 
         this.currentElement = questionElement;

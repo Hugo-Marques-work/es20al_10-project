@@ -39,6 +39,7 @@ class CreateClarificationServiceSpockPerformanceTest extends Specification {
         and: "a question"
         Question question = new Question()
         question.setKey(KEY)
+        question.setTitle("Title")
         questionRepository.save(question)
 
         when:

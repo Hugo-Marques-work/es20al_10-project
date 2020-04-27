@@ -39,6 +39,8 @@ public class QuizzesXmlExport {
 
 	private void exportQuiz(Element element, Quiz quiz) {
 		Element quizElement = new Element("quiz");
+		quizElement.setAttribute("courseName",quiz.getCourseExecution().getCourse().getName());
+		quizElement.setAttribute("courseType",quiz.getCourseExecution().getCourse().getType().name());
 		quizElement.setAttribute("courseExecutionType",quiz.getCourseExecution().getType().name());
 		quizElement.setAttribute("acronym",quiz.getCourseExecution().getAcronym());
         quizElement.setAttribute("academicTerm",quiz.getCourseExecution().getAcademicTerm());
@@ -50,11 +52,11 @@ public class QuizzesXmlExport {
 		quizElement.setAttribute("title", quiz.getTitle());
 
 		if (quiz.getCreationDate() != null)
-			quizElement.setAttribute("creationDate", DateHandler.format(quiz.getCreationDate()));
+			quizElement.setAttribute("creationDate", DateHandler.toISOString(quiz.getCreationDate()));
 		if (quiz.getAvailableDate() != null)
-			quizElement.setAttribute("availableDate", DateHandler.format(quiz.getAvailableDate()));
+			quizElement.setAttribute("availableDate", DateHandler.toISOString(quiz.getAvailableDate()));
         if (quiz.getConclusionDate() != null)
-			quizElement.setAttribute("conclusionDate", DateHandler.format(quiz.getConclusionDate()));
+            quizElement.setAttribute("conclusionDate", DateHandler.toISOString(quiz.getConclusionDate()));
 		if (quiz.getSeries() != null)
 			quizElement.setAttribute("series", String.valueOf(quiz.getSeries()));
 		if (quiz.getVersion() != null)
@@ -83,5 +85,4 @@ public class QuizzesXmlExport {
 
 		optionsElement.addContent(optionElement);
 	}
-
 }

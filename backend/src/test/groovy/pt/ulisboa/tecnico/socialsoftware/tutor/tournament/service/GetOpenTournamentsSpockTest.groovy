@@ -88,14 +88,14 @@ class GetOpenTournamentsSpockTest extends Specification {
     }
 
     def setupSpec() {
-        START_DATE = DateHandler.format(LocalDateTime.now().plusDays(1))
-        CONCLUSION_DATE = DateHandler.format(LocalDateTime.now().plusDays(2))
+        START_DATE = DateHandler.toISOString(LocalDateTime.now().plusDays(1))
+        CONCLUSION_DATE = DateHandler.toISOString(LocalDateTime.now().plusDays(2))
     }
 
     def "an open tournament and a cancelled one"() {
         given: "two valid tournament dto"
         def validTournament1 = createValidTournamentDto(START_DATE)
-        def otherDate =  DateHandler.format(LocalDateTime.now().plusDays(1).plusHours(12))
+        def otherDate =  DateHandler.toISOString(LocalDateTime.now().plusDays(1).plusHours(12))
         def validTournament2 = createValidTournamentDto(otherDate)
         and: "a tournament dto that has been canceled"
         def canceledTournament = createValidTournamentDto(START_DATE)
