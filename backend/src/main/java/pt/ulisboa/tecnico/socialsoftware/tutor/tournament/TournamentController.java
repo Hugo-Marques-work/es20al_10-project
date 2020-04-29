@@ -13,8 +13,9 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.AUTHENTICATION_ERROR;
+import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 
 @RestController
 public class TournamentController {
@@ -26,6 +27,13 @@ public class TournamentController {
     @PreAuthorize("hasPermission(#executionId, 'EXECUTION.ACCESS')")
     public List<TournamentDto> findOpenTournaments(@PathVariable int executionId) {
         return tournamentService.getOpenTournaments(executionId);
+    }
+
+    @GetMapping("/executions/{executionId}/tournaments/closed/{userId}")
+    @PreAuthorize("hasPermission(#executionId, 'EXECUTION.ACCESS')")
+    public List<TournamentDto> getClosedTournaments(@PathVariable int executionId,
+                                                    @PathVariable int userId) {
+        return tournamentService.getClosedTournaments(userId, executionId);
     }
 
     @PostMapping("/executions/{executionId}/tournaments/")
@@ -58,6 +66,7 @@ public class TournamentController {
         tournamentService.cancelTournament(tournamentId);
         return ResponseEntity.ok().build();
     }
+
 
     private void checkUserAuth(User user) {
         if(user == null) {

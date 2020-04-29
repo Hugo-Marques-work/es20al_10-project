@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuizAnswer;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
@@ -9,8 +10,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 
@@ -40,7 +40,7 @@ public class Tournament {
     private LocalDateTime conclusionDate;
 
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private Status status = Status.OPEN;;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @Column(name = "user_id")
@@ -70,7 +70,6 @@ public class Tournament {
         checkStartingDate(startDate);
         checkConclusionDate(concludeDate);
 
-        this.status = Status.OPEN;
         if (nQuestions < 1) {
             throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " number of questions " + this.numberOfQuestions);
         }
@@ -230,6 +229,9 @@ public class Tournament {
         return status;
     }
 
+    public boolean isClosed() {
+        return status == Status.FINISHED;
+    }
 
     @Override
     public String toString() {
@@ -243,5 +245,16 @@ public class Tournament {
                 ", numberOfQuestions=" + numberOfQuestions +
                 ", topics=" + topics +
                 '}';
+    }
+
+    public void setNumberOfQuestions(Integer numberOfQuestions) {
+        this.numberOfQuestions = numberOfQuestions;
+    }
+
+    private class LeaderBoardComparator implements Comparator<QuizAnswer> {
+        @Override
+        public int compare(QuizAnswer q1, QuizAnswer q2) {
+            return 0;
+        }
     }
 }

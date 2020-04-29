@@ -1,9 +1,12 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository;
@@ -142,4 +145,15 @@ public class TournamentService {
                 .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
     }
 
+
+    public List<TournamentDto> getClosedTournaments(int userId, int courseExecutionId) {
+        courseExecutionRepository.findById(courseExecutionId).orElseThrow(
+                () -> new TutorException(COURSE_EXECUTION_NOT_FOUND, courseExecutionId));
+
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new TutorException(USER_NOT_FOUND, userId));
+
+        return user.getClosedTournaments(courseExecutionId).stream()
+                .map(tournament -> new TournamentDto(tournament, false)).collect(Collectors.toList());
+    }
 }
