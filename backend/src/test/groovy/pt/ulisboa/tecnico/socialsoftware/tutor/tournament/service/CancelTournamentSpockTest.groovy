@@ -4,6 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import pt.ulisboa.tecnico.socialsoftware.tutor.answer.AnswerService
+import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
+import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.AnswersXmlImport
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService
 import spock.lang.Unroll
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
@@ -28,14 +33,14 @@ class CancelTournamentSpockTest extends Specification{
     static final Integer NUMBER_QUESTIONS = 1
     static final String USER_NAME = "Carlos"
     static final String USER_UNAME = "carlos"
-    static final String USER2_UNAME = "carlos2"
     static final Integer USER_KEY = 1
-    static final Integer USER2_KEY = 2
-    static final LocalDateTime CONCLUSION_DATE = LocalDateTime.now().plusDays(3)
-    static final LocalDateTime BAD_START_DATE = LocalDateTime.now().minusDays(1)
-    static final LocalDateTime GOOD_START_DATE = LocalDateTime.now().plusDays(1)
-    static final LocalDateTime BAD_START_DATE2 = LocalDateTime.now().minusDays(3)
-    static final LocalDateTime BAD_CONCLUSION_DATE = LocalDateTime.now().minusDays(2)
+    static final LocalDateTime CONCLUSION_DATE = DateHandler.now().plusDays(3)
+    static final LocalDateTime BAD_START_DATE = DateHandler.now().minusDays(1)
+    static final LocalDateTime GOOD_START_DATE = DateHandler.now().plusDays(1)
+    static final LocalDateTime BAD_START_DATE2 = DateHandler.now().minusDays(3)
+    static final LocalDateTime BAD_CONCLUSION_DATE = DateHandler.now().minusDays(2)
+
+    User creator;
 
     @Autowired
     TournamentService tournamentService
@@ -46,10 +51,22 @@ class CancelTournamentSpockTest extends Specification{
     @Autowired
     UserRepository userRepository
 
+    @Autowired
+    QuizService quizService
+
+    @Autowired
+    AnswerService answerService
+
+    @Autowired
+    AnswersXmlImport answersXmlImport
+
+    @Autowired
+    QuestionService questionService
+
     Tournament tournament
 
     def setup(){
-        def creator = new User(USER_NAME, USER_UNAME, USER_KEY, User.Role.STUDENT)
+        creator = new User(USER_NAME, USER_UNAME, USER_KEY, User.Role.STUDENT)
         userRepository.save(creator)
 
         tournament = new Tournament(creator, "TEST", GOOD_START_DATE, CONCLUSION_DATE, NUMBER_QUESTIONS)
@@ -86,7 +103,7 @@ class CancelTournamentSpockTest extends Specification{
         def tournamentId = getTournamentId(tournament, validTournamentId)
 
         when:
-        setStatusCanceled(tournament,statusCanceled)
+        setStatusCanceled(tournament, statusCanceled)
         tournamentService.cancelTournament(tournamentId)
 
         then:
@@ -95,10 +112,23 @@ class CancelTournamentSpockTest extends Specification{
 
         where:
         startingDate    | conclusionDate      | statusCanceled | validTournamentId || errorMessage
-        BAD_START_DATE  | CONCLUSION_DATE     | false          | true              || TOURNAMENT_RUNNING
         GOOD_START_DATE | CONCLUSION_DATE     | true           | true              || TOURNAMENT_ALREADY_CANCELED
         BAD_START_DATE2 | BAD_CONCLUSION_DATE | false          | true              || TOURNAMENT_FINISHED
         GOOD_START_DATE | CONCLUSION_DATE     | false          | false             || TOURNAMENT_NOT_FOUND
+    }
+
+    def "cancel running tournament"() {
+        given: "a running tournament"
+        tournament.setStartingDate(BAD_START_DATE)
+        tournament.setConclusionDate(CONCLUSION_DATE)
+        tournament.addSignUp(creator)
+
+        when:
+        tournamentService.cancelTournament(tournament.getId())
+
+        then:
+        def error = thrown(TutorException)
+        error.errorMessage == TOURNAMENT_RUNNING
     }
 
     @TestConfiguration
@@ -108,6 +138,25 @@ class CancelTournamentSpockTest extends Specification{
         TournamentService tournamentService() {
             return new TournamentService()
         }
-    }
 
+        @Bean
+        QuestionService questionService() {
+            return new QuestionService()
+        }
+
+        @Bean
+        QuizService quizService() {
+            return new QuizService()
+        }
+
+        @Bean
+        AnswerService answerService() {
+            return new AnswerService()
+        }
+
+        @Bean
+        AnswersXmlImport answersXmlImport() {
+            return new AnswersXmlImport()
+        }
+    }
 }

@@ -64,12 +64,12 @@ public class Tournament {
     }
 
     public Tournament(User creator, String title,
-                      LocalDateTime startDate, LocalDateTime concludeDate,
+                      LocalDateTime startDate, LocalDateTime conclusionDate,
                       int nQuestions) {
         checkTitle(title);
         setCreator(creator);
         checkStartingDate(startDate);
-        checkConclusionDate(concludeDate);
+        checkConclusionDate(conclusionDate);
 
         this.status = Status.OPEN;
         if (nQuestions < 1) {
@@ -79,7 +79,7 @@ public class Tournament {
 
     }
 
-    private void setCreator(User creator) {
+    public void setCreator(User creator) {
         this.creator = creator;
     }
 
@@ -117,10 +117,14 @@ public class Tournament {
     public void addTopic(Topic topic) {
         Set<Topic> validTopics = courseExecution.getCourse().getTopics();
 
-        if (validTopics.stream().noneMatch(other -> topic == other)) {
+        if (!validTopics.contains(topic)) {
             throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " topic" + topic);
         }
         topics.add(topic);
+    }
+
+    public void setQuiz(Quiz quiz) {
+        this.quiz = quiz;
     }
 
     public Integer getNumberOfQuestions() { return numberOfQuestions; }
@@ -163,8 +167,12 @@ public class Tournament {
         this.id = id;
     }
 
+    public void setNumberOfQuestions(Integer numberOfQuestions) {
+        this.numberOfQuestions = numberOfQuestions;
+    }
+
     void checkStartingDate(LocalDateTime startingDate) {
-        if (startingDate == null || startingDate.isBefore(LocalDateTime.now())) {
+        if (startingDate == null || startingDate.isBefore(DateHandler.now())) {
             throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " starting date " + startingDate);
         }
         if (this.conclusionDate != null && !conclusionDate.isAfter(startingDate)) {
@@ -185,24 +193,24 @@ public class Tournament {
     }
 
     public void checkReadyForSignUp() {
-        Status actualStatus = getValidatedStatus();
-        if (actualStatus.equals(Status.FINISHED) || actualStatus.equals(Status.RUNNING)){
+        updateStatus();
+        if (this.status.equals(Status.FINISHED) || this.status.equals(Status.RUNNING)){
             throw new TutorException(TOURNAMENT_SIGN_UP_OVER, this.id);
         }
-        else if (actualStatus.equals(Status.CANCELED)){
+        else if (this.status.equals(Status.CANCELED)){
             throw new TutorException(TOURNAMENT_SIGN_UP_CANCELED, this.id);
         }
     }
 
     public void checkAbleToBeCanceled() {
-        Status actualStatus = getValidatedStatus();
-        if (actualStatus.equals(Status.CANCELED)){
+        updateStatus();
+        if (this.status.equals(Status.CANCELED)){
             throw new TutorException(TOURNAMENT_ALREADY_CANCELED, this.id);
         }
-        else if (actualStatus.equals(Status.RUNNING)){
+        else if (this.status.equals(Status.RUNNING)){
             throw new TutorException(TOURNAMENT_RUNNING, this.id);
         }
-        else if (actualStatus.equals(Status.FINISHED)){
+        else if (this.status.equals(Status.FINISHED)){
             throw new TutorException(TOURNAMENT_FINISHED, this.id);
         }
     }
@@ -212,25 +220,30 @@ public class Tournament {
         status = Status.CANCELED;
     }
 
-    public Status getValidatedStatus() {
+    public void updateStatus() {
         if (status.equals(Status.CANCELED) || status.equals(Status.FINISHED)) {
-            return status;
+            return;
         }
 
-        LocalDateTime currentTime = LocalDateTime.now();
+        LocalDateTime currentTime = DateHandler.now();
         if(currentTime.isBefore(startingDate)) {
             setStatus(Status.OPEN);
         }
         else if(!currentTime.isBefore(startingDate) && currentTime.isBefore(conclusionDate)) {
-            setStatus(Status.RUNNING);
+            if (!signedUpUsers.isEmpty()) {
+                setStatus(Status.RUNNING);
+            } else {
+                setStatus(Status.CANCELED);
+            }
         }
         else {
             setStatus(Status.FINISHED);
         }
-
-        return status;
     }
 
+    public boolean hasQuiz() {
+        return this.quiz != null;
+    }
 
     @Override
     public String toString() {

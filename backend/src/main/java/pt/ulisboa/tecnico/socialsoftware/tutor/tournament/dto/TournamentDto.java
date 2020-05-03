@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto;
 
 import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
@@ -28,7 +29,7 @@ public class TournamentDto {
         this.id = tournament.getId();
         this.title = tournament.getTitle();
         this.numberOfQuestions = tournament.getNumberOfQuestions();
-        this.status = tournament.getValidatedStatus();
+        this.status = tournament.getStatus();
         if (tournament.getStartingDate() != null)
             this.startingDate = DateHandler.toISOString(tournament.getStartingDate());
         if (tournament.getConclusionDate() != null)
