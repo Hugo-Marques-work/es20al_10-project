@@ -14,6 +14,8 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.CL
 @Entity
 @Table(name = "clarifications")
 public class Clarification {
+    public enum Availability {NONE, TEACHER, STUDENT, BOTH}
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -23,6 +25,9 @@ public class Clarification {
 
     @Column(nullable = false)
     private boolean isAnswered;
+
+    @Column
+    private Availability availability;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -41,6 +46,7 @@ public class Clarification {
         this.user = user;
         this.question = question;
         this.isAnswered = false;
+        this.availability = Availability.NONE;
 
         if (content == null || content.isEmpty() || content.isBlank())
             throw new TutorException(CLARIFICATION_IS_EMPTY);
@@ -71,6 +77,32 @@ public class Clarification {
     public void setClarificationAnswers(Set<ClarificationAnswer> clarificationAnswers) { this.clarificationAnswers = clarificationAnswers; }
 
     public void setIsAnswered(boolean status) { this.isAnswered = status; }
+
+    public Availability getAvailability() {
+        return availability;
+    }
+
+    public void setAvailability(Availability availability) {
+        this.availability = availability;
+    }
+
+    public void makeAvailableTeacher() {
+        if (this.availability == Availability.NONE)
+            this.availability = Availability.TEACHER;
+        else if (this.availability == Availability.STUDENT)
+            this.availability = Availability.BOTH;
+    }
+
+    public void setAvailabilityStudent(boolean available) {
+        if (this.availability == Availability.NONE && available)
+            this.availability = Availability.STUDENT;
+        else if (this.availability == Availability.TEACHER && available)
+            this.availability = Availability.BOTH;
+        else if (this.availability == Availability.STUDENT && !available)
+            this.availability = Availability.NONE;
+        else if (this.availability == Availability.BOTH && !available)
+            this.availability = Availability.TEACHER;
+    }
 
     public void addClarificationAnswer(ClarificationAnswer clarificationAnswer) {
         if (!isAnswered) isAnswered = true;
