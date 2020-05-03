@@ -80,8 +80,7 @@ public class TutorPermissionEvaluator implements PermissionEvaluator {
                 case "QUIZ.ACCESS":
                     return userHasThisExecution(userId, quizService.findQuizCourseExecution(id).getCourseExecutionId());
                 case "CLARIFICATION.ACCESS":
-                    return userHasAnExecutionOfTheCourse(userId, clarificationService.findClarificationCourseById(id).getCourseId()) ||
-                            userHasClarification(userId, id);
+                    return userHasAnExecutionOfTheCourse(userId, clarificationService.findClarificationCourseById(id).getCourseId());
                 case "CLARIFICATION_ANSWER.ACCESS":
                     return userHasAnExecutionOfTheCourse(userId, clarificationService.findClarificationAnswerCourseById(id).getCourseId());
                 case "TOURNAMENT.CANCEL":
@@ -93,11 +92,6 @@ public class TutorPermissionEvaluator implements PermissionEvaluator {
         }
 
         return false;
-    }
-
-    private boolean userHasClarification(int userId, int clarificationId) {
-        return clarificationService.getClarificationsByUser(userId).stream()
-                .anyMatch(clarification -> clarification.getId() == clarificationId);
     }
 
     private boolean userHasAnExecutionOfTheCourse(int userId, int courseId) {
