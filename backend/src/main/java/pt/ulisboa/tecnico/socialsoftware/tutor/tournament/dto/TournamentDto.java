@@ -34,6 +34,7 @@ public class TournamentDto {
         if (tournament.getConclusionDate() != null)
             this.conclusionDate = DateHandler.format(tournament.getConclusionDate());
 
+        System.out.println(tournament);
         if (deepCopy) {
             this.creator = new UserDto(tournament.getCreator());
             this.topics = tournament.getTopics().stream()

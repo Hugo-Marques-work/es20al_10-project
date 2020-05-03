@@ -154,6 +154,7 @@ public class TournamentService {
                 () -> new TutorException(USER_NOT_FOUND, userId));
 
         return user.getClosedTournaments(courseExecutionId).stream()
-                .map(tournament -> new TournamentDto(tournament, false)).collect(Collectors.toList());
+                .map(tournament -> new TournamentDto(tournament, true)).sorted(Comparator
+                .comparing(TournamentDto::getStartingDateDate)).collect(Collectors.toList());
     }
 }

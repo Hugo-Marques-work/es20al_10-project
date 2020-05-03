@@ -92,10 +92,9 @@ class GetUserFinishedTournamentsSpockTest extends Specification {
     }
 
     def createValidClosedTournamentDto(title) {
-        def tournament = new Tournament()
+        def tournament = new Tournament(student, title,  LocalDateTime.now().plusDays(1),
+                LocalDateTime.now().plusDays(2), NUMBER_QUESTIONS)
         tournamentRepository.save(tournament);
-        tournament.setNumberOfQuestions(NUMBER_QUESTIONS);
-        tournament.setTitle(title)
         tournament.setStartingDate( FINISHED_START_DATE)
         tournament.setConclusionDate( FINISHED_CONCLUSION_DATE)
         tournament.getValidatedStatus()

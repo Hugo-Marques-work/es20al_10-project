@@ -28,6 +28,7 @@ import CoursesView from '@/views/admin/Courses/CoursesView.vue';
 import ClarificationView from '@/views/clarification/ClarificationView.vue';
 import ClarificationListView from '@/views/clarification/ClarificationListView.vue';
 import TournamentsView from '@/views/student/tournament/TournamentsView.vue';
+import FinishedTournamentsView from '@/views/student/tournament/FinishedTournamentsView.vue';
 
 Vue.use(Router);
 
@@ -129,6 +130,15 @@ let router = new Router({
           path: 'tournaments',
           name: 'tournaments',
           component: TournamentsView,
+          meta: {
+            title: process.env.VUE_APP_NAME + ' - Tournaments',
+            requiredAuth: 'Student'
+          },
+        },
+        {
+          path: 'finishedTournaments',
+          name: 'finishedTournaments',
+          component: FinishedTournamentsView,
           meta: {
             title: process.env.VUE_APP_NAME + ' - Tournaments',
             requiredAuth: 'Student'

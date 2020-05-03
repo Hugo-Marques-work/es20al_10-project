@@ -21,7 +21,7 @@ public class Topic {
 
     private String name;
 
-    @ManyToMany
+    @ManyToMany( fetch=FetchType.EAGER )
     private Set<Question> questions = new HashSet<>();
 
     @ManyToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)

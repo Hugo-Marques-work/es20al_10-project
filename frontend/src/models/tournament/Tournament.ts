@@ -5,8 +5,23 @@ export enum TournamentStatus {
   Open = 'Open',
   Running = 'Running',
   Finished = 'Finished',
-  Canceled = 'Canceled'
+  Canceled = 'Canceled',
+  Undefined = 'Undefined'
 }
+
+
+function stringToTournamentStatus(statusString: string): TournamentStatus {
+  if (statusString == 'OPEN')
+    return TournamentStatus.Open;
+  else if (statusString == 'RUNNING')
+    return TournamentStatus.Running;
+  else if (statusString == 'FINISHED')
+    return TournamentStatus.Finished;
+  else if (statusString == 'CANCELED')
+    return TournamentStatus.Canceled;
+  return TournamentStatus.Undefined;
+}
+
 export class Tournament {
   id!: number;
   title!: string;
@@ -25,15 +40,7 @@ export class Tournament {
       this.numberOfQuestions = jsonObj.numberOfQuestions;
       this.startingDate = jsonObj.startingDate;
       this.conclusionDate = jsonObj.conclusionDate;
-      if (jsonObj.status.toString() == 'OPEN')
-        this.status = TournamentStatus.Open;
-      else if (jsonObj.status.toString() == 'RUNNING')
-        this.status = TournamentStatus.Running;
-      else if (jsonObj.status.toString() == 'FINISHED')
-        this.status = TournamentStatus.Finished;
-      else if (jsonObj.status.toString() == 'CANCELED')
-        this.status = TournamentStatus.Canceled;
-      else this.status = jsonObj.status;
+      this.status = stringToTournamentStatus(jsonObj.status.toString());
       if (jsonObj.creator) {
         this.creator = new User(jsonObj.creator);
       }

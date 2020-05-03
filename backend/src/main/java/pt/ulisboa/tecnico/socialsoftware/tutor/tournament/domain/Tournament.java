@@ -29,7 +29,7 @@ public class Tournament {
     @JoinColumn(name = "creator_id")
     private User creator;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @Column(name = "topic_id")
     private Set<Topic> topics = new HashSet<>();
 
@@ -42,7 +42,7 @@ public class Tournament {
     @Enumerated(EnumType.STRING)
     private Status status = Status.OPEN;;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Column(name = "user_id")
     private Set<User> signedUpUsers = new HashSet<>();
 
