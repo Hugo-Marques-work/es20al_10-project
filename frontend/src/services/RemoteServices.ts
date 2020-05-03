@@ -695,12 +695,13 @@ export default class RemoteServices {
       });
   }
 
-  static async getTournaments(): Promise<Tournament[]> {
+  static async getTournaments(status: String): Promise<Tournament[]> {
     return httpClient
       .get(
         '/executions/' +
           Store.getters.getCurrentCourse.courseExecutionId +
-          '/tournaments/open'
+          '/tournaments/' +
+          status
       )
       .then(response => {
         return response.data.map((tournament: any) => {
@@ -711,6 +712,7 @@ export default class RemoteServices {
         throw Error(await this.errorMessage(error));
       });
   }
+
   static async signUpForTournament(tournamentId: number) {
     return httpClient
       .post('/tournaments/' + tournamentId + '/signUp')

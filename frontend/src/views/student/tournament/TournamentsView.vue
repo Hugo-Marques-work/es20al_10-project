@@ -171,6 +171,7 @@ export default class TournamentsView extends Vue {
     'Running Tournaments',
     'My Tournaments'
   ];
+  requestStatus: string = 'open';
   activeFilters: { (tournament: Tournament): boolean }[] = [];
   statusSearch: string = this.statusSearchList[0];
   headers: object = [
@@ -286,7 +287,9 @@ export default class TournamentsView extends Vue {
   async getTournaments() {
     await this.$store.dispatch('loading');
     try {
-      let tournaments: Tournament[] = await RemoteServices.getTournaments();
+      let tournaments: Tournament[] = await RemoteServices.getTournaments(
+        this.requestStatus
+      );
       this.activeFilters.forEach(filter => {
         tournaments = tournaments.filter(tournament => filter(tournament));
       });
@@ -322,24 +325,28 @@ export default class TournamentsView extends Vue {
     this.statusSearch = item;
     switch (item) {
       case this.statusSearchList[0]:
+        this.requestStatus = 'open';
         this.activeFilters = [
           t => !this.userSignedInTournament(t),
           t => this.hasStatus(t, TournamentStatus.Open)
         ];
         break;
       case this.statusSearchList[1]:
+        this.requestStatus = 'open';
         this.activeFilters = [
           this.userSignedInTournament,
           t => this.hasStatus(t, TournamentStatus.Open)
         ];
         break;
       case this.statusSearchList[2]:
+        this.requestStatus = 'running';
         this.activeFilters = [
           this.userSignedInTournament,
           t => this.hasStatus(t, TournamentStatus.Running)
         ];
         break;
       case this.statusSearchList[3]:
+        this.requestStatus = 'open';
         this.activeFilters = [this.userCreatedTournament];
         break;
     }

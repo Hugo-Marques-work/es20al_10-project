@@ -116,4 +116,36 @@ describe('Tournament walkthrough', () => {
     cy.createTournament('Test', 13, 12);
     cy.closeErrorMessage();
   });
+
+  it.only('create running tournament and participate in it', () => {
+    let name = Math.random().toString(36);
+    cy.createTournament(name, 12, 13);
+    cy.signUpForTournament(name);
+
+    let yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    let yesterdayString =
+      yesterday.getFullYear() +
+      '-' +
+      (yesterday.getMonth() + 1) +
+      '-' +
+      yesterday.getDate() +
+      ' ' +
+      yesterday.getHours() +
+      ':' +
+      yesterday.getMinutes();
+    // Modify the database so that it is instantly running
+    cy.exec(
+      'PGPASSWORD=david psql -d tutordb -U joao -h localhost -c ' +
+        '"UPDATE tournaments SET starting_date = \'' +
+        yesterdayString +
+        '\', number_of_questions = 5' +
+        ' WHERE title = \'' +
+        name +
+        '\';"'
+    );
+
+    cy.seeRunningTournaments();
+    cy.contains(name).should('exist');
+  });
 });
