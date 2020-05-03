@@ -16,6 +16,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepos
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz;
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
@@ -92,7 +93,7 @@ public class TournamentService {
         Set<Tournament> tournaments = getUpdatedTournaments(courseExecution);
 
         for (Tournament tournament : tournaments) {
-            generateQuiz(tournament, courseExecution);
+            generateQuiz(tournament);
         }
 
         return tournaments.stream()
@@ -146,11 +147,13 @@ public class TournamentService {
         }
     }
 
-    private void generateQuiz(Tournament tournament, CourseExecution courseExecution) {
+    private void generateQuiz(Tournament tournament) {
         // check if quiz was already generated
         if (!(tournament.getStatus() == Tournament.Status.RUNNING && !tournament.hasQuiz())) {
             return;
         }
+
+        CourseExecution courseExecution = tournament.getCourseExecution();
 
         Quiz quiz = new Quiz();
         quiz.setKey(quizService.getMaxQuizKey() + 1);

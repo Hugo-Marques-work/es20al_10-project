@@ -6,6 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
@@ -25,6 +26,12 @@ public class TournamentController {
     @PreAuthorize("hasPermission(#executionId, 'EXECUTION.ACCESS')")
     public List<TournamentDto> findOpenTournaments(@PathVariable int executionId) {
         return tournamentService.getOpenTournaments(executionId);
+    }
+
+    @GetMapping("/executions/{executionId}/tournaments/running")
+    @PreAuthorize("hasPermission(#executionId, 'EXECUTION.ACCESS')")
+    public List<TournamentDto> findRunningTournaments(@PathVariable int executionId) {
+        return tournamentService.getRunningTournaments(executionId);
     }
 
     @PostMapping("/executions/{executionId}/tournaments/")
