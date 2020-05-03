@@ -67,6 +67,7 @@ public class ClarificationService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public ClarificationAnswerDto createClarificationAnswer(Clarification clarification, User user, String content){
         checkClarification(clarification);
+        checkUser(user, null);
         checkContent(content, ErrorMessage.CLARIFICATION_ANSWER_IS_EMPTY);
 
         ClarificationAnswer clarificationAnswer = new ClarificationAnswer(content, clarification, user);
@@ -200,7 +201,7 @@ public class ClarificationService {
             throw new TutorException(ErrorMessage.USER_NOT_FOUND, null);
 
         User usr = userRepository.findById(user.getId()).orElseThrow(() -> new TutorException(ErrorMessage.USER_NOT_FOUND, user.getId()));
-        if (usr.getRole() != role)
+        if (role != null && usr.getRole() != role)
             throw new TutorException(ErrorMessage.CLARIFICATION_WRONG_USER, role.toString());
     }
 
