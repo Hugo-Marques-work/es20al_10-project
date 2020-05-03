@@ -67,7 +67,6 @@ public class ClarificationService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public ClarificationAnswerDto createClarificationAnswer(Clarification clarification, User user, String content){
         checkClarification(clarification);
-        checkUser(user, User.Role.TEACHER);
         checkContent(content, ErrorMessage.CLARIFICATION_ANSWER_IS_EMPTY);
 
         ClarificationAnswer clarificationAnswer = new ClarificationAnswer(content, clarification, user);
