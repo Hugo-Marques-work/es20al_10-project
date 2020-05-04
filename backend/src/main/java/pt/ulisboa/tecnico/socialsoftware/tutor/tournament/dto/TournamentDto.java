@@ -3,12 +3,11 @@ package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TournamentDto {
@@ -20,6 +19,7 @@ public class TournamentDto {
     private int numberOfQuestions;
     private Set<TopicDto> topics = new HashSet<>();
     private Set<UserDto> signedUpUsers = new HashSet<>();
+    private Map<Integer, UserDto> leaderboard = new TreeMap<>();
     private Tournament.Status status;
 
     public TournamentDto() {}
@@ -34,7 +34,6 @@ public class TournamentDto {
         if (tournament.getConclusionDate() != null)
             this.conclusionDate = DateHandler.format(tournament.getConclusionDate());
 
-        System.out.println(tournament);
         if (deepCopy) {
             this.creator = new UserDto(tournament.getCreator());
             this.topics = tournament.getTopics().stream()
@@ -43,6 +42,9 @@ public class TournamentDto {
             this.signedUpUsers = tournament.getSignedUpUsers().stream()
                     .map(UserDto::new)
                     .collect(Collectors.toSet());
+            for(Map.Entry<Integer, User> entry : tournament.getLeaderboard().entrySet()) {
+                this.leaderboard.put(entry.getKey(), new UserDto(entry.getValue()));
+            }
         }
     }
 
@@ -142,4 +144,10 @@ public class TournamentDto {
     public void setCreator(UserDto creator) {
         this.creator = creator;
     }
+
+
+    public Map<Integer, UserDto> getLeaderboard() {
+        return leaderboard;
+    }
+
 }

@@ -174,4 +174,14 @@ public class QuizAnswer implements DomainEntity {
         }
     }
 
+    public int getNumberOfCorrectAnswers() {
+        int result = 0;
+        for( QuestionAnswer questionAnswer : getQuestionAnswers()) {
+            if (questionAnswer.getOption() != null && questionAnswer.getOption().getCorrect()) {
+                result++;
+            }
+        }
+        return result;
+    }
+
 }

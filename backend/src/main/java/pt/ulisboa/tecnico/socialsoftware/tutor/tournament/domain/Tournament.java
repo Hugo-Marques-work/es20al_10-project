@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain;
 
+import org.springframework.data.util.Pair;
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuizAnswer;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
@@ -53,6 +54,10 @@ public class Tournament {
     @ManyToOne
     @JoinColumn(name = "course_execution_id")
     private CourseExecution courseExecution;
+
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @Column(name = "user_place_id")
+    private Map<Integer, User> leaderboard = new TreeMap<>();
 
     public Tournament() {}
 
@@ -223,10 +228,36 @@ public class Tournament {
             setStatus(Status.RUNNING);
         }
         else {
-            setStatus(Status.FINISHED);
+            setFinished();
         }
 
         return status;
+    }
+
+    public void setFinished() {
+        //no one participated in the quiz
+        if(quiz == null) {
+            for(User user : signedUpUsers) {
+                leaderboard.put(0,user);
+            }
+            setStatus(Status.FINISHED);
+            return;
+        }
+
+        for(User user : signedUpUsers) {
+            for (QuizAnswer quizAnswer : user.getQuizAnswers()) {
+                if (quizAnswer.getQuiz().equals(quiz)) {
+                    leaderboard.put(quizAnswer.getNumberOfCorrectAnswers(), user);
+                } else {
+                    leaderboard.put(0, user);
+                }
+            }
+        }
+        setStatus(Status.FINISHED);
+    }
+
+    public Map<Integer, User> getLeaderboard() {
+        return leaderboard;
     }
 
     public boolean isClosed() {

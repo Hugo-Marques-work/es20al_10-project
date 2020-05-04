@@ -12,7 +12,6 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament
@@ -31,7 +30,8 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.CO
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.USER_NOT_FOUND
 
 @DataJpaTest
-class GetUserFinishedTournamentsSpockTest extends Specification {
+class GetTournamentLeaderboardSpockTest extends Specification {
+
     public static final String COURSE_NAME = "Software Architecture"
     public static final String ACRONYM = "AS1"
     public static final String ACRONYM2 = "AS12"
@@ -40,8 +40,13 @@ class GetUserFinishedTournamentsSpockTest extends Specification {
     static final String TOPIC_NAME = "Risk Management"
     static final Integer NUMBER_QUESTIONS = 1
 
-    static final String tournamentName = "TESTNAME";
-    static final String tournamentName2 = "WILLNOTSHOWUP";
+    static final String TITLE = "TESTNAME";
+    static final String NAME1 = "TestName3";
+    static final String NAME2 = "TestName3";
+    static final String NAME3 = "TestName3";
+    static final String USERNAME1 = "TestUsername1";
+    static final String USERNAME2 = "TestUsername2";
+    static final String USERNAME3 = "TestUsername3";
 
     @Autowired
     UserRepository userRepository
@@ -67,7 +72,6 @@ class GetUserFinishedTournamentsSpockTest extends Specification {
     Course course
     CourseExecution courseExecution
     CourseExecution otherCourseExecution
-    User student
     Set<User> studentSet
     TopicDto topicDto
 
@@ -81,24 +85,46 @@ class GetUserFinishedTournamentsSpockTest extends Specification {
     @Shared
     LocalDateTime FINISHED_CONCLUSION_DATE
 
-    def createValidTournamentDto(String startDate) {
-        def tournamentDto = new TournamentDto()
-        tournamentDto.setTitle(tournamentName2)
-        tournamentDto.setStartingDate(startDate)
-        tournamentDto.setConclusionDate(CONCLUSION_DATE)
-        tournamentDto.setNumberOfQuestions(NUMBER_QUESTIONS)
-        tournamentDto.addTopic(topicDto)
-        return tournamentService.createTournament(student.getId(), courseExecution.getId(), tournamentDto)
+    def createValidTournament() {
+        def tournament = new Tournament(student, TITLE,  LocalDateTime.now().plusDays(1),
+                LocalDateTime.now().plusDays(2), NUMBER_QUESTIONS)
+        tournament.setCourseExecution(courseExecution)
+        tournamentRepository.save(tournament);
+        return tournament;
     }
 
-    def createValidClosedTournament(title) {
-        def tournament = new Tournament(student, title,  LocalDateTime.now().plusDays(1),
-                LocalDateTime.now().plusDays(2), NUMBER_QUESTIONS)
-        tournamentRepository.save(tournament);
-        tournament.setStartingDate( FINISHED_START_DATE)
-        tournament.setConclusionDate( FINISHED_CONCLUSION_DATE)
-        tournament.getValidatedStatus()
-        return tournament;
+    def finishTournaments(tournamentSet, studentSet) {
+        for(Tournament tournament : tournamentSet) {
+            tournament.setStartingDate(FINISHED_START_DATE)
+            tournament.setConclusionDate(FINISHED_CONCLUSION_DATE)
+            tournament.setSignedUpUsers(studentSet)
+            tournament.getValidatedStatus()
+        }
+    }
+
+    def setupUsers() {
+        def student1 = new User(NAME1, USERNAME1, 1, User.Role.STUDENT)
+        userRepository.save(student1)
+        userService.addCourseExecution(student1.getUsername(),courseExecution.getId());
+
+        def student2 = new User(NAME2, USERNAME2, 1, User.Role.STUDENT)
+        userRepository.save(student2)
+        userService.addCourseExecution(student2.getUsername(),courseExecution.getId());
+
+        def student3 = new User(NAME3, USERNAME3, 1, User.Role.STUDENT)
+        userRepository.save(student3)
+        userService.addCourseExecution(student3.getUsername(),courseExecution.getId());
+
+        studentSet = new HashSet<User>()
+        studentSet.add(student1)
+        studentSet.add(student2)
+        studentSet.add(student3)
+    }
+
+    def studentSetSignedTournaments(tournamentSet) {
+        for(User student : studentSet) {
+            student.setSignUpTournaments(tournamentSet)
+        }
     }
 
     def setup() {
@@ -111,12 +137,7 @@ class GetUserFinishedTournamentsSpockTest extends Specification {
         otherCourseExecution = new CourseExecution(course, ACRONYM2, ACADEMIC_TERM, Course.Type.TECNICO)
         courseExecutionRepository.save(courseExecution)
 
-        student = new User("Joao", "joao", 1, User.Role.STUDENT)
-        userRepository.save(student)
-        userService.addCourseExecution(student.getUsername(),courseExecution.getId());
-
-        studentSet = new HashSet<User>()
-        studentSet.add(student)
+        setupUsers()
 
         topicDto = new TopicDto()
         topicDto.setName(TOPIC_NAME)
@@ -130,43 +151,38 @@ class GetUserFinishedTournamentsSpockTest extends Specification {
         FINISHED_CONCLUSION_DATE = LocalDateTime.now().minusDays(9)
     }
 
-    def "2 open tournaments, 3 finished ones"() {
-        given: "a valid tournament dto"
-        createValidTournamentDto(START_DATE)
 
-        and: " a valid tournament that the user is signed up for"
-        def validTournament2 = createValidTournamentDto(START_DATE)
-        tournamentService.signUp(student.getId(), validTournament2.getId());
-
-        and: "a tournament dto that has finished that the user participated in"
-        def validFinishedTournament = createValidClosedTournament(tournamentName);
+    def "Leaderboard OK after quizz generation"() {
         def tournamentSet = new HashSet<Tournament>()
-        tournamentSet.add(validFinishedTournament)
-
-        validFinishedTournament.setCourseExecution(courseExecution);
-        student.setSignUpTournaments(tournamentSet)
-        validFinishedTournament.setSignedUpUsers(studentSet);
-
-        and: "a tournament dto that has finished that the user participated in with another courseExecution"
-        def validFinishedTournament2 = createValidClosedTournament(tournamentName2);
-        tournamentSet.add(validFinishedTournament2)
-
-        validFinishedTournament2.setCourseExecution(otherCourseExecution);
-
-        student.setSignUpTournaments(tournamentSet)
-        validFinishedTournament2.setSignedUpUsers(studentSet);
-
-        and: "a tournament dto that has finished that the user did not participate in"
-        createValidClosedTournament(tournamentName2);
+        given: "a valid tournament dto"
+        def tournament = createValidTournament()
+        tournamentSet.add(tournament)
+        and: "students that have signed up for it"
+        studentSetSignedTournaments(tournamentSet);
 
         when:
-        def result = tournamentService.getClosedTournaments(student.getId(), courseExecution.getId());
+        finishTournaments(tournamentSet,studentSet);
+        def result = tournamentService.getClosedTournaments(studentSet[0].getId(), courseExecution.getId());
 
         then: "the returned data is correct"
         result.size() == 1
         def firstTournament = result[0]
-        firstTournament.getId() == validFinishedTournament.getId()
-        firstTournament.title == validFinishedTournament.getTitle()
+        firstTournament.getLeaderboard().size() == studentSet.size()
+        firstTournament.getLeaderboard().get(new UserDto(studentSet[0]))
+        //wrong
+    }
+
+    def "Leaderboard OK after answers"() {
+        expect:
+        true
+    }
+
+    def "invalid tournament id"() {
+        expect:
+        true
+    }
+
+    def "2 open tournaments, 3 finished ones"() {
     }
 
     def "invalid user id"() {
