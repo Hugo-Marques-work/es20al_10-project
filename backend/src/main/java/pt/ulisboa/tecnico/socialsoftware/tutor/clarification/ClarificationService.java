@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.clarification;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -68,6 +69,7 @@ public class ClarificationService {
     public ClarificationAnswerDto createClarificationAnswer(Clarification clarification, User user, String content){
         checkClarification(clarification);
         checkUser(user, null);
+        checkLastUserToAnswer(clarification, user);
         checkContent(content, ErrorMessage.CLARIFICATION_ANSWER_IS_EMPTY);
 
         ClarificationAnswer clarificationAnswer = new ClarificationAnswer(content, clarification, user);
@@ -185,6 +187,12 @@ public class ClarificationService {
         Clarification clr = clarificationRepository.findById(clarification.getId()).orElse(null);
         if (clr == null)
             throw new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarification.getId());
+    }
+
+    private void checkLastUserToAnswer(Clarification clarification, User user) {
+        if (!clarification.getClarificationAnswers().isEmpty() &&
+                Iterables.getLast(clarification.getClarificationAnswers()).getUser().getId() == user.getId())
+            throw new TutorException(CLARIFICATION_SAME_USER);
     }
 
     private void checkQuestion(Question question) {
