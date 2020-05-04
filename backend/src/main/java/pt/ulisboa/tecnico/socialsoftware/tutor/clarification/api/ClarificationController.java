@@ -49,6 +49,24 @@ public class ClarificationController {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping("/clarifications/{clarificationId}/teacher/available")
+    @PreAuthorize("hasRole('ROLE_TEACHER') and hasPermission(#clarificationId, 'CLARIFICATION.ACCESS')")
+    public ClarificationDto makeClarificationAvailableTeacher(@PathVariable int clarificationId) {
+        return clarificationService.makeClarificationAvailableByTeacher(clarificationId);
+    }
+
+    @PutMapping("/clarifications/{clarificationId}/student/available")
+    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#clarificationId, 'CLARIFICATION.ACCESS')")
+    public ClarificationDto makeClarificationAvailableStudent(@PathVariable int clarificationId,
+                                                            @RequestBody boolean available,
+                                                            Principal principal) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        if(user == null){
+            throw new TutorException(AUTHENTICATION_ERROR);
+        }
+        return clarificationService.setClarificationAvailabilityByStudent(clarificationId, available, user.getId());
+    }
+
     @PutMapping("/clarifications/{clarificationId}")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('DEMO_ADMIN') or hasPermission(#clarificationId, 'CLARIFICATION.ACCESS')")
     public ClarificationDto updateClarification(@PathVariable int clarificationId, @RequestBody String content) {

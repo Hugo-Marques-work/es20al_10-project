@@ -144,6 +144,27 @@ public class ClarificationService {
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public ClarificationDto makeClarificationAvailableByTeacher(int clarificationId) {
+        Clarification clarification = clarificationRepository.findById(clarificationId)
+                .orElseThrow(() -> new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationId));
+
+        clarification.makeAvailableTeacher();
+        return new ClarificationDto(clarification);
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public ClarificationDto setClarificationAvailabilityByStudent(int clarificationId, boolean available, int userId) {
+        Clarification clarification = clarificationRepository.findById(clarificationId)
+                .orElseThrow(() -> new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationId));
+
+        if (clarification.getUser().getId() != userId)
+            throw new TutorException(CLARIFICATION_WRONG_USER);
+
+        clarification.setAvailabilityStudent(available);
+        return new ClarificationDto(clarification);
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void removeClarification(int clarificationId) {
         Clarification clarification = clarificationRepository.findById(clarificationId)
                 .orElseThrow(() -> new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationId));

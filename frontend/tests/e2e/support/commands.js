@@ -39,6 +39,14 @@ Cypress.Commands.add('createClarificationAnswer', (title, message) => {
   }
   cy.get('[data-cy="sendClarificationAnswerButton"]').click();
 });
+
+Cypress.Commands.add('makeClarificationAvailable', (title) => {
+  cy.contains(title)
+    .parent()
+    .should('have.length', 1)
+    .find('[data-cy="makeClarificationVisible"]')
+    .click();
+});
 /* ----------------------- */
 /* Student Commands */
 

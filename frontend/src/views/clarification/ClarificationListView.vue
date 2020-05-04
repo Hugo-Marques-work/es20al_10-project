@@ -102,6 +102,22 @@
           </template>
           <span>View Clarification</span>
         </v-tooltip>
+        <v-tooltip bottom>
+          <template
+            v-slot:activator="{ on }"
+            v-if="isTeacher && !item.availableByTeacher"
+          >
+            <v-icon
+              small
+              class="mr-2"
+              v-on="on"
+              @click="makeClarificationVisible(item)"
+              data-cy="makeClarificationVisible"
+              >mdi-share-variant</v-icon
+            >
+          </template>
+          <span>Make Clarification Visible</span>
+        </v-tooltip>
       </template>
     </v-data-table>
 
@@ -229,6 +245,28 @@ export default class ClarificationListView extends Vue {
       );
       this.questionDialog = true;
       this.currentQuestion = question;
+    } catch (error) {
+      await this.$store.dispatch('error', error);
+    }
+  }
+
+  async makeClarificationVisible(clarification: Clarification) {
+    try {
+      if (this.$store.getters.isTeacher) {
+        await RemoteServices.makeClarificationAvailableByTeacher(clarification);
+        await this.$store.dispatch(
+          'confirmation',
+          'Clarification is now available in anonymity'
+        );
+        this.refresh();
+      } else if (this.$store.getters.isStudent) {
+        await RemoteServices.makeClarificationAvailableByStudent(clarification);
+        await this.$store.dispatch(
+          'confirmation',
+          'Clarification is now available'
+        );
+        this.refresh();
+      }
     } catch (error) {
       await this.$store.dispatch('error', error);
     }
