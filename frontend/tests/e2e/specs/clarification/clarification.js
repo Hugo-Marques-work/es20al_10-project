@@ -62,11 +62,11 @@ describe('Clarifications creating, answering and viewing', () => {
     cy.createClarificationAnswer(clarificationTitle, clarificationAnswer);
     cy.closeErrorMessage();
   });
-  
-  
+
   it('login, teacher makes clarification available', () => {
     cy.demoTeacherLogin();
     cy.clarificationList();
     cy.makeClarificationAvailable(clarificationTitle);
     cy.closeSuccessMessage('Clarification is now available in anonymity');
+  });
 });
