@@ -51,22 +51,20 @@ public class ClarificationController {
 
     @PutMapping("/clarifications/{clarificationId}/teacher/available")
     @PreAuthorize("hasRole('ROLE_TEACHER') and hasPermission(#clarificationId, 'CLARIFICATION.ACCESS')")
-    public ResponseEntity makeClarificationAvailableTeacher(@PathVariable int clarificationId) {
-        clarificationService.makeClarificationAvailableByTeacher(clarificationId);
-        return ResponseEntity.ok().build();
+    public ClarificationDto makeClarificationAvailableTeacher(@PathVariable int clarificationId) {
+        return clarificationService.makeClarificationAvailableByTeacher(clarificationId);
     }
 
     @PutMapping("/clarifications/{clarificationId}/student/available")
     @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#clarificationId, 'CLARIFICATION.ACCESS')")
-    public ResponseEntity makeClarificationAvailableStudent(@PathVariable int clarificationId,
+    public ClarificationDto makeClarificationAvailableStudent(@PathVariable int clarificationId,
                                                             @RequestBody boolean available,
                                                             Principal principal) {
         User user = (User) ((Authentication) principal).getPrincipal();
         if(user == null){
             throw new TutorException(AUTHENTICATION_ERROR);
         }
-        clarificationService.setClarificationAvailabilityByStudent(clarificationId, available, user.getId());
-        return ResponseEntity.ok().build();
+        return clarificationService.setClarificationAvailabilityByStudent(clarificationId, available, user.getId());
     }
 
     @PutMapping("/clarifications/{clarificationId}")

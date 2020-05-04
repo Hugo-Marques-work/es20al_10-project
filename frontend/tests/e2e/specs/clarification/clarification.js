@@ -47,4 +47,11 @@ describe('Clarifications creating, answering and viewing', () => {
     cy.checkClarificationAnswered(clarificationTitle, true);
     cy.checkForClarificationAnswer(clarificationTitle, clarificationAnswer);
   });
+
+  it('login, teacher makes clarification available', () => {
+    cy.demoTeacherLogin();
+    cy.clarificationList();
+    cy.makeClarificationAvailable(clarificationTitle);
+    cy.closeSuccessMessage('Clarification is now available in anonymity');
+  });
 });

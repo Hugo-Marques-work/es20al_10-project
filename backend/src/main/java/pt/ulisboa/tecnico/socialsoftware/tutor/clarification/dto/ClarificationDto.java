@@ -14,12 +14,18 @@ public class ClarificationDto implements Serializable {
     private UserDto user;
     private QuestionDto question;
     private boolean isAnswered;
+    private boolean isAvailableByTeacher;
+    private boolean isAvailableByStudent;
 
     public ClarificationDto() {}
 
     public ClarificationDto(Clarification clarification) {
         this.id = clarification.getId();
         this.isAnswered = clarification.isAnswered();
+        this.isAvailableByTeacher = (clarification.getAvailability() == Clarification.Availability.TEACHER ||
+                clarification.getAvailability() == Clarification.Availability.BOTH );
+        this.isAvailableByStudent = (clarification.getAvailability() == Clarification.Availability.STUDENT ||
+                clarification.getAvailability() == Clarification.Availability.BOTH );
 
         if (clarification.getContent() == null || clarification.getContent().isEmpty() || clarification.getContent().isBlank())
             throw new TutorException(ErrorMessage.CLARIFICATION_IS_EMPTY);
@@ -62,6 +68,22 @@ public class ClarificationDto implements Serializable {
     }
 
     public void setAnswered(boolean answered) { this.isAnswered = answered; }
+
+    public boolean isAvailableByTeacher() {
+        return isAvailableByTeacher;
+    }
+
+    public void setAvailableByTeacher(boolean availableByTeacher) {
+        isAvailableByTeacher = availableByTeacher;
+    }
+
+    public boolean isAvailableByStudent() {
+        return isAvailableByStudent;
+    }
+
+    public void setAvailableByStudent(boolean availableByStudent) {
+        isAvailableByStudent = availableByStudent;
+    }
 
     @Override
     public String toString() {

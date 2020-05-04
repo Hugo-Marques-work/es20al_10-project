@@ -584,6 +584,28 @@ export default class RemoteServices {
       });
   }
 
+  static async makeClarificationAvailableByTeacher(clarific: Clarification) {
+    return httpClient
+      .put(`/clarifications/${clarific.id}/teacher/available`)
+      .then(response => {
+        return new Clarification(response.data);
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static async makeClarificationAvailableByStudent(clarific: Clarification) {
+    return httpClient
+      .put(`/clarifications/${clarific.id}/student/available`)
+      .then(response => {
+        return new Clarification(response.data);
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
   static async getClarificationsByCurrentCourse(): Promise<Clarification[]> {
     return httpClient
       .get(`/course/${Store.getters.getCurrentCourse.courseId}/clarifications`)
