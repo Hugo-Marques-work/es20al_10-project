@@ -106,7 +106,7 @@
         <!-- enter tournament -->
         <v-tooltip v-if="enterTournamentConditions(item)" bottom>
           <template v-slot:activator="{ on }">
-            <v-icon small class="mr-2" v-on="on">fas fa-sign-in-alt</v-icon>
+            <v-icon small class="mr-2" v-on="on" @click="solveQuiz(item)" data-cy="enter">fas fa-sign-in-alt</v-icon>
           </template>
           <span>Enter Tournament</span>
         </v-tooltip>
@@ -149,6 +149,8 @@ import Topic from '@/models/management/Topic';
 import SignUpForTournamentDialog from '@/views/student/tournament/SignUpForTournamentDialog.vue';
 import CreateTournamentDialog from '@/views/student/tournament/CreateTournamentDialog.vue';
 import CancelTournamentDialog from '@/views/student/tournament/CancelTournamentDialog.vue';
+import StatementQuiz from "@/models/statement/StatementQuiz";
+import StatementManager from "@/models/statement/StatementManager";
 
 @Component({
   components: {
@@ -173,6 +175,7 @@ export default class TournamentsView extends Vue {
   requestStatus: string = 'open';
   activeFilters: { (tournament: Tournament): boolean }[] = [];
   statusSearch: string = this.statusSearchList[0];
+  quiz: StatementQuiz | null = null;
   headers: object = [
     {
       text: 'Tournament Title',
@@ -228,6 +231,26 @@ export default class TournamentsView extends Vue {
 
   onCloseCancelDialog() {
     this.currentTournamentToCancel = null;
+  }
+
+  async getQuiz(id: number) {
+    await this.$store.dispatch('loading');
+    try {
+      this.quiz = await RemoteServices.getAvailableQuiz(id);
+      console.log("hey");
+        console.log(this.quiz);
+
+    } catch (error) {
+      await this.$store.dispatch('error', error);
+    }
+    await this.$store.dispatch('clearLoading');
+  }
+
+  async solveQuiz(tournament: Tournament) {
+    await this.getQuiz(tournament.id);
+    let statementManager: StatementManager = StatementManager.getInstance;
+    statementManager.statementQuiz = this.quiz;
+    await this.$router.push({ name: 'solve-tournament-quiz' });
   }
 
   getTopicNames(topicItems: any): String {
