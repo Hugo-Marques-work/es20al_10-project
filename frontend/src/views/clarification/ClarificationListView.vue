@@ -220,16 +220,13 @@ export default class ClarificationListView extends Vue {
     await this.$store.dispatch('clearLoading');
   }
 
-  @Watch('refreshAnswered')
   async updateAnsweredStatus() {
     console.log('update');
     await this.$store.dispatch('loading');
     try {
-      if (this.$store.getters.isTeacher || this.$store.getters.isAdmin) {
-        this.clarifications = (
-          await RemoteServices.getClarificationsByCurrentCourse()
-        ).reverse();
-      }
+      this.clarifications = (
+        await RemoteServices.getClarificationsByCurrentCourse()
+      ).reverse();
     } catch (error) {
       await this.$store.dispatch('error', error);
     }

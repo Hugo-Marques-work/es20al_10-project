@@ -67,7 +67,8 @@ public class ClarificationService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public ClarificationAnswerDto createClarificationAnswer(Clarification clarification, User user, String content){
         checkClarification(clarification);
-        checkUser(user, User.Role.TEACHER);
+        checkUser(user, null);
+        checkLastUserToAnswer(clarification, user);
         checkContent(content, ErrorMessage.CLARIFICATION_ANSWER_IS_EMPTY);
 
         ClarificationAnswer clarificationAnswer = new ClarificationAnswer(content, clarification, user);
@@ -208,6 +209,14 @@ public class ClarificationService {
             throw new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarification.getId());
     }
 
+    private void checkLastUserToAnswer(Clarification clarification, User user) {
+        Clarification clr = clarificationRepository.findById(clarification.getId()).orElse(null);
+        if (clr != null &&
+                (!clr.getClarificationAnswers().isEmpty() && getLastClarificationAnswer(clr).getUser().getId() == user.getId()
+                || clr.getClarificationAnswers().isEmpty() && clr.getUser().getId() == user.getId()))
+            throw new TutorException(CLARIFICATION_SAME_USER);
+    }
+
     private void checkQuestion(Question question) {
         if (question == null)
             throw new TutorException(QUESTION_NOT_FOUND);
@@ -222,7 +231,7 @@ public class ClarificationService {
             throw new TutorException(ErrorMessage.USER_NOT_FOUND, null);
 
         User usr = userRepository.findById(user.getId()).orElseThrow(() -> new TutorException(ErrorMessage.USER_NOT_FOUND, user.getId()));
-        if (usr.getRole() != role)
+        if (role != null && usr.getRole() != role)
             throw new TutorException(ErrorMessage.CLARIFICATION_WRONG_USER, role.toString());
     }
 
@@ -237,5 +246,17 @@ public class ClarificationService {
                 .sorted(Comparator
                         .comparing(ClarificationDto::getId))
                 .collect(Collectors.toList());
+    }
+
+    private ClarificationAnswer getLastClarificationAnswer(Clarification clarification) {
+        ClarificationAnswer last = null;
+        for (ClarificationAnswer clr: clarification.getClarificationAnswers()) {
+            if (last == null)
+                last = clr;
+            else if (clr.getId() > last.getId())
+                last = clr;
+        }
+
+        return last;
     }
 }

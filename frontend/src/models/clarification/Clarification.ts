@@ -6,7 +6,7 @@ export default class Clarification {
   content: string = '';
   user!: User;
   question!: Question;
-  answered: Boolean = false;
+  answered: boolean = false;
   availableByStudent: Boolean = false;
   availableByTeacher: Boolean = false;
 

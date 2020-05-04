@@ -57,8 +57,8 @@
         <stringProp name="checkQuery"></stringProp>
         <stringProp name="dbUrl">jdbc:postgresql://localhost:5432/tutordb</stringProp>
         <stringProp name="driver">org.postgresql.Driver</stringProp>
-        <stringProp name="username">galmeida</stringProp>
-        <stringProp name="password">gabiru99</stringProp>
+        <stringProp name="username">ars</stringProp>
+        <stringProp name="password"></stringProp>
         <stringProp name="connectionProperties"></stringProp>
       </JDBCDataSource>
       <hashTree/>
@@ -249,7 +249,7 @@ insert into clarifications values(${id}, ${content}, false, ${questionId}, ${use
             </JSONPathAssertion>
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert question id" enabled="true">
-              <stringProp name="JSON_PATH">$[0].questionId</stringProp>
+              <stringProp name="JSON_PATH">$[0].question.id</stringProp>
               <stringProp name="EXPECTED_VALUE">${questionId}</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
