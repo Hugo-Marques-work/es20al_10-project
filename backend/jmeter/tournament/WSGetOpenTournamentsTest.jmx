@@ -68,6 +68,16 @@
             <stringProp name="Argument.value">676</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
+          <elementProp name="startingDateISO" elementType="Argument">
+            <stringProp name="Argument.name">startingDateISO</stringProp>
+            <stringProp name="Argument.value">${__timeShift(yyyy-MM-dd&apos;T&apos;HH:mm:00&apos;Z&apos;,,P1D,,)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="conclusionDateISO" elementType="Argument">
+            <stringProp name="Argument.name">conclusionDateISO</stringProp>
+            <stringProp name="Argument.value">${__timeShift(yyyy-MM-dd&apos;T&apos;HH:mm:00&apos;Z&apos;,,P3D,,)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
         </collectionProp>
       </Arguments>
       <hashTree/>
@@ -235,7 +245,7 @@ VALUES (
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert startingDate" enabled="true">
               <stringProp name="JSON_PATH">$[0].startingDate</stringProp>
-              <stringProp name="EXPECTED_VALUE">${startingDate}</stringProp>
+              <stringProp name="EXPECTED_VALUE">${startingDateISO}</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
               <boolProp name="INVERT">false</boolProp>
@@ -253,7 +263,7 @@ VALUES (
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert conclusionDate" enabled="true">
               <stringProp name="JSON_PATH">$[0].conclusionDate</stringProp>
-              <stringProp name="EXPECTED_VALUE">${conclusionDate}</stringProp>
+              <stringProp name="EXPECTED_VALUE">${conclusionDateISO}</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
               <boolProp name="INVERT">false</boolProp>

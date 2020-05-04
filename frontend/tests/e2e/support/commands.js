@@ -148,7 +148,7 @@ Cypress.Commands.add('cancelTournament', name => {
     .parent()
     .should('have.length', 1)
     .children()
-    .should('have.length', 7)
+    .should('have.length', 6)
     .find('[data-cy="cancel"]')
     .click();
 
@@ -160,16 +160,11 @@ Cypress.Commands.add('signUpForTournament', name => {
     .parent()
     .should('have.length', 1)
     .children()
-    .should('have.length', 7)
+    .should('have.length', 6)
     .find('[data-cy="signUp"]')
     .click();
 
   cy.get('[data-cy="executeSignUpButton"]').click();
-});
-
-Cypress.Commands.add('seeSignedUpTournaments', () => {
-  cy.get('[data-cy="filter"]').click();
-  cy.contains('Signed Up Tournaments').click();
 });
 
 Cypress.Commands.add('seeRunningTournaments', () => {

@@ -4,13 +4,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicRepository;
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService;
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz;
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.dto.QuizDto;
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository;
@@ -18,6 +25,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +46,15 @@ public class TournamentService {
 
     @Autowired
     private TopicRepository topicRepository;
+
+    @Autowired
+    private QuizRepository quizRepository;
+
+    @Autowired
+    private QuizService quizService;
+
+    @Autowired
+    private QuestionRepository questionRepository;
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public TournamentDto createTournament(int creatorId, int executionId, TournamentDto tournamentDto) {
@@ -60,13 +77,39 @@ public class TournamentService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public List<TournamentDto> getOpenTournaments(int courseExecutionId) {
         CourseExecution courseExecution = getCourseExecution(courseExecutionId);
+        Set<Tournament> tournaments = getUpdatedTournaments(courseExecution);
 
-        return courseExecution.getTournaments().stream()
+        return tournaments.stream()
                 .map(tournament -> new TournamentDto(tournament, true))
                 .filter(TournamentDto::isOpen)
                 .sorted(Comparator
                         .comparing(TournamentDto::getStartingDateDate))
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public List<TournamentDto> getRunningTournaments(int courseExecutionId) {
+        CourseExecution courseExecution = getCourseExecution(courseExecutionId);
+        Set<Tournament> tournaments = getUpdatedTournaments(courseExecution);
+
+        for (Tournament tournament : tournaments) {
+            generateQuiz(tournament);
+        }
+
+        return tournaments.stream()
+                .filter(t -> t.getStatus() == Tournament.Status.RUNNING)
+                .map(t -> new TournamentDto(t, true))
+                .sorted(Comparator
+                .comparing(TournamentDto::getConclusionDate))
+                .collect(Collectors.toList());
+    }
+
+    private Set<Tournament> getUpdatedTournaments(CourseExecution courseExecution) {
+        Set<Tournament> tournaments = courseExecution.getTournaments();
+        for (Tournament tournament : tournaments) {
+            tournament.updateStatus();
+        }
+        return tournaments;
     }
 
     private User getUser(int userId) {
@@ -102,6 +145,53 @@ public class TournamentService {
             throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "Sign up list is not empty"
                     + tournamentDto.getSignedUpUsers());
         }
+    }
+
+    private void generateQuiz(Tournament tournament) {
+        // check if quiz was already generated
+        if (!tournament.needsQuiz()) {
+            return;
+        }
+
+        CourseExecution courseExecution = tournament.getCourseExecution();
+
+        Quiz quiz = new Quiz();
+        quiz.setKey(quizService.getMaxQuizKey() + 1);
+        quiz.setType(Quiz.QuizType.GENERATED.toString());
+        quiz.setCreationDate(DateHandler.now());
+//        quiz.setConclusionDate(tournament.getConclusionDate());
+        quiz.setTitle("Tournament - " + tournament.getTitle());
+
+        List<Question> availableQuestions = questionRepository.findAvailableQuestions(courseExecution.getCourse().getId());
+        availableQuestions = filterByTopics(availableQuestions, tournament.getTopics());
+
+        if (availableQuestions.size() < tournament.getNumberOfQuestions()) {
+            throw new TutorException(NOT_ENOUGH_QUESTIONS);
+        }
+
+        Collections.shuffle(availableQuestions);
+        availableQuestions = availableQuestions.subList(0, tournament.getNumberOfQuestions());
+
+        quiz.generate(availableQuestions);
+
+        //TODO: this will happen once the user picks the quiz
+//        QuizAnswer quizAnswer = new QuizAnswer(user, quiz);
+
+        quiz.setCourseExecution(courseExecution);
+//        courseExecution.addQuiz(quiz);
+
+        quizRepository.save(quiz);
+        tournament.setQuiz(quiz);
+        //TODO: Same as above
+//        quizAnswerRepository.save(quizAnswer);
+    }
+
+    public List<Question> filterByTopics(List<Question> availableQuestions, Set<Topic> topics) {
+        return availableQuestions.stream()
+                .filter(question ->
+                    question.getTopics().stream().anyMatch(topics::contains)
+                )
+                .collect(Collectors.toList());
     }
 
     @Transactional

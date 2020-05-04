@@ -77,7 +77,7 @@ public enum ErrorMessage {
     AUTHENTICATION_ERROR("Authentication Error"),
     FENIX_CONFIGURATION_ERROR("Incorrect server configuration files for fenix"),
 
-    TOURNAMENT_NOT_CONSISTENT("Field %s of tournament is not consistent"),
+    TOURNAMENT_NOT_CONSISTENT("Field %s"),
     TOURNAMENT_NOT_FOUND("Tournament not found with id %s"),
     TOURNAMENT_SIGN_UP_OVER("Tournament sign up was over at %s"),
     TOURNAMENT_SIGN_UP_CANCELED("The tournament with id %s has been canceled"),

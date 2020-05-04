@@ -4,8 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import pt.ulisboa.tecnico.socialsoftware.tutor.answer.AnswerService
+import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.AnswersXmlImport
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository
@@ -13,7 +18,6 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
 import spock.lang.Specification
 
-import java.time.LocalDateTime
 @DataJpaTest
 class SignUpForTournamentSpockPerformanceTest extends Specification{
     @Autowired
@@ -24,6 +28,14 @@ class SignUpForTournamentSpockPerformanceTest extends Specification{
     CourseExecutionRepository courseExecutionRepository
     @Autowired
     UserRepository userRepository
+    @Autowired
+    QuizService quizService
+    @Autowired
+    AnswerService answerService
+    @Autowired
+    AnswersXmlImport answersXmlImport
+    @Autowired
+    QuestionService questionService
 
     User creator
     User user
@@ -47,7 +59,7 @@ class SignUpForTournamentSpockPerformanceTest extends Specification{
         given: "a number of loops"
         def loopTimes = 1
         and: "x tournaments"
-        def currentDate = LocalDateTime.now()
+        def currentDate = DateHandler.now()
         1.upto(loopTimes, {
             def tournament = new Tournament(creator, "TEST",  currentDate.plusDays(1), currentDate.plusDays(2), 10)
             tournament.setId(it)
@@ -70,6 +82,26 @@ class SignUpForTournamentSpockPerformanceTest extends Specification{
         @Bean
         TournamentService tournamentService() {
             return new TournamentService()
+        }
+
+        @Bean
+        QuizService quizService() {
+            return new QuizService()
+        }
+
+        @Bean
+        AnswerService answerService() {
+            return new AnswerService()
+        }
+
+        @Bean
+        AnswersXmlImport answersXmlImport() {
+            return new AnswersXmlImport()
+        }
+
+        @Bean
+        QuestionService questionService() {
+            return new QuestionService()
         }
     }
 }
