@@ -7,8 +7,8 @@ export default class Clarification {
   user!: User;
   question!: Question;
   answered: boolean = false;
-  availableByStudent: Boolean = false;
-  availableByTeacher: Boolean = false;
+  availableByStudent: boolean = false;
+  availableByTeacher: boolean = false;
 
   constructor(jsonObj?: Clarification) {
     if (jsonObj) {
