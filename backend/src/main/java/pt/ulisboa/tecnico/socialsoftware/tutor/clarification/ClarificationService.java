@@ -190,8 +190,10 @@ public class ClarificationService {
     }
 
     private void checkLastUserToAnswer(Clarification clarification, User user) {
-        if (!clarification.getClarificationAnswers().isEmpty() &&
-                Iterables.getLast(clarification.getClarificationAnswers()).getUser().getId() == user.getId())
+        Clarification clr = clarificationRepository.findById(clarification.getId()).orElse(null);
+        if (clr != null &&
+                (!clr.getClarificationAnswers().isEmpty() && clr.getClarificationAnswers().get(0).getUser().getId() == user.getId()
+                || clr.getClarificationAnswers().isEmpty() && clr.getUser().getId() == user.getId()))
             throw new TutorException(CLARIFICATION_SAME_USER);
     }
 
