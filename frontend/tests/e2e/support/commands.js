@@ -167,6 +167,22 @@ Cypress.Commands.add('signUpForTournament', name => {
   cy.get('[data-cy="executeSignUpButton"]').click();
 });
 
+Cypress.Commands.add('enterTournament', name => {
+  cy.contains(name)
+      .parent()
+      .should('have.length', 1)
+      .children()
+      .should('have.length', 6)
+      .find('[data-cy="enter"]')
+      .click();
+
+});
+
+Cypress.Commands.add('seeSignedUpTournaments', () => {
+  cy.get('[data-cy="filter"]').click();
+  cy.contains('Signed Up Tournaments').click();
+});
+
 Cypress.Commands.add('seeRunningTournaments', () => {
   cy.get('[data-cy="filter"]').click();
   cy.contains('Running Tournaments').click();
