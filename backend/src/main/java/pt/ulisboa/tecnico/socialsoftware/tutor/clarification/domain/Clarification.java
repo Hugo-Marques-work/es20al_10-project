@@ -76,7 +76,7 @@ public class Clarification {
     public void addClarificationAnswer(ClarificationAnswer clarificationAnswer) {
         if (!isAnswered && clarificationAnswer.getUser().getId() != this.user.getId()) isAnswered = true;
         else if (isAnswered && clarificationAnswer.getUser().getId() == this.user.getId()) isAnswered = false;
-        this.clarificationAnswers.add(clarificationAnswer);
+        this.clarificationAnswers.add(0, clarificationAnswer);
     }
 
     public void remove() {

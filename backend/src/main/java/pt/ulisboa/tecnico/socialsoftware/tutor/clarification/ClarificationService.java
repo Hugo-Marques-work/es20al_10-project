@@ -192,7 +192,7 @@ public class ClarificationService {
     private void checkLastUserToAnswer(Clarification clarification, User user) {
         Clarification clr = clarificationRepository.findById(clarification.getId()).orElse(null);
         if (clr != null &&
-                (!clr.getClarificationAnswers().isEmpty() && clr.getClarificationAnswers().get(0).getUser().getId() == user.getId()
+                (!clr.getClarificationAnswers().isEmpty() && getLastClarificationAnswer(clr).getUser().getId() == user.getId()
                 || clr.getClarificationAnswers().isEmpty() && clr.getUser().getId() == user.getId()))
             throw new TutorException(CLARIFICATION_SAME_USER);
     }
@@ -226,5 +226,17 @@ public class ClarificationService {
                 .sorted(Comparator
                         .comparing(ClarificationDto::getId))
                 .collect(Collectors.toList());
+    }
+
+    private ClarificationAnswer getLastClarificationAnswer(Clarification clarification) {
+        ClarificationAnswer last = null;
+        for (ClarificationAnswer clr: clarification.getClarificationAnswers()) {
+            if (last == null)
+                last = clr;
+            else if (clr.getId() > last.getId())
+                last = clr;
+        }
+
+        return last;
     }
 }
