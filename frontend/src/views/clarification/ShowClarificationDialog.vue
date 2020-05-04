@@ -6,12 +6,7 @@
     max-width="95%"
     content-class="ClarificationDialog"
   >
-    <v-card
-      v-bind:class="{
-        InformationCardTeacher: isTeacher,
-        InformationCardStudent: !isTeacher
-      }"
-    >
+    <v-card class="InformationCardTeacher">
       <v-card-title>
         <span class="headline">{{ clarification.question.title }}</span>
       </v-card-title>
@@ -23,12 +18,11 @@
       </v-card-text>
     </v-card>
 
-    <v-card class="WriteAnswerTeacher" v-if="isTeacher">
+    <v-card class="WriteAnswerTeacher">
       <v-card-text style="padding-bottom: 0">
         <div style="margin-top: -3pt">
           <v-textarea
             clearable
-            auto-grow
             rows="1"
             ref="input"
             placeholder="Answer clarification"
@@ -41,7 +35,7 @@
           </v-textarea>
         </div>
       </v-card-text>
-      <v-card-actions style="margin-top: -1pt">
+      <v-card-actions style="margin-top: -3pt">
         <v-spacer />
         <v-btn
           dark
@@ -56,16 +50,6 @@
           @click="sendClarificationAnswer"
           data-cy="sendClarificationAnswerButton"
           >send</v-btn
-        >
-      </v-card-actions>
-    </v-card>
-
-    <v-card class="WriteAnswerStudent" v-else>
-      <v-card-text style="padding-bottom: 6pt"> </v-card-text>
-      <v-card-actions style="margin-top: -1pt">
-        <v-spacer />
-        <v-btn dark color="secondary" @click="closeClarificationDialog"
-          >close</v-btn
         >
       </v-card-actions>
     </v-card>
@@ -155,8 +139,5 @@ export default class ShowClarificationDialog extends Vue {
 
 .WriteAnswerTeacher {
   height: 16% !important;
-}
-.WriteAnswerStudent {
-  height: 8% !important;
 }
 </style>
