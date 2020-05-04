@@ -280,7 +280,7 @@
             </JSONPathAssertion>
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert user key" enabled="true">
-              <stringProp name="JSON_PATH">$[0].userKey</stringProp>
+              <stringProp name="JSON_PATH">$[0].user.id</stringProp>
               <stringProp name="EXPECTED_VALUE">${teacherKey}</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
