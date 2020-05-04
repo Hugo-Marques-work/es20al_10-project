@@ -6,8 +6,9 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import javax.persistence.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.CLARIFICATION_IS_EMPTY;
 
@@ -33,7 +34,7 @@ public class Clarification {
     private Question question;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "clarification")
-    private Set<ClarificationAnswer> clarificationAnswers = new HashSet<>();
+    private List<ClarificationAnswer> clarificationAnswers = new ArrayList<>();
 
     public Clarification() {}
 
@@ -66,15 +67,16 @@ public class Clarification {
 
     public void setUser(User user) { this.user = user; }
 
-    public Set<ClarificationAnswer> getClarificationAnswers() { return clarificationAnswers; }
+    public List<ClarificationAnswer> getClarificationAnswers() { return clarificationAnswers; }
 
-    public void setClarificationAnswers(Set<ClarificationAnswer> clarificationAnswers) { this.clarificationAnswers = clarificationAnswers; }
+    public void setClarificationAnswers(List<ClarificationAnswer> clarificationAnswers) { this.clarificationAnswers = clarificationAnswers; }
 
     public void setIsAnswered(boolean status) { this.isAnswered = status; }
 
     public void addClarificationAnswer(ClarificationAnswer clarificationAnswer) {
-        if (!isAnswered) isAnswered = true;
-        this.clarificationAnswers.add(clarificationAnswer);
+        if (!isAnswered && clarificationAnswer.getUser().getId() != this.user.getId()) isAnswered = true;
+        else if (isAnswered && clarificationAnswer.getUser().getId() == this.user.getId()) isAnswered = false;
+        this.clarificationAnswers.add(0, clarificationAnswer);
     }
 
     public void remove() {
