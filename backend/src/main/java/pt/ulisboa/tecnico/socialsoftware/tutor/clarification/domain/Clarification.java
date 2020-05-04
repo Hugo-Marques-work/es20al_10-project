@@ -87,6 +87,8 @@ public class Clarification {
     }
 
     public void makeAvailableTeacher() {
+        if (this.availability == null)
+            this.availability = Availability.NONE;
         if (this.availability == Availability.NONE)
             this.availability = Availability.TEACHER;
         else if (this.availability == Availability.STUDENT)
@@ -94,6 +96,8 @@ public class Clarification {
     }
 
     public void setAvailabilityStudent(boolean available) {
+        if (this.availability == null)
+            this.availability = Availability.NONE;
         if (this.availability == Availability.NONE && available)
             this.availability = Availability.STUDENT;
         else if (this.availability == Availability.TEACHER && available)

@@ -63,7 +63,6 @@ class SetClarificationAvailabilityTest extends Specification {
         def clarification = new Clarification()
         clarification.setContent(CONTENT)
         clarification.setUser(student)
-        clarification.setAvailability(Clarification.Availability.NONE)
         clarificationRepository.save(clarification)
 
         when:
@@ -78,7 +77,6 @@ class SetClarificationAvailabilityTest extends Specification {
         def clarification = new Clarification()
         clarification.setContent(CONTENT)
         clarification.setUser(student)
-        clarification.setAvailability(Clarification.Availability.NONE)
         clarificationRepository.save(clarification)
 
         when:
@@ -93,7 +91,6 @@ class SetClarificationAvailabilityTest extends Specification {
         def clarification = new Clarification()
         clarification.setContent(CONTENT)
         clarification.setUser(student)
-        clarification.setAvailability(Clarification.Availability.NONE)
         clarificationRepository.save(clarification)
 
         when:
@@ -139,7 +136,6 @@ class SetClarificationAvailabilityTest extends Specification {
         def clarification = new Clarification()
         clarification.setContent(CONTENT)
         clarification.setUser(student)
-        clarification.setAvailability(Clarification.Availability.NONE)
         clarificationRepository.save(clarification)
 
         and: "a student that isn't the creator"
