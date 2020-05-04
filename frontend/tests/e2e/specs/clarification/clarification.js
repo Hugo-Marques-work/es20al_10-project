@@ -47,4 +47,19 @@ describe('Clarifications creating, answering and viewing', () => {
     cy.checkClarificationAnswered(clarificationTitle, true);
     cy.checkForClarificationAnswer(clarificationTitle, clarificationAnswer);
   });
+
+  it('login and asks for another clarification', () => {
+    cy.demoStudentLogin();
+    cy.clarificationList();
+    cy.createClarificationAnswer(clarificationTitle, clarificationAnswer);
+    cy.closeSuccessMessage('Answer sent');
+    cy.contains(clarificationAnswer);
+  });
+
+  it('login and asks for another clarification without waiting for an answer', () => {
+    cy.demoStudentLogin();
+    cy.clarificationList();
+    cy.createClarificationAnswer(clarificationTitle, clarificationAnswer);
+    cy.closeErrorMessage();
+  });
 });
