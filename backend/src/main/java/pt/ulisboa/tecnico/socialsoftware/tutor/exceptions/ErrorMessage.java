@@ -86,6 +86,8 @@ public enum ErrorMessage {
     TOURNAMENT_ALREADY_CANCELED("The tournament with id %s has already been canceled"),
     TOURNAMENT_RUNNING("The tournament with id %s is running so it can not be canceled"),
     TOURNAMENT_FINISHED("The tournament with id %s has been finished so it can not be canceled"),
+    TOURNAMENT_QUIZ_COMPLETED("The quiz of the tournament with id %s has finished"),
+    TOURNAMENT_QUIZ_NOT_GENERATED("The quiz of the tournament with id %s was not created"),
 
     ACCESS_DENIED("You do not have permission to view this resource"),
     CANNOT_OPEN_FILE("Cannot open file");

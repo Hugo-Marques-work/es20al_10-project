@@ -29,7 +29,7 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
         })
 public class Quiz implements DomainEntity {
     public enum QuizType {
-        EXAM, TEST, GENERATED, PROPOSED, IN_CLASS
+        EXAM, TEST, GENERATED, PROPOSED, IN_CLASS, TOURNAMENT
     }
 
     @Id
@@ -333,12 +333,16 @@ public class Quiz implements DomainEntity {
     }
 
     public void generate(List<Question> questions) {
-        IntStream.range(0,questions.size())
-                .forEach(index -> new QuizQuestion(this, questions.get(index), index));
+        assignQuestions(questions);
 
         setAvailableDate(DateHandler.now());
         setCreationDate(DateHandler.now());
         setType(QuizType.GENERATED.toString());
         setTitle("Generated Quiz");
+    }
+
+    public void assignQuestions(List<Question> questions) {
+        IntStream.range(0,questions.size())
+                .forEach(index -> new QuizQuestion(this, questions.get(index), index));
     }
 }
