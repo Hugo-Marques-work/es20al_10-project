@@ -25,9 +25,6 @@ describe('Tournament walkthrough', () => {
 
     cy.contains(name).should('not.exist');
 
-    cy.seeSignedUpTournaments();
-    cy.contains(name).should('not.exist');
-
     cy.seeRunningTournaments();
     cy.contains(name).should('not.exist');
 
@@ -35,15 +32,18 @@ describe('Tournament walkthrough', () => {
     cy.contains(name).should('not.exist');
   });
 
-  it('login creates a tournament, signs up and sees it on sign up tournaments', () => {
+  it('login creates a tournament, signs up and verifies that the action is not there anymore', () => {
     let name = Math.random().toString(36);
     cy.createTournament(name, 12, 13);
     cy.signUpForTournament(name);
 
-    cy.contains(name).should('not.exist');
-
-    cy.seeSignedUpTournaments();
-    cy.contains(name).should('exist');
+    // verify that can't sign up
+    cy.contains(name)
+      .parent()
+      .should('have.length', 1)
+      .children()
+      .find('[data-cy="signUp"]')
+      .should('not.exist');
 
     cy.seeRunningTournaments();
     cy.contains(name).should('not.exist');
@@ -117,10 +117,14 @@ describe('Tournament walkthrough', () => {
     cy.closeErrorMessage();
   });
 
-  it.only('create running tournament and participate in it', () => {
+  it('create running tournament and participate in it', () => {
     let name = Math.random().toString(36);
     cy.createTournament(name, 12, 13);
     cy.signUpForTournament(name);
+
+    let pguser = Cypress.env('db_username');
+    let pgpassword = Cypress.env('db_password');
+    let pgname = Cypress.env('db_name');
 
     let yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
@@ -136,13 +140,8 @@ describe('Tournament walkthrough', () => {
       yesterday.getMinutes();
     // Modify the database so that it is instantly running
     cy.exec(
-      'PGPASSWORD=david psql -d tutordb -U joao -h localhost -c ' +
-        '"UPDATE tournaments SET starting_date = \'' +
-        yesterdayString +
-        '\', number_of_questions = 5' +
-        ' WHERE title = \'' +
-        name +
-        '\';"'
+      `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
+        `"UPDATE tournaments SET starting_date = '${yesterdayString}', number_of_questions = 5 WHERE title = '${name}'"`
     );
 
     cy.seeRunningTournaments();

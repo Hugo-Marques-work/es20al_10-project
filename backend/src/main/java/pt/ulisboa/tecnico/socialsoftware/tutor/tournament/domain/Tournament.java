@@ -73,7 +73,8 @@ public class Tournament {
 
         this.status = Status.OPEN;
         if (nQuestions < 1) {
-            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " number of questions " + this.numberOfQuestions);
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " number of questions " + this.numberOfQuestions
+                    + " must be greater than 1");
         }
         this.numberOfQuestions = nQuestions;
 
@@ -97,7 +98,7 @@ public class Tournament {
 
     public void checkTitle(String title) {
         if (title == null || title.isEmpty() || title.isBlank()) {
-            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " title " + title);
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " title " + title + " can't be blank");
         }
         setTitle(title);
     }
@@ -118,7 +119,8 @@ public class Tournament {
         Set<Topic> validTopics = courseExecution.getCourse().getTopics();
 
         if (!validTopics.contains(topic)) {
-            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " topic" + topic);
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " topic" + topic
+                    + " is invalid for this course execution");
         }
         topics.add(topic);
     }
@@ -173,10 +175,12 @@ public class Tournament {
 
     void checkStartingDate(LocalDateTime startingDate) {
         if (startingDate == null || startingDate.isBefore(DateHandler.now())) {
-            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " starting date " + startingDate);
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " starting date " + startingDate
+                    + " must be set in the future");
         }
         if (this.conclusionDate != null && !conclusionDate.isAfter(startingDate)) {
-            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " starting date " + startingDate + conclusionDate);
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " starting date " + startingDate
+                    + " must be before conclusion date " + conclusionDate);
         }
         setStartingDate(startingDate);
     }
@@ -187,7 +191,7 @@ public class Tournament {
         }
         if (this.startingDate != null && !conclusionDate.isAfter(startingDate)) {
             throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " conclusion date " + conclusionDate
-                    + " and starting date "  + startingDate);
+                    + " must be after starting date "  + startingDate);
         }
         setConclusionDate(conclusionDate);
     }
@@ -228,21 +232,23 @@ public class Tournament {
         LocalDateTime currentTime = DateHandler.now();
         if(currentTime.isBefore(startingDate)) {
             setStatus(Status.OPEN);
-        }
-        else if(!currentTime.isBefore(startingDate) && currentTime.isBefore(conclusionDate)) {
+        } else if(!currentTime.isBefore(startingDate) && currentTime.isBefore(conclusionDate)) {
             if (!signedUpUsers.isEmpty()) {
                 setStatus(Status.RUNNING);
             } else {
                 setStatus(Status.CANCELED);
             }
-        }
-        else {
-            setStatus(Status.FINISHED);
+        } else {
+            if (!signedUpUsers.isEmpty()) {
+                setStatus(Status.FINISHED);
+            } else {
+                setStatus(Status.CANCELED);
+            }
         }
     }
 
-    public boolean hasQuiz() {
-        return this.quiz != null;
+    public boolean needsQuiz() {
+        return this.status == Status.RUNNING && this.quiz == null;
     }
 
     @Override

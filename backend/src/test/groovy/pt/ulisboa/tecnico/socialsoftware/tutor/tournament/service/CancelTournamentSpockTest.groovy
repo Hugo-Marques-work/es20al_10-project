@@ -113,7 +113,6 @@ class CancelTournamentSpockTest extends Specification{
         where:
         startingDate    | conclusionDate      | statusCanceled | validTournamentId || errorMessage
         GOOD_START_DATE | CONCLUSION_DATE     | true           | true              || TOURNAMENT_ALREADY_CANCELED
-        BAD_START_DATE2 | BAD_CONCLUSION_DATE | false          | true              || TOURNAMENT_FINISHED
         GOOD_START_DATE | CONCLUSION_DATE     | false          | false             || TOURNAMENT_NOT_FOUND
     }
 

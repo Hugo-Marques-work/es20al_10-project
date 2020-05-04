@@ -149,7 +149,7 @@ public class TournamentService {
 
     private void generateQuiz(Tournament tournament) {
         // check if quiz was already generated
-        if (!(tournament.getStatus() == Tournament.Status.RUNNING && !tournament.hasQuiz())) {
+        if (!tournament.needsQuiz()) {
             return;
         }
 
@@ -159,6 +159,7 @@ public class TournamentService {
         quiz.setKey(quizService.getMaxQuizKey() + 1);
         quiz.setType(Quiz.QuizType.GENERATED.toString());
         quiz.setCreationDate(DateHandler.now());
+//        quiz.setConclusionDate(tournament.getConclusionDate());
         quiz.setTitle("Tournament - " + tournament.getTitle());
 
         List<Question> availableQuestions = questionRepository.findAvailableQuestions(courseExecution.getCourse().getId());
@@ -177,7 +178,7 @@ public class TournamentService {
 //        QuizAnswer quizAnswer = new QuizAnswer(user, quiz);
 
         quiz.setCourseExecution(courseExecution);
-        courseExecution.addQuiz(quiz);
+//        courseExecution.addQuiz(quiz);
 
         quizRepository.save(quiz);
         tournament.setQuiz(quiz);
