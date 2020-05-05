@@ -69,4 +69,16 @@ describe('Clarifications creating, answering and viewing', () => {
     cy.makeClarificationAvailable(clarificationTitle);
     cy.closeSuccessMessage('Clarification is now available in anonymity');
   });
+
+  it('login, goes to dashboard and checks credited clarifications', () => {
+    cy.demoStudentLogin();
+    cy.clarificationDashboard();
+    cy.openCreditedClarifications();
+  });
+
+  it('login, goes to dashboard and checks clarification list', () => {
+    cy.demoStudentLogin();
+    cy.clarificationDashboard();
+    cy.openClarificationList();
+  });
 });
