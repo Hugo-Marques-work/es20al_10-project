@@ -129,18 +129,18 @@
             </v-list-item>
             <v-list-item to="/clarification/list">
               <v-list-item-action>
-                <v-icon>fas fa-list-alt</v-icon>
+                <v-icon>fas fa-lock</v-icon>
               </v-list-item-action>
               <v-list-item-content>
-                <v-list-item-title>List all</v-list-item-title>
+                <v-list-item-title>My Clarifications</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-list-item v-if="isStudent" to="/clarification/available">
               <v-list-item-action>
-                <v-icon>fas fa-lock-open</v-icon>
+                <v-icon>fas fa-list-alt</v-icon>
               </v-list-item-action>
               <v-list-item-content>
-                <v-list-item-title>Available</v-list-item-title>
+                <v-list-item-title>All Clarifications</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list>
@@ -336,27 +336,26 @@
 
           <v-list-item to="/clarification/dashboard" v-if="isStudent">
             <v-list-item-action>
-              <v-icon>list</v-icon>
+              <v-icon>fas fa-tachometer-alt</v-icon>
             </v-list-item-action>
             <v-list-item-content>
               <v-list-item-title>Dashboard</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-
           <v-list-item to="/clarification/list">
             <v-list-item-action>
-              <v-icon>list</v-icon>
+              <v-icon>fas fa-lock</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title>List all</v-list-item-title>
+              <v-list-item-title>My Clarifications</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
           <v-list-item v-if="isStudent" to="/clarification/available">
             <v-list-item-action>
-              <v-icon>fas fa-lock-open</v-icon>
+              <v-icon>fas fa-list-alt</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title>Available</v-list-item-title>
+              <v-list-item-title>All Clarifications</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list-group>
