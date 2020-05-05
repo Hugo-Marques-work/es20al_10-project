@@ -29,12 +29,11 @@ import spock.lang.Specification
 
 import java.time.LocalDateTime
 
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.COURSE_EXECUTION_NOT_FOUND
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_QUIZ_COMPLETED
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.TOURNAMENT_QUIZ_NOT_GENERATED
 
 @DataJpaTest
-class GetAvailableQuizSpockTest extends Specification {
+class GetStatementSpockTest extends Specification {
     public static final String COURSE_NAME = "Software Architecture"
     public static final String ACRONYM = "AS1"
     public static final String ACADEMIC_TERM = "1 SEM"
@@ -134,7 +133,7 @@ class GetAvailableQuizSpockTest extends Specification {
         tournament.addSignUp(student);
 
         when:
-        def result = tournamentService.getAvailableQuiz(student.id, tournament.getId())
+        def result = tournamentService.getStatement(student.id, tournament.getId())
         def res_title = "Tournament - " + tournament.title
         then: "the returned quiz is correct"
         result.availableDate == DateHandler.toISOString(STARTING_DATE)
@@ -150,7 +149,7 @@ class GetAvailableQuizSpockTest extends Specification {
         def tournament = createValidTournament()
 
         when:"quiz is requested"
-        tournamentService.getAvailableQuiz(student.id, tournament.getId())
+        tournamentService.getStatement(student.id, tournament.getId())
 
         then: "an exception is thrown"
         def error = thrown(TutorException)
@@ -164,9 +163,9 @@ class GetAvailableQuizSpockTest extends Specification {
         tournament.addSignUp(student);
 
         when:"quiz is completed"
-        tournamentService.getAvailableQuiz(student.id, tournament.getId())
+        tournamentService.getStatement(student.id, tournament.getId())
         student.getQuizAnswers().first().setCompleted(true);
-        tournamentService.getAvailableQuiz(student.id, tournament.getId())
+        tournamentService.getStatement(student.id, tournament.getId())
         then: "an exception is thrown"
         def error = thrown(TutorException)
         error.errorMessage == TOURNAMENT_QUIZ_COMPLETED

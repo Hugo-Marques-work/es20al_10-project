@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuizAnswer;
-import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
+import pt.ulisboa.tecnico.socialsoftware.tutor.answer.repository.QuizAnswerRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository;
@@ -19,22 +19,17 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepos
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz;
-import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.statement.dto.StatementQuizDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository;
-import pt.ulisboa.tecnico.socialsoftware.tutor.answer.repository.QuizAnswerRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
@@ -185,16 +180,11 @@ public class TournamentService {
         quiz.assignQuestions(availableQuestions);
         quiz.setType(Quiz.QuizType.TOURNAMENT.toString());
 
-        //TODO: this will happen once the user picks the quiz
-//        QuizAnswer quizAnswer = new QuizAnswer(user, quiz);
-
         quiz.setCourseExecution(courseExecution);
         courseExecution.addQuiz(quiz);
 
         quizRepository.save(quiz);
         tournament.setQuiz(quiz);
-        //TODO: Same as above
-//        quizAnswerRepository.save(quizAnswer);
     }
 
     public List<Question> filterByTopics(List<Question> availableQuestions, Set<Topic> topics) {
@@ -247,50 +237,34 @@ public class TournamentService {
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public StatementQuizDto getAvailableQuiz(Integer userId, int tournamentId) {
+    public StatementQuizDto getStatement(Integer userId, int tournamentId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, userId));
 
         Tournament tournament = getTournament(tournamentId);
         tournament.updateStatus();
-        if(tournament.getStatus().equals(Tournament.Status.OPEN)){
+        if(tournament.getStatus().equals(Tournament.Status.OPEN) || tournament.getStatus().equals(Tournament.Status.CANCELED)){
             throw new TutorException(TOURNAMENT_QUIZ_NOT_GENERATED, tournamentId);
         }
 
         generateQuiz(tournament);
         Quiz quiz = tournament.getQuiz();
 
-        if (quiz == null)
-            throw new TutorException(TOURNAMENT_QUIZ_NOT_GENERATED, tournamentId);
-
-        List<StatementQuizDto> completedQuiz = user.getQuizAnswers().stream()
-                .filter(quizAnswer -> quizAnswer.getQuiz().getId() == quiz.getId())
-                .filter(QuizAnswer::isCompleted)
-                .map(StatementQuizDto::new)
-                .collect(Collectors.toList());
-
-        List<StatementQuizDto> notCompletedQuiz = user.getQuizAnswers().stream()
-                .filter(quizAnswer -> quizAnswer.getQuiz().getId() == quiz.getId())
-                .filter(quizAnswer -> !quizAnswer.isCompleted())
-                .map(StatementQuizDto::new)
-                .collect(Collectors.toList());
-
+        Optional<QuizAnswer> quizAnswerOptional = user.getQuizAnswers().stream()
+                .filter(quizAnswer -> quizAnswer.getQuiz().getId().equals(quiz.getId()))
+                .findFirst();
 
         // create QuizAnswer for quiz
-
-        if (notCompletedQuiz.isEmpty() && completedQuiz.isEmpty() ) {
+        if (quizAnswerOptional.isEmpty()) {
             QuizAnswer quizAnswer = new QuizAnswer(user, quiz);
             quizAnswerRepository.save(quizAnswer);
             return new StatementQuizDto(quizAnswer);
         }
-        else if(notCompletedQuiz.size()==1 && completedQuiz.isEmpty() ){
-            return notCompletedQuiz.iterator().next();
-        }
-        else if(completedQuiz.size()==1 && notCompletedQuiz.isEmpty() ){
-            throw new TutorException(TOURNAMENT_QUIZ_COMPLETED, tournamentId);
-        }
-        else{
-            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "quiz");
-        }
 
+        QuizAnswer quizAnswer = quizAnswerOptional.get();
+        StatementQuizDto statement = new StatementQuizDto(quizAnswer);
+        if (quizAnswer.isCompleted()) {
+            throw new TutorException(TOURNAMENT_QUIZ_COMPLETED);
+        }
+        return statement;
     }
 }
