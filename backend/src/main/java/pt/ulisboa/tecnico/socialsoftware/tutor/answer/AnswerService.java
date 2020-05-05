@@ -152,6 +152,53 @@ public class AnswerService {
         }
     }
 
+    @Retryable(
+            value = { SQLException.class },
+            backoff = @Backoff(delay = 5000))
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public boolean submitTournamentAnswer(User user, Integer quizId, StatementAnswerDto answer) {
+        QuizAnswer quizAnswer = user.getQuizAnswers().stream()
+                .filter(qa -> qa.getQuiz().getId().equals(quizId))
+                .findFirst()
+                .orElseThrow(() -> new TutorException(QUIZ_NOT_FOUND, quizId));
+
+        QuestionAnswer questionAnswer = quizAnswer.getQuestionAnswers().stream()
+                .filter(qa -> qa.getSequence().equals(answer.getSequence()))
+                .findFirst()
+                .orElseThrow(() -> new TutorException(QUESTION_ANSWER_NOT_FOUND, answer.getSequence()));
+
+        if (isNotAssignedStudent(user, quizAnswer)) {
+            throw new TutorException(QUIZ_USER_MISMATCH, String.valueOf(quizAnswer.getQuiz().getId()), user.getUsername());
+        }
+
+        if (quizAnswer.getQuiz().getConclusionDate() != null && quizAnswer.getQuiz().getConclusionDate().isBefore(DateHandler.now())) {
+            throw new TutorException(QUIZ_NO_LONGER_AVAILABLE);
+        }
+
+        if (quizAnswer.getQuiz().getAvailableDate() != null && quizAnswer.getQuiz().getAvailableDate().isAfter(DateHandler.now())) {
+            throw new TutorException(QUIZ_NOT_YET_AVAILABLE);
+        }
+
+        if (!quizAnswer.isCompleted()) {
+            Option option;
+            if (answer.getOptionId() != null) {
+                option = optionRepository.findById(answer.getOptionId())
+                        .orElseThrow(() -> new TutorException(OPTION_NOT_FOUND, answer.getOptionId()));
+                if (isNotQuestionOption(questionAnswer.getQuizQuestion(), option)) {
+                    throw new TutorException(QUESTION_OPTION_MISMATCH, questionAnswer.getQuizQuestion().getQuestion().getId(), option.getId());
+                }
+                if (questionAnswer.getOption() != null) {
+                    questionAnswer.getOption().getQuestionAnswers().remove(questionAnswer);
+                }
+                questionAnswer.setOption(option);
+            }
+            questionAnswer.setTimeTaken(answer.getTimeTaken());
+            quizAnswer.setAnswerDate(DateHandler.now());
+
+        }
+        return questionAnswer.getQuizQuestion().getQuestion().getCorrectOptionId().equals(answer.getOptionId());
+    }
+
     private boolean isNotQuestionOption(QuizQuestion quizQuestion, Option option) {
         return quizQuestion.getQuestion().getOptions().stream().map(Option::getId).noneMatch(value -> value.equals(option.getId()));
     }
