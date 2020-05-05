@@ -237,9 +237,6 @@ export default class TournamentsView extends Vue {
     await this.$store.dispatch('loading');
     try {
       this.quiz = await RemoteServices.getAvailableQuiz(id);
-      console.log("hey");
-        console.log(this.quiz);
-
     } catch (error) {
       await this.$store.dispatch('error', error);
     }
