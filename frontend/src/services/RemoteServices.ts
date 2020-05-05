@@ -632,6 +632,19 @@ export default class RemoteServices {
       });
   }
 
+  static async getCreditedClarificationsByStudent(): Promise<Clarification[]> {
+    return httpClient
+      .get('/clarifications/credited')
+      .then(response => {
+        return response.data.map((clarification: any) => {
+          return new Clarification(clarification);
+        });
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
   static async createClarificationAnswer(
     clarificationId: number,
     answer: string
