@@ -158,7 +158,7 @@ public class ClarificationService {
                 .orElseThrow(() -> new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationId));
 
         if (clarification.getUser().getId() != userId)
-            throw new TutorException(CLARIFICATION_WRONG_USER);
+            throw new TutorException(CLARIFICATION_NOT_CREATOR);
 
         clarification.setAvailabilityStudent(available);
         return new ClarificationDto(clarification);

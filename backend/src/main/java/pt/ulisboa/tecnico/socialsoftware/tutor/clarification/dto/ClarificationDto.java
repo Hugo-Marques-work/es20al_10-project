@@ -34,11 +34,11 @@ public class ClarificationDto implements Serializable {
 
         if (clarification.getUser() != null)
             this.user = new UserDto(clarification.getUser());
-        else throw new TutorException(ErrorMessage.USER_NOT_FOUND, "unknown");
+        else throw new TutorException(ErrorMessage.USER_NOT_FOUND);
 
         if (clarification.getQuestion() != null)
             this.question = new QuestionDto(clarification.getQuestion());
-        else throw new TutorException(ErrorMessage.QUESTION_NOT_FOUND, "unknown");
+        else throw new TutorException(ErrorMessage.QUESTION_NOT_FOUND);
     }
 
     public Integer getId() { return id; }
