@@ -1,6 +1,7 @@
 describe('Clarifications creating, answering and viewing', () => {
   const clarificationTitle = 'Clarification test for viewing';
   const clarificationAnswer = 'Clarification Answer test for viewing';
+  const clarificationHash = '2aae55f0ade2ce79cd0fde26761451fb';
 
   afterEach(() => {
     cy.logout();
@@ -63,10 +64,17 @@ describe('Clarifications creating, answering and viewing', () => {
     cy.closeErrorMessage();
   });
 
-  it('login, teacher makes clarification available', () => {
+  it('create clarification with another student, login, teacher makes clarification available', () => {
+    cy.addClarificationToDB(clarificationHash);
     cy.demoTeacherLogin();
     cy.clarificationList();
-    cy.makeClarificationAvailable(clarificationTitle);
+    cy.makeClarificationAvailable(clarificationHash);
     cy.closeSuccessMessage('Clarification is now available in anonymity');
+  });
+
+  it('login, student sees last clarification available', () => {
+    cy.demoStudentLogin();
+    cy.availableClarificationsList();
+    cy.checkClarification(clarificationHash);
   });
 });

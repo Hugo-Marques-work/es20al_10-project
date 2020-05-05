@@ -8,6 +8,7 @@ tests/e2e/videos/
 # local env files
 .env
 .env*
+cypress.env.json
 
 # Log files
 npm-debug.log*

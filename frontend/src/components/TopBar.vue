@@ -127,6 +127,14 @@
                 <v-list-item-title>List all</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
+            <v-list-item v-if="isStudent" to="/clarification/available">
+              <v-list-item-action>
+                <v-icon>fas fa-lock-open</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>Available</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
           </v-list>
         </v-menu>
 
@@ -324,6 +332,14 @@
             </v-list-item-action>
             <v-list-item-content>
               <v-list-item-title>List all</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item v-if="isStudent" to="/clarification/available">
+            <v-list-item-action>
+              <v-icon>fas fa-lock-open</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>Available</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list-group>
