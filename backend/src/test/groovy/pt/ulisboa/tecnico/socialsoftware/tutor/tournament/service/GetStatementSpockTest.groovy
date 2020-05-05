@@ -81,6 +81,7 @@ class GetStatementSpockTest extends Specification {
     Course course
     CourseExecution courseExecution
     User student
+    User randomUser
     Topic topic
     Question question
 
@@ -103,6 +104,8 @@ class GetStatementSpockTest extends Specification {
     def setup() {
         student = new User("User", "user", 1, User.Role.STUDENT)
         userRepository.save(student)
+        randomUser = new User("User2", "user2", 2, User.Role.STUDENT)
+        userRepository.save(randomUser)
 
         course = new Course(COURSE_NAME, Course.Type.TECNICO)
         courseRepository.save(course)
@@ -131,6 +134,7 @@ class GetStatementSpockTest extends Specification {
         given: "one valid tournament dto with a signed user"
         def tournament = createValidTournament()
         tournament.addSignUp(student);
+        tournament.addSignUp(randomUser);
 
         when:
         def result = tournamentService.getStatement(student.id, tournament.getId())
@@ -161,6 +165,7 @@ class GetStatementSpockTest extends Specification {
         given: "one valid tournament dto"
         def tournament = createValidTournament()
         tournament.addSignUp(student);
+        tournament.addSignUp(randomUser);
 
         when:"quiz is completed"
         tournamentService.getStatement(student.id, tournament.getId())

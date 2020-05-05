@@ -87,7 +87,10 @@ class GetRunningTournamentsSpockTest extends Specification {
         tournament.setConclusionDate(DateHandler.now().plusDays(2))
         tournament.setNumberOfQuestions(NUMBER_QUESTIONS)
         tournament.addTopic(topicRepository.findAll().getAt(0))
+        def randomUser = new User("Zé", "zepedro", 2, User.Role.STUDENT)
+        userRepository.save(randomUser)
         tournament.addSignUp(student)
+        tournament.addSignUp(randomUser)
         tournament.setStatus(Tournament.Status.OPEN)
         tournamentRepository.save(tournament)
         courseExecution.addTournament(tournament);

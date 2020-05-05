@@ -15,7 +15,7 @@ describe('Tournament walkthrough', () => {
         expect(item).to.have.length(1);
       });
 
-    cy.cancelTournament(name);
+    cy.deleteTournament(name);
   });
 
   it('login creates a tournament and cancel it', () => {
@@ -30,6 +30,7 @@ describe('Tournament walkthrough', () => {
 
     cy.seeMyTournaments();
     cy.contains(name).should('not.exist');
+    cy.deleteTournament(name);
   });
 
   it('login creates a tournament, signs up and verifies that the action is not there anymore', () => {
@@ -50,6 +51,7 @@ describe('Tournament walkthrough', () => {
 
     cy.seeMyTournaments();
     cy.contains(name).should('not.exist');
+    cy.deleteTournament(name);
   });
 
   it('login create tournaments with missing title', () => {
@@ -121,7 +123,8 @@ describe('Tournament walkthrough', () => {
     let name = Math.random().toString(36);
     cy.createTournament(name, 12, 13);
     cy.signUpForTournament(name);
-    cy.setDateToYesterday(name);
+    cy.prepareRunningTournament(name);
+
     cy.seeRunningTournaments();
     cy.contains(name).should('exist');
     cy.enterTournament(name);
@@ -147,5 +150,6 @@ describe('Tournament walkthrough', () => {
     cy.get('[data-cy="confirmFinishDialog"]')
       .eq(0)
       .click();
+    cy.deleteTournament(name);
   });
 });

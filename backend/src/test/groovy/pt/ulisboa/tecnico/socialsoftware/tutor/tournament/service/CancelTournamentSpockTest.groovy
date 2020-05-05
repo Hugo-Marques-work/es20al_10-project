@@ -120,7 +120,10 @@ class CancelTournamentSpockTest extends Specification{
         given: "a running tournament"
         tournament.setStartingDate(BAD_START_DATE)
         tournament.setConclusionDate(CONCLUSION_DATE)
+        def randomUser = new User("ze", "zepedro", 2, User.Role.STUDENT)
+        userRepository.save(randomUser)
         tournament.addSignUp(creator)
+        tournament.addSignUp(randomUser)
 
         when:
         tournamentService.cancelTournament(tournament.getId())

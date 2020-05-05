@@ -233,7 +233,7 @@ public class Tournament {
         if(currentTime.isBefore(startingDate)) {
             setStatus(Status.OPEN);
         } else if(!currentTime.isBefore(startingDate) && currentTime.isBefore(conclusionDate)) {
-            if (!signedUpUsers.isEmpty()) {
+            if (signedUpUsers.size() >= 2) {
                 setStatus(Status.RUNNING);
             } else {
                 setStatus(Status.CANCELED);
