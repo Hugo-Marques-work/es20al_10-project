@@ -38,8 +38,12 @@ public class ClarificationController {
 
     @GetMapping("/course/{courseId}/clarifications")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('DEMO_ADMIN') or hasPermission(#courseId, 'COURSE.ACCESS')")
-    public List<ClarificationDto> getClarificationsByCourse(@PathVariable int courseId) {
-        return clarificationService.getClarificationsByCourse(courseId);
+    public List<ClarificationDto> getClarificationsByCourse(@PathVariable int courseId, Principal principal) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        if(user == null){
+            throw new TutorException(AUTHENTICATION_ERROR);
+        }
+        return clarificationService.getClarificationsByCourse(courseId, user.getRole());
     }
 
     @DeleteMapping("/clarification/{clarificationId}")
