@@ -49,6 +49,17 @@ public class ClarificationController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/clarifications/credited")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public List<ClarificationDto> getgetCreditedClarificationsByStudent(Principal principal) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        if(user == null){
+            throw new TutorException(AUTHENTICATION_ERROR);
+        }
+
+        return clarificationService.getCreditedClarificationsByStudent(user.getId());
+    }
+
     @PutMapping("/clarifications/{clarificationId}/teacher/available")
     @PreAuthorize("hasRole('ROLE_TEACHER') and hasPermission(#clarificationId, 'CLARIFICATION.ACCESS')")
     public ClarificationDto makeClarificationAvailableTeacher(@PathVariable int clarificationId) {
