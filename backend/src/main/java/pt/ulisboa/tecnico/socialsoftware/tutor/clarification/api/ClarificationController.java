@@ -51,7 +51,7 @@ public class ClarificationController {
 
     @GetMapping("/clarifications/credited")
     @PreAuthorize("hasRole('ROLE_STUDENT')")
-    public List<ClarificationDto> getgetCreditedClarificationsByStudent(Principal principal) {
+    public List<ClarificationDto> getCreditedClarificationsByStudent(Principal principal) {
         User user = (User) ((Authentication) principal).getPrincipal();
         if(user == null){
             throw new TutorException(AUTHENTICATION_ERROR);

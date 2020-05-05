@@ -7,7 +7,7 @@
         @click="$router.push('/clarification/list')"
         data-cy="clarificationListButton"
       >
-        <div class="icon-wrapper" ref="totalQuizzes">
+        <div class="icon-wrapper">
           <animated-number :number="clarifications.length" />
         </div>
         <div class="project-name">
@@ -19,7 +19,7 @@
         @click="$router.push('/clarification/list/credited')"
         data-cy="clarificationCreditedButton"
       >
-        <div class="icon-wrapper" ref="totalAnswers">
+        <div class="icon-wrapper">
           <animated-number :number="clarificationsCredited.length" />
         </div>
         <div class="project-name">
