@@ -57,6 +57,7 @@
       :question="statementQuiz.questions[questionOrder]"
       :questionNumber="statementQuiz.questions.length"
       :backsies="!statementQuiz.oneWay"
+      :tournament="false"
       @increase-order="confirmAnswer"
       @select-option="changeAnswer"
       @decrease-order="decreaseOrder"

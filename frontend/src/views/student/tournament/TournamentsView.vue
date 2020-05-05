@@ -106,7 +106,14 @@
         <!-- enter tournament -->
         <v-tooltip v-if="enterTournamentConditions(item)" bottom>
           <template v-slot:activator="{ on }">
-            <v-icon small class="mr-2" v-on="on" @click="solveQuiz(item)" data-cy="enter">fas fa-sign-in-alt</v-icon>
+            <v-icon
+              small
+              class="mr-2"
+              v-on="on"
+              @click="solveQuiz(item)"
+              data-cy="enterTournament"
+              >fas fa-sign-in-alt</v-icon
+            >
           </template>
           <span>Enter Tournament</span>
         </v-tooltip>
@@ -149,8 +156,8 @@ import Topic from '@/models/management/Topic';
 import SignUpForTournamentDialog from '@/views/student/tournament/SignUpForTournamentDialog.vue';
 import CreateTournamentDialog from '@/views/student/tournament/CreateTournamentDialog.vue';
 import CancelTournamentDialog from '@/views/student/tournament/CancelTournamentDialog.vue';
-import StatementQuiz from "@/models/statement/StatementQuiz";
-import StatementManager from "@/models/statement/StatementManager";
+import StatementQuiz from '@/models/statement/StatementQuiz';
+import StatementManager from '@/models/statement/StatementManager';
 
 @Component({
   components: {
@@ -237,9 +244,6 @@ export default class TournamentsView extends Vue {
     await this.$store.dispatch('loading');
     try {
       this.quiz = await RemoteServices.getAvailableQuiz(id);
-      console.log("hey");
-        console.log(this.quiz);
-
     } catch (error) {
       await this.$store.dispatch('error', error);
     }

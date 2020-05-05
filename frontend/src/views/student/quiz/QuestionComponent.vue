@@ -21,6 +21,9 @@
           class="fas fa-chevron-right"
         />
       </div>
+      <div class="square" @click="finish" v-if="tournament">
+        <i v-if="questionOrder == questionNumber - 1" class="fas fa-check" />
+      </div>
     </div>
     <ul class="option-list">
       <li
@@ -55,11 +58,17 @@ export default class QuestionComponent extends Vue {
   @Prop(Number) optionId: number | undefined;
   @Prop() readonly questionNumber!: number;
   @Prop() readonly backsies!: boolean;
+  @Prop() readonly tournament!: boolean;
   hover: boolean = false;
   optionLetters: string[] = ['A', 'B', 'C', 'D'];
 
   @Emit()
   increaseOrder() {
+    return 1;
+  }
+
+  @Emit()
+  finish() {
     return 1;
   }
 

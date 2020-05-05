@@ -169,13 +169,12 @@ Cypress.Commands.add('signUpForTournament', name => {
 
 Cypress.Commands.add('enterTournament', name => {
   cy.contains(name)
-      .parent()
-      .should('have.length', 1)
-      .children()
-      .should('have.length', 6)
-      .find('[data-cy="enter"]')
-      .click();
-
+    .parent()
+    .should('have.length', 1)
+    .children()
+    .should('have.length', 6)
+    .find('[data-cy="enterTournament"]')
+    .click();
 });
 
 Cypress.Commands.add('seeSignedUpTournaments', () => {
@@ -244,6 +243,30 @@ Cypress.Commands.add('closeSuccessMessage', successMessage => {
     .parent()
     .find('button')
     .click();
+});
+
+Cypress.Commands.add('setDateToYesterday', name => {
+  let pguser = Cypress.env('db_username');
+  let pgpassword = Cypress.env('db_password');
+  let pgname = Cypress.env('db_name');
+
+  let yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  let yesterdayString =
+    yesterday.getFullYear() +
+    '-' +
+    (yesterday.getMonth() + 1) +
+    '-' +
+    yesterday.getDate() +
+    ' ' +
+    yesterday.getHours() +
+    ':' +
+    yesterday.getMinutes();
+  // Modify the database so that it is instantly running
+  cy.exec(
+    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
+      `"UPDATE tournaments SET starting_date = '${yesterdayString}', number_of_questions = 5 WHERE title = '${name}'"`
+  );
 });
 
 /* ----------------------- */

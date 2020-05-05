@@ -117,34 +117,35 @@ describe('Tournament walkthrough', () => {
     cy.closeErrorMessage();
   });
 
-  it('create running tournament and participate in it', () => {
+  it.only('create running tournament and participate in it', () => {
     let name = Math.random().toString(36);
     cy.createTournament(name, 12, 13);
     cy.signUpForTournament(name);
-
-    let pguser = Cypress.env('db_username');
-    let pgpassword = Cypress.env('db_password');
-    let pgname = Cypress.env('db_name');
-
-    let yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    let yesterdayString =
-      yesterday.getFullYear() +
-      '-' +
-      (yesterday.getMonth() + 1) +
-      '-' +
-      yesterday.getDate() +
-      ' ' +
-      yesterday.getHours() +
-      ':' +
-      yesterday.getMinutes();
-    // Modify the database so that it is instantly running
-    cy.exec(
-      `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
-        `"UPDATE tournaments SET starting_date = '${yesterdayString}', number_of_questions = 5 WHERE title = '${name}'"`
-    );
-
+    cy.setDateToYesterday(name);
     cy.seeRunningTournaments();
     cy.contains(name).should('exist');
+    cy.enterTournament(name);
+
+    for (let i = 0; i < 4; i++) {
+      cy.get('.option-content')
+        .eq(0)
+        .click();
+      cy.get('[data-cy="confirmAnswer"]')
+        .eq(0)
+        .click();
+      cy.get('[data-cy="confirm"]')
+        .eq(0)
+        .click();
+    }
+
+    cy.get('.option-content')
+      .eq(0)
+      .click();
+    cy.get('[data-cy="confirmFinish"]')
+      .eq(0)
+      .click();
+    cy.get('[data-cy="confirmFinishDialog"]')
+      .eq(0)
+      .click();
   });
 });
