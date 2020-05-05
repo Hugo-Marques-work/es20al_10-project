@@ -105,8 +105,11 @@ class GetClarificationsSpockTest extends Specification{
     }
 
     def "User exists and returns clarifications with answers" () {
-        given: "a clarification answer"
-        def clarificationAnswer = new ClarificationAnswer(CONTENT, clarification, user)
+        given: "a teacher"
+        def teacher = new User(NAME, "test", KEY+1, User.Role.TEACHER)
+        userRepository.save(teacher)
+        and: "a clarification answer"
+        def clarificationAnswer = new ClarificationAnswer(CONTENT, clarification, teacher)
         clarificationAnswerRepository.save(clarificationAnswer)
         clarification.addClarificationAnswer(clarificationAnswer)
 
@@ -121,8 +124,11 @@ class GetClarificationsSpockTest extends Specification{
     }
 
     def "Question exists and returns clarifications with answers" () {
-        given: "a clarification answer"
-        def clarificationAnswer = new ClarificationAnswer(CONTENT, clarification, user)
+        given: "a teacher"
+        def teacher = new User(NAME, "test", KEY+1, User.Role.TEACHER)
+        userRepository.save(teacher)
+        and: "a clarification answer"
+        def clarificationAnswer = new ClarificationAnswer(CONTENT, clarification, teacher)
         clarificationAnswerRepository.save(clarificationAnswer)
         clarification.addClarificationAnswer(clarificationAnswer)
 
@@ -137,8 +143,11 @@ class GetClarificationsSpockTest extends Specification{
     }
 
     def "Course exists and returns clarifications with answers" () {
-        given: "a clarification answer"
-        def clarificationAnswer = new ClarificationAnswer(CONTENT, clarification, user)
+        given: "a teacher"
+        def teacher = new User(NAME, "test", KEY+1, User.Role.TEACHER)
+        userRepository.save(teacher)
+        and: "a clarification answer"
+        def clarificationAnswer = new ClarificationAnswer(CONTENT, clarification, teacher)
         clarificationAnswerRepository.save(clarificationAnswer)
         clarification.addClarificationAnswer(clarificationAnswer)
 
