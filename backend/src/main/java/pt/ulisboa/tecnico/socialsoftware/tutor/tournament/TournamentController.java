@@ -6,7 +6,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
-import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.dto.QuizDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.statement.dto.StatementQuizDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
@@ -67,11 +66,11 @@ public class TournamentController {
 
     @GetMapping("/tournaments/{tournamentId}/quiz")
     @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'TOURNAMENT.ACCESS')")
-    public StatementQuizDto getAvailableQuiz(Principal principal, @PathVariable int tournamentId) {
+    public StatementQuizDto getStatement(Principal principal, @PathVariable int tournamentId) {
         User user = (User) ((Authentication) principal).getPrincipal();
         checkUserAuth(user);
 
-        return tournamentService.getAvailableQuiz(user.getId(), tournamentId);
+        return tournamentService.getStatement(user.getId(), tournamentId);
     }
 
     private void checkUserAuth(User user) {

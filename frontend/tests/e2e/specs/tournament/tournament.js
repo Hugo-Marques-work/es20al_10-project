@@ -117,7 +117,7 @@ describe('Tournament walkthrough', () => {
     cy.closeErrorMessage();
   });
 
-  it.only('create running tournament and participate in it', () => {
+  it('create running tournament and participate in it', () => {
     let name = Math.random().toString(36);
     cy.createTournament(name, 12, 13);
     cy.signUpForTournament(name);
