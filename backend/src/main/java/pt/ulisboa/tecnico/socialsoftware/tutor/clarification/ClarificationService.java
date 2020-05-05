@@ -101,16 +101,25 @@ public class ClarificationService {
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public List<ClarificationDto> getClarificationsByCourse(int courseId) {
+    public List<ClarificationDto> getClarificationsByCourse(int courseId, User.Role role) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new TutorException(ErrorMessage.COURSE_NOT_FOUND, courseId));
         Set<Clarification> clarifications = new HashSet<>();
         List<Question> questions = new ArrayList<>(course.getQuestions());
         for (Question question : questions) {
-            clarifications.addAll(question.getClarifications());
+            clarifications.addAll(
+                    question.getClarifications()
+                            .stream()
+                            .filter(
+                                    t -> (
+                                            (t.getAvailability() != Clarification.Availability.NONE)) ||
+                                            role.equals(User.Role.TEACHER)
+                            )
+                            .collect(Collectors.toList())
+            );
         }
 
-        return convertClarificationsToList(clarifications);
+        return convertClarificationsToList(clarifications, true);
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
@@ -251,8 +260,13 @@ public class ClarificationService {
     }
 
     private List<ClarificationDto> convertClarificationsToList(Set<Clarification> clarifications) {
+        return convertClarificationsToList(clarifications, false);
+    }
+
+    private List<ClarificationDto> convertClarificationsToList(Set<Clarification> clarifications,
+                                                               boolean checkAvailability) {
         return clarifications.stream()
-                .map(ClarificationDto::new)
+                .map(c -> new ClarificationDto(c, checkAvailability))
                 .sorted(Comparator
                         .comparing(ClarificationDto::getId))
                 .collect(Collectors.toList());

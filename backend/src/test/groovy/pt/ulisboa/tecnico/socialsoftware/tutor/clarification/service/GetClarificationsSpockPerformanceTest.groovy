@@ -86,7 +86,7 @@ class GetClarificationsSpockPerformanceTest extends Specification {
 
     def "performance test to get 1000 clarifications by course" () {
         when:
-        1.upto(1, {clarificationService.getClarificationsByCourse(course.getId())})
+        1.upto(1, {clarificationService.getClarificationsByCourse(course.getId(), User.Role.TEACHER)})
 
         then:
         true

@@ -219,6 +219,7 @@ let router = new Router({
           path: 'list',
           name: 'list-clarifications',
           component: ClarificationListView,
+          props: { onlyAvailable: false },
           meta: {
             title: process.env.VUE_APP_NAME + ' - List Clarifications',
             requiredAuth: 'Student Teacher'
@@ -240,6 +241,16 @@ let router = new Router({
           meta: {
             title: process.env.VUE_APP_NAME + ' - View Clarification',
             requiredAuth: 'Student Teacher'
+          }
+        },
+        {
+          path: 'available',
+          name: 'available-clarification',
+          component: ClarificationListView,
+          props: { onlyAvailable: true },
+          meta: {
+            title: process.env.VUE_APP_NAME + ' - Available Clarifications',
+            requiredAuth: 'Student'
           }
         }
       ]

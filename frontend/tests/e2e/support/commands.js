@@ -40,7 +40,7 @@ Cypress.Commands.add('createClarificationAnswer', (title, message) => {
   cy.get('[data-cy="sendClarificationAnswerButton"]').click();
 });
 
-Cypress.Commands.add('makeClarificationAvailable', (title) => {
+Cypress.Commands.add('makeClarificationAvailable', title => {
   cy.contains(title)
     .parent()
     .should('have.length', 1)
@@ -70,6 +70,12 @@ Cypress.Commands.add('clarificationList', () => {
   cy.get('[data-cy="clarificationsButton"]').click();
 });
 
+Cypress.Commands.add('availableClarificationsList', () => {
+  cy.get('[data-cy="clarificationsButton"]').click();
+  cy.contains('Available').click();
+  cy.get('[data-cy="clarificationsButton"]').click();
+});
+
 Cypress.Commands.add('createClarification', clarificationMessage => {
   cy.get('[data-cy="quizzesButton"]').click();
   cy.contains('Solved').click();
@@ -83,6 +89,13 @@ Cypress.Commands.add('createClarification', clarificationMessage => {
   if (clarificationMessage != null)
     cy.get('[data-cy="clarificationText"]').type(clarificationMessage);
   cy.get('[data-cy="sendClarificationButton"]').click();
+});
+
+Cypress.Commands.add('checkClarification', title => {
+  cy.contains(title)
+    .parent()
+    .children()
+    .should('have.length', 5);
 });
 
 Cypress.Commands.add('checkClarificationAnswered', (title, isAnswered) => {
@@ -255,6 +268,23 @@ Cypress.Commands.add('closeSuccessMessage', successMessage => {
     .parent()
     .find('button')
     .click();
+});
+
+/* ----------------------- */
+
+Cypress.Commands.add('addClarificationToDB', content => {
+  let pg_name = Cypress.env('db_name');
+  let pg_user = Cypress.env('db_username');
+  let pg_password = Cypress.env('db_password');
+
+  let questionId = '1786';
+  let studentKey = '678';
+
+  cy.exec(
+    'psql -c "INSERT INTO clarifications(content, question_id, user_id, is_answered) ' +
+      `VALUES ('${content}', ${questionId}, ${studentKey}, FALSE);" ` +
+      `postgres://${pg_user}:${pg_password}@localhost:5432/${pg_name}`
+  );
 });
 
 /* ----------------------- */
