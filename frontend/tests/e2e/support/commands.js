@@ -58,6 +58,12 @@ Cypress.Commands.add('makeAndSolveQuiz', () => {
   cy.get('[data-cy="endQuizImSureButton"]').click();
 });
 
+Cypress.Commands.add('clarificationDashboard', () => {
+  cy.get('[data-cy="clarificationsButton"]').click();
+  cy.contains('Dashboard').click();
+  cy.get('[data-cy="clarificationsButton"]').click();
+});
+
 Cypress.Commands.add('clarificationList', () => {
   cy.get('[data-cy="clarificationsButton"]').click();
   cy.contains('List all').click();
@@ -109,6 +115,14 @@ Cypress.Commands.add('checkForClarificationAnswer', (title, message) => {
     .find('[data-cy="viewClarification"]')
     .click();
   cy.contains(message);
+});
+
+Cypress.Commands.add('openCreditedClarifications', () => {
+  cy.get('[data-cy="clarificationCreditedButton"]').click();
+});
+
+Cypress.Commands.add('openClarificationList', () => {
+  cy.get('[data-cy="clarificationListButton"]').click();
 });
 
 Cypress.Commands.add('createTournament', (name, start, end) => {

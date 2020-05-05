@@ -174,6 +174,16 @@ public class ClarificationService {
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public List<ClarificationDto> getCreditedClarificationsByStudent(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, userId));
+
+        return user.getClarifications().stream()
+                .map(ClarificationDto::new)
+                .filter(ClarificationDto::isAvailableByTeacher)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void removeClarification(int clarificationId) {
         Clarification clarification = clarificationRepository.findById(clarificationId)
                 .orElseThrow(() -> new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationId));

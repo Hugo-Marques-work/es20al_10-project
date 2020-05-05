@@ -63,7 +63,19 @@ describe('Clarifications creating, answering and viewing', () => {
     cy.createClarificationAnswer(clarificationTitle, clarificationAnswer);
     cy.closeErrorMessage();
   });
+  
+  it('login, goes to dashboard and checks credited clarifications', () => {
+    cy.demoStudentLogin();
+    cy.clarificationDashboard();
+    cy.openCreditedClarifications();
+  });
 
+  it('login, goes to dashboard and checks clarification list', () => {
+    cy.demoStudentLogin();
+    cy.clarificationDashboard();
+    cy.openClarificationList();
+  });
+  
   it('create clarification with another student, login, teacher makes clarification available', () => {
     cy.addClarificationToDB(clarificationHash);
     cy.demoTeacherLogin();
