@@ -9,6 +9,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.ClarificationServic
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.dto.ClarificationDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
 import java.security.Principal;
 import java.util.List;
@@ -62,6 +63,28 @@ public class ClarificationController {
         }
 
         return clarificationService.getCreditedClarificationsByStudent(user.getId());
+    }
+
+    @GetMapping("/clarification/dashboard")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public boolean getDashboardAvailability(Principal principal) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        if(user == null){
+            throw new TutorException(AUTHENTICATION_ERROR);
+        }
+
+        return clarificationService.getDashboardAvailability(user.getId());
+    }
+
+    @PostMapping("/clarification/dashboard")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public UserDto changeDashboardAvailability(Principal principal) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        if(user == null){
+            throw new TutorException(AUTHENTICATION_ERROR);
+        }
+
+        return clarificationService.changeDashboardAvailability(user.getId());
     }
 
     @PutMapping("/clarifications/{clarificationId}/teacher/available")

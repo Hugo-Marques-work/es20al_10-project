@@ -76,6 +76,12 @@ describe('Clarifications creating, answering and viewing', () => {
     cy.openClarificationList();
   });
   
+  it('login and changes clarification dashboard availability', () => {
+    cy.demoStudentLogin();
+    cy.clarificationDashboard();
+    cy.toggleDashboardAvailability();
+    cy.closeSuccessMessage('Dashboard availability changed to: ');
+  
   it('create clarification with another student, login, teacher makes clarification available', () => {
     cy.addClarificationToDB(clarificationHash);
     cy.demoTeacherLogin();

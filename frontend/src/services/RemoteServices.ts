@@ -674,6 +674,28 @@ export default class RemoteServices {
       });
   }
 
+  static async changeDashboardAvailability() {
+    return httpClient
+      .post('/clarification/dashboard')
+      .then(response => {
+        return new User(response.data);
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static async getDashboardAvailability() {
+    return httpClient
+      .get('/clarification/dashboard')
+      .then(response => {
+        return Boolean(response.data);
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
   /*------------------------------------------------------------------*/
 
   static async exportAll() {
