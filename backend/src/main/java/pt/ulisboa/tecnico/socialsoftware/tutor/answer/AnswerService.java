@@ -188,7 +188,7 @@ public class AnswerService {
                     throw new TutorException(QUESTION_OPTION_MISMATCH, questionAnswer.getQuizQuestion().getQuestion().getId(), option.getId());
                 }
                 if (questionAnswer.getTimeTaken() != null) {
-                    throw new TutorException(QUESTION_ALREADY_ANSWERED, questionAnswer.getId());
+                    throw new TutorException(QUESTION_ALREADY_ANSWERED, questionAnswer.getOption().getId());
                 }
                 if (answer.getTimeTaken() == null) {
                     answer.setTimeTaken(1);
