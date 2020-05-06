@@ -20,7 +20,9 @@ import spock.lang.Specification
 class GetClarificationAnswerSpockTest extends Specification {
     static final String NAME = "test user"
     static final String USERNAME = "test_user"
+    static final String USERNAME2 = "test_user2"
     static final Integer USER_KEY = 1
+    static final Integer USER_KEY2 = 12
     static final User.Role ROLE = User.Role.TEACHER
     static final String CONTENT = "I explain your clarification."
 
@@ -43,8 +45,12 @@ class GetClarificationAnswerSpockTest extends Specification {
     User user
 
     def setup(){
+        def student = new User(NAME, USERNAME2, USER_KEY2, User.Role.STUDENT);
+        userRepository.save(student);
+
         clarification = new Clarification()
         clarification.setContent(CONTENT)
+        clarification.setUser(student)
         clarificationRepository.save(clarification)
 
         user = new User(NAME, USERNAME, USER_KEY, ROLE)

@@ -139,7 +139,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 import RemoteServices from '@/services/RemoteServices';
 import Clarification from '@/models/clarification/Clarification';
 import Course from '@/models/user/Course';
@@ -154,6 +154,7 @@ import ShowClarificationDialog from '@/views/clarification/ShowClarificationDial
   }
 })
 export default class ClarificationListView extends Vue {
+  @Prop({ type: Boolean, required: false }) readonly onlyAvailable!: boolean;
   isTeacher: boolean = false;
   clarifications: Clarification[] = [];
   currentCourse: Course | null = null;
@@ -206,7 +207,7 @@ export default class ClarificationListView extends Vue {
     try {
       this.isTeacher =
         this.$store.getters.isTeacher || this.$store.getters.isAdmin;
-      if (this.$store.getters.isTeacher || this.$store.getters.isAdmin) {
+      if (this.isTeacher || this.onlyAvailable) {
         this.clarifications = (
           await RemoteServices.getClarificationsByCurrentCourse()
         ).reverse();
@@ -221,7 +222,6 @@ export default class ClarificationListView extends Vue {
   }
 
   async updateAnsweredStatus() {
-    console.log('update');
     await this.$store.dispatch('loading');
     try {
       this.clarifications = (
@@ -272,6 +272,7 @@ export default class ClarificationListView extends Vue {
     }
   }
 
+  @Watch('onlyAvailable')
   async refresh() {
     await this.getClarifications();
   }

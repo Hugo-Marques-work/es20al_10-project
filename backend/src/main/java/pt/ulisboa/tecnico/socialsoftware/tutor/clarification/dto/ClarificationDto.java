@@ -20,6 +20,10 @@ public class ClarificationDto implements Serializable {
     public ClarificationDto() {}
 
     public ClarificationDto(Clarification clarification) {
+        this(clarification, false);
+    }
+
+    public ClarificationDto(Clarification clarification, boolean checkAvailability) {
         this.id = clarification.getId();
         this.isAnswered = clarification.isAnswered();
         this.isAvailableByTeacher = (clarification.getAvailability() == Clarification.Availability.TEACHER ||
@@ -32,13 +36,17 @@ public class ClarificationDto implements Serializable {
         else
             this.content = clarification.getContent();
 
-        if (clarification.getUser() != null)
+
+        if (!isAvailableByStudent && checkAvailability) {
+            this.user = null;
+        }
+        else if (clarification.getUser() != null)
             this.user = new UserDto(clarification.getUser());
-        else throw new TutorException(ErrorMessage.USER_NOT_FOUND, "unknown");
+        else throw new TutorException(ErrorMessage.USER_NOT_FOUND);
 
         if (clarification.getQuestion() != null)
             this.question = new QuestionDto(clarification.getQuestion());
-        else throw new TutorException(ErrorMessage.QUESTION_NOT_FOUND, "unknown");
+        else throw new TutorException(ErrorMessage.QUESTION_NOT_FOUND);
     }
 
     public Integer getId() { return id; }

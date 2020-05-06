@@ -80,6 +80,7 @@ public class Clarification {
     public void setIsAnswered(boolean status) { this.isAnswered = status; }
 
     public Availability getAvailability() {
+        if (this.availability == null) this.availability = Availability.NONE;
         return availability;
     }
 
