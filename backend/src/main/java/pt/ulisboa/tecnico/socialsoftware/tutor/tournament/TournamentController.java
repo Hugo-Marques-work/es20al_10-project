@@ -6,6 +6,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.tutor.statement.StatementService;
+import pt.ulisboa.tecnico.socialsoftware.tutor.statement.dto.StatementAnswerDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.statement.dto.StatementQuizDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
@@ -21,6 +23,9 @@ public class TournamentController {
 
     @Autowired
     TournamentService tournamentService;
+
+    @Autowired
+    StatementService statementService;
 
     @GetMapping("/executions/{executionId}/tournaments/open")
     @PreAuthorize("hasPermission(#executionId, 'EXECUTION.ACCESS')")
@@ -65,12 +70,24 @@ public class TournamentController {
     }
 
     @GetMapping("/tournaments/{tournamentId}/quiz")
-    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'TOURNAMENT.ACCESS')")
+    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'TOURNAMENT.GET')")
     public StatementQuizDto getStatement(Principal principal, @PathVariable int tournamentId) {
         User user = (User) ((Authentication) principal).getPrincipal();
         checkUserAuth(user);
 
         return tournamentService.getStatement(user.getId(), tournamentId);
+    }
+
+    @PostMapping("/tournament/quiz/{quizId}/submit")
+    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#quizId, 'TOURNAMENT.PARTICIPATE')")
+    public boolean submitTournamentAnswer(Principal principal, @PathVariable int quizId, @Valid @RequestBody StatementAnswerDto answer) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+
+        if (user == null) {
+            throw new TutorException(AUTHENTICATION_ERROR);
+        }
+
+        return statementService.submitTournamentAnswer(user.getId(), quizId, answer);
     }
 
     private void checkUserAuth(User user) {

@@ -233,6 +233,16 @@ public class TournamentService {
                 .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
     }
 
+    public Tournament findTournamentByQuizId(int quizId) {
+        return this.tournamentRepository.findAll().stream()
+                .filter(tournament -> {
+                        Quiz quiz = tournament.getQuiz();
+                        return (quiz != null) && quiz.getId() == quizId;
+                })
+                .findFirst()
+                .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND_BY_QUIZ, quizId));
+    }
+
     @Retryable(
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))

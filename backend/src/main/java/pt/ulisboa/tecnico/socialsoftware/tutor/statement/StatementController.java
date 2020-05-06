@@ -83,18 +83,6 @@ public class StatementController {
         statementService.submitAnswer(user.getId(), quizId, answer);
     }
 
-    @PostMapping("/tournament/quiz/{quizId}/submit")
-    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#quizId, 'QUIZ.ACCESS')")
-    public boolean submitTournamentAnswer(Principal principal, @PathVariable int quizId, @Valid @RequestBody StatementAnswerDto answer) {
-        User user = (User) ((Authentication) principal).getPrincipal();
-
-        if (user == null) {
-            throw new TutorException(AUTHENTICATION_ERROR);
-        }
-
-        return statementService.submitTournamentAnswer(user.getId(), quizId, answer);
-    }
-
     @GetMapping("/quizzes/{quizId}/start")
     @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#quizId, 'QUIZ.ACCESS')")
     public void startQuiz(Principal principal, @PathVariable int quizId) {
