@@ -81,4 +81,10 @@ describe('Clarifications creating, answering and viewing', () => {
     cy.clarificationDashboard();
     cy.openClarificationList();
   });
+  it('login and changes clarification dashboard availability', () => {
+    cy.demoStudentLogin();
+    cy.clarificationDashboard();
+    cy.toggleDashboardAvailability();
+    cy.closeSuccessMessage('Dashboard availability changed to: ');
+  });
 });

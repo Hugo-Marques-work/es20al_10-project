@@ -112,6 +112,10 @@ Cypress.Commands.add('openClarificationList', () => {
   cy.get('[data-cy="clarificationListButton"]').click();
 });
 
+Cypress.Commands.add('toggleDashboardAvailability', () => {
+  cy.get('.availabilityToggle').click();
+});
+
 Cypress.Commands.add('createTournament', (name, start, end) => {
   cy.get('[data-cy="createButton"]').click();
 
