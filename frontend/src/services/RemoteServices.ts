@@ -676,7 +676,7 @@ export default class RemoteServices {
 
   static async changeDashboardAvailability() {
     return httpClient
-      .post('/users/clarification/dashboard')
+      .post('/clarification/dashboard')
       .then(response => {
         return new User(response.data);
       })
@@ -687,7 +687,7 @@ export default class RemoteServices {
 
   static async getDashboardAvailability() {
     return httpClient
-      .get('/users/clarification/dashboard')
+      .get('/clarification/dashboard')
       .then(response => {
         return Boolean(response.data);
       })

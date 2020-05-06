@@ -31,6 +31,14 @@ class toggleDashboardAvailabilitySpockTest extends Specification {
         userRepository.save(user)
     }
 
+    def "dashboard availability is private by default" () {
+        when:
+        def result = clarificationService.getDashboardAvailability(user.getId())
+
+        then: "false means dashboard availability is set to private"
+        !result
+    }
+
     def "change dashboard availability" () {
         when:
         clarificationService.changeDashboardAvailability(user.getId())

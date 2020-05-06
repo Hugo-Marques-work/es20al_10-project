@@ -187,7 +187,7 @@ public class ClarificationService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public boolean getDashboardAvailability(int userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, userId));
-        return user.getDashboardPublic() != null && user.getDashboardPublic() == User.DashboardAvailability.PUBLIC;
+        return user.getDashboardPublic() == User.DashboardAvailability.PUBLIC;
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)

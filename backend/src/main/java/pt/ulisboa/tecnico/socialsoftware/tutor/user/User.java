@@ -38,7 +38,7 @@ public class User implements UserDetails, DomainEntity {
     private Integer key;
 
     @Column
-    public DashboardAvailability dashboardAvailability;
+    private DashboardAvailability dashboardAvailability;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -333,7 +333,8 @@ public class User implements UserDetails, DomainEntity {
     public void addClarificationAnswer(ClarificationAnswer clarificationAnswer) {this.clarificationAnswers.add(clarificationAnswer);}
 
     public DashboardAvailability getDashboardPublic() {
-        return dashboardAvailability;
+        if (this.dashboardAvailability == null) this.dashboardAvailability = DashboardAvailability.PRIVATE;
+        return this.dashboardAvailability;
     }
 
     public void setDashboardPublic(DashboardAvailability dashboardAvailability) {

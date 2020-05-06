@@ -65,7 +65,7 @@ public class ClarificationController {
         return clarificationService.getCreditedClarificationsByStudent(user.getId());
     }
 
-    @GetMapping("/users/clarification/dashboard")
+    @GetMapping("/clarification/dashboard")
     @PreAuthorize("hasRole('ROLE_STUDENT')")
     public boolean getDashboardAvailability(Principal principal) {
         User user = (User) ((Authentication) principal).getPrincipal();
@@ -76,7 +76,7 @@ public class ClarificationController {
         return clarificationService.getDashboardAvailability(user.getId());
     }
 
-    @PostMapping("/users/clarification/dashboard")
+    @PostMapping("/clarification/dashboard")
     @PreAuthorize("hasRole('ROLE_STUDENT')")
     public UserDto changeDashboardAvailability(Principal principal) {
         User user = (User) ((Authentication) principal).getPrincipal();
