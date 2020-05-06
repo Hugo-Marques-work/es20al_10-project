@@ -66,13 +66,13 @@ Cypress.Commands.add('clarificationDashboard', () => {
 
 Cypress.Commands.add('clarificationList', () => {
   cy.get('[data-cy="clarificationsButton"]').click();
-  cy.contains('List all').click();
+  cy.get('[data-cy="clarificationListMine"]').click();
   cy.get('[data-cy="clarificationsButton"]').click();
 });
 
 Cypress.Commands.add('availableClarificationsList', () => {
   cy.get('[data-cy="clarificationsButton"]').click();
-  cy.contains('Available').click();
+  cy.get('[data-cy="clarificationListAll"]').click();
   cy.get('[data-cy="clarificationsButton"]').click();
 });
 

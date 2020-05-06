@@ -119,7 +119,11 @@
             </v-btn>
           </template>
           <v-list dense>
-            <v-list-item to="/clarification/dashboard" v-if="isStudent">
+            <v-list-item
+              to="/clarification/dashboard"
+              v-if="isStudent"
+              data-cy="clarificationDashboard"
+            >
               <v-list-item-action>
                 <v-icon>fas fa-tachometer-alt</v-icon>
               </v-list-item-action>
@@ -127,7 +131,10 @@
                 <v-list-item-title>Dashboard</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
-            <v-list-item to="/clarification/list">
+            <v-list-item
+              to="/clarification/list"
+              data-cy="clarificationListMine"
+            >
               <v-list-item-action>
                 <v-icon>fas fa-lock</v-icon>
               </v-list-item-action>
@@ -135,7 +142,11 @@
                 <v-list-item-title>My Clarifications</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
-            <v-list-item v-if="isStudent" to="/clarification/available">
+            <v-list-item
+              v-if="isStudent"
+              to="/clarification/available"
+              data-cy="clarificationListAll"
+            >
               <v-list-item-action>
                 <v-icon>fas fa-list-alt</v-icon>
               </v-list-item-action>
