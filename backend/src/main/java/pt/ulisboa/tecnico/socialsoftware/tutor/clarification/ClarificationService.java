@@ -20,6 +20,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
 import java.util.Comparator;
 import java.util.*;
@@ -172,6 +173,20 @@ public class ClarificationService {
                 .map(ClarificationDto::new)
                 .filter(ClarificationDto::isAvailableByTeacher)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public boolean getDashboardAvailability(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, userId));
+        return user.getDashboardPublic() != null && user.getDashboardPublic() == User.DashboardAvailability.PUBLIC;
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public UserDto changeDashboardAvailability(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, userId));
+        user.toggleDashboardAvailability();
+
+        return new UserDto(user);
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
