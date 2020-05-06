@@ -28,6 +28,8 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.US
 public class User implements UserDetails, DomainEntity {
     public enum Role {STUDENT, TEACHER, ADMIN, DEMO_ADMIN}
 
+    public enum TournamentPrivacyPreference {PUBLIC, PRIVATE}
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -37,6 +39,9 @@ public class User implements UserDetails, DomainEntity {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Enumerated(EnumType.STRING)
+    private TournamentPrivacyPreference tournamentPrivacyPreference;
     
     @Column(unique=true)
     private String username;
@@ -96,6 +101,7 @@ public class User implements UserDetails, DomainEntity {
         this.numberOfCorrectTeacherAnswers = 0;
         this.numberOfCorrectInClassAnswers = 0;
         this.numberOfCorrectStudentAnswers = 0;
+        this.tournamentPrivacyPreference = TournamentPrivacyPreference.PRIVATE;
     }
 
     @Override
@@ -138,6 +144,23 @@ public class User implements UserDetails, DomainEntity {
 
     public void setEnrolledCoursesAcronyms(String enrolledCoursesAcronyms) {
         this.enrolledCoursesAcronyms = enrolledCoursesAcronyms;
+    }
+
+    public TournamentPrivacyPreference getTournamentPrivacyPreference() {
+        if (tournamentPrivacyPreference == null)
+            tournamentPrivacyPreference = TournamentPrivacyPreference.PRIVATE;
+        return tournamentPrivacyPreference;
+    }
+
+    public void setTournamentPrivacyPreference(TournamentPrivacyPreference tournamentPrivacyPreference) {
+        this.tournamentPrivacyPreference = tournamentPrivacyPreference;
+    }
+
+    public void setTournamentPrivacyPreference(String preference) {
+        if (preference.equals(TournamentPrivacyPreference.PUBLIC.toString()))
+            this.tournamentPrivacyPreference = TournamentPrivacyPreference.PUBLIC;
+        else
+            this.tournamentPrivacyPreference = TournamentPrivacyPreference.PRIVATE;
     }
 
     public Role getRole() {

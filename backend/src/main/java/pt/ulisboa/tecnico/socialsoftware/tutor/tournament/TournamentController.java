@@ -90,6 +90,20 @@ public class TournamentController {
         return statementService.submitTournamentAnswer(user.getId(), quizId, answer);
     }
 
+    @GetMapping("/tournaments/user-privacy-preference/get")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public String getUserTournamentPrivacyPreference(Principal principal) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        return tournamentService.getTournamentPrivacyPreference(user.getId());
+    }
+
+    @PostMapping("/tournaments/user-privacy-preference/set/{preference}")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public void setUserTournamentPrivacyPreference(Principal principal, @PathVariable String preference) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        tournamentService.setTournamentPrivacyPreference(user.getId(), preference);
+    }
+
     private void checkUserAuth(User user) {
         if(user == null) {
             throw new TutorException(AUTHENTICATION_ERROR);

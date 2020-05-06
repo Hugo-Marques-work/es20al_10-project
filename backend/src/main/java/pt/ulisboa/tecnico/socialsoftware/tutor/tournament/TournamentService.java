@@ -277,4 +277,19 @@ public class TournamentService {
         }
         return statement;
     }
+
+    public String getTournamentPrivacyPreference(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new TutorException(USER_NOT_FOUND, userId));
+
+        return user.getTournamentPrivacyPreference().toString();
+    }
+
+    public void setTournamentPrivacyPreference(int userId, String preference) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new TutorException(USER_NOT_FOUND, userId));
+
+        user.setTournamentPrivacyPreference(preference);
+        userRepository.save(user);
+    }
 }
