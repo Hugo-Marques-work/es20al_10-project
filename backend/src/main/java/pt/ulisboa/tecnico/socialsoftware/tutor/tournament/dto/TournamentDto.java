@@ -28,11 +28,11 @@ public class TournamentDto {
         this.id = tournament.getId();
         this.title = tournament.getTitle();
         this.numberOfQuestions = tournament.getNumberOfQuestions();
-        this.status = tournament.getValidatedStatus();
+        this.status = tournament.getStatus();
         if (tournament.getStartingDate() != null)
-            this.startingDate = DateHandler.format(tournament.getStartingDate());
+            this.startingDate = DateHandler.toISOString(tournament.getStartingDate());
         if (tournament.getConclusionDate() != null)
-            this.conclusionDate = DateHandler.format(tournament.getConclusionDate());
+            this.conclusionDate = DateHandler.toISOString(tournament.getConclusionDate());
 
         if (deepCopy) {
             this.creator = new UserDto(tournament.getCreator());
@@ -123,14 +123,14 @@ public class TournamentDto {
         if (getStartingDate() == null || getStartingDate().isEmpty()) {
             return null;
         }
-        return DateHandler.parse(getStartingDate());
+        return DateHandler.toLocalDateTime(getStartingDate());
     }
 
     public LocalDateTime getConclusionDateDate() {
         if (getConclusionDate() == null || getConclusionDate().isEmpty()) {
             return null;
         }
-        return DateHandler.parse(getConclusionDate());
+        return DateHandler.toLocalDateTime(getConclusionDate());
     }
 
     public boolean isOpen() {

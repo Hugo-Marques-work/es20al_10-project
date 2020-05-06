@@ -5,8 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
+import pt.ulisboa.tecnico.socialsoftware.tutor.statement.dto.StatementQuizDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
@@ -38,6 +38,12 @@ public class TournamentController {
         return tournamentService.getClosedTournaments(user.getId(), executionId);
     }
 
+    @GetMapping("/executions/{executionId}/tournaments/running")
+    @PreAuthorize("hasPermission(#executionId, 'EXECUTION.ACCESS')")
+    public List<TournamentDto> findRunningTournaments(@PathVariable int executionId) {
+        return tournamentService.getRunningTournaments(executionId);
+    }
+
     @PostMapping("/executions/{executionId}/tournaments/")
     @PreAuthorize("hasRole('ROLE_STUDENT') && hasPermission(#executionId, 'EXECUTION.ACCESS')")
     public TournamentDto createTournament(Principal principal,
@@ -46,7 +52,6 @@ public class TournamentController {
         User user = (User) ((Authentication) principal).getPrincipal();
         checkUserAuth(user);
 
-        formatDates(tournamentDto);
         return tournamentService.createTournament(user.getId(), executionId, tournamentDto);
     }
 
@@ -69,15 +74,18 @@ public class TournamentController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/tournaments/{tournamentId}/quiz")
+    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#tournamentId, 'TOURNAMENT.ACCESS')")
+    public StatementQuizDto getStatement(Principal principal, @PathVariable int tournamentId) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        checkUserAuth(user);
+
+        return tournamentService.getStatement(user.getId(), tournamentId);
+    }
 
     private void checkUserAuth(User user) {
         if(user == null) {
             throw new TutorException(AUTHENTICATION_ERROR);
         }
-    }
-
-    private void formatDates(TournamentDto tournament) {
-        tournament.setStartingDate(DateHandler.formatFromRequest(tournament.getStartingDate()));
-        tournament.setConclusionDate(DateHandler.formatFromRequest(tournament.getConclusionDate()));
     }
 }

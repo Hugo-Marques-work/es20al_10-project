@@ -22,13 +22,13 @@
         <stringProp name="driver">org.postgresql.Driver</stringProp>
         <stringProp name="initQuery"></stringProp>
         <boolProp name="keepAlive">true</boolProp>
-        <stringProp name="password">1</stringProp>
+        <stringProp name="password"></stringProp>
         <stringProp name="poolMax">0</stringProp>
         <boolProp name="preinit">false</boolProp>
         <stringProp name="timeout">10000</stringProp>
         <stringProp name="transactionIsolation">DEFAULT</stringProp>
         <stringProp name="trimInterval">60000</stringProp>
-        <stringProp name="username">muggy</stringProp>
+        <stringProp name="username">ars</stringProp>
       </JDBCDataSource>
       <hashTree/>
       <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
@@ -60,7 +60,7 @@
           </elementProp>
           <elementProp name="title" elementType="Argument">
             <stringProp name="Argument.name">title</stringProp>
-            <stringProp name="Argument.value">TestTournamentA</stringProp>
+            <stringProp name="Argument.value">TestTournament1</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="userId" elementType="Argument">
@@ -68,9 +68,14 @@
             <stringProp name="Argument.value">676</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
-          <elementProp name="tournamentId" elementType="Argument">
-            <stringProp name="Argument.name">tournamentId</stringProp>
-            <stringProp name="Argument.value">219281</stringProp>
+          <elementProp name="startingDateISO" elementType="Argument">
+            <stringProp name="Argument.name">startingDateISO</stringProp>
+            <stringProp name="Argument.value">${__timeShift(yyyy-MM-dd&apos;T&apos;HH:mm:00&apos;Z&apos;,,P1D,,)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="conclusionDateISO" elementType="Argument">
+            <stringProp name="Argument.name">conclusionDateISO</stringProp>
+            <stringProp name="Argument.value">${__timeShift(yyyy-MM-dd&apos;T&apos;HH:mm:00&apos;Z&apos;,,P3D,,)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
@@ -125,8 +130,7 @@
 	number_of_questions,
 	starting_date,
 	conclusion_date,
-	status,
-	id)
+	status)
 VALUES (
 	&apos;${title}&apos;,
 	${userId},
@@ -134,26 +138,7 @@ VALUES (
 	${numberOfQuestions},
 	&apos;${startingDate}&apos;,
 	&apos;${conclusionDate}&apos;,
-	&apos;OPEN&apos;,
-	${tournamentId});</stringProp>
-          <stringProp name="queryArguments"></stringProp>
-          <stringProp name="queryArgumentsTypes"></stringProp>
-          <stringProp name="queryTimeout"></stringProp>
-          <stringProp name="queryType">Callable Statement</stringProp>
-          <stringProp name="resultSetHandler">Store as String</stringProp>
-          <stringProp name="resultSetMaxRows"></stringProp>
-          <stringProp name="resultVariable"></stringProp>
-          <stringProp name="variableNames"></stringProp>
-        </JDBCSampler>
-        <hashTree/>
-        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
-          <stringProp name="dataSource">sampleReq</stringProp>
-          <stringProp name="query">INSERT INTO tournaments_signed_up_users(
-	sign_up_tournaments_id,
-	signed_up_users_id)
-VALUES (
-	${tournamentId},
-	${userId});</stringProp>
+	&apos;OPEN&apos;);</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
           <stringProp name="queryTimeout"></stringProp>
@@ -229,7 +214,7 @@ VALUES (
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol"></stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-            <stringProp name="HTTPSampler.path">/executions/${executionId}/tournaments/closed/${userId}</stringProp>
+            <stringProp name="HTTPSampler.path">/executions/${executionId}/tournaments/open</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -260,7 +245,7 @@ VALUES (
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert startingDate" enabled="true">
               <stringProp name="JSON_PATH">$[0].startingDate</stringProp>
-              <stringProp name="EXPECTED_VALUE">${startingDate}</stringProp>
+              <stringProp name="EXPECTED_VALUE">${startingDateISO}</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
               <boolProp name="INVERT">false</boolProp>
@@ -278,7 +263,7 @@ VALUES (
             <hashTree/>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert conclusionDate" enabled="true">
               <stringProp name="JSON_PATH">$[0].conclusionDate</stringProp>
-              <stringProp name="EXPECTED_VALUE">${conclusionDate}</stringProp>
+              <stringProp name="EXPECTED_VALUE">${conclusionDateISO}</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
               <boolProp name="INVERT">false</boolProp>
@@ -313,22 +298,7 @@ VALUES (
       <hashTree>
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
           <stringProp name="dataSource">sampleReq</stringProp>
-          <stringProp name="query">DELETE FROM tournaments_signed_up_users 
-WHERE sign_up_tournaments_id = ${tournamentId}
-AND signed_up_users_id = ${userId}</stringProp>
-          <stringProp name="queryArguments"></stringProp>
-          <stringProp name="queryArgumentsTypes"></stringProp>
-          <stringProp name="queryTimeout"></stringProp>
-          <stringProp name="queryType">Callable Statement</stringProp>
-          <stringProp name="resultSetHandler">Store as String</stringProp>
-          <stringProp name="resultSetMaxRows"></stringProp>
-          <stringProp name="resultVariable"></stringProp>
-          <stringProp name="variableNames"></stringProp>
-        </JDBCSampler>
-        <hashTree/>
-        <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
-          <stringProp name="dataSource">sampleReq</stringProp>
-          <stringProp name="query">DELETE FROM tournaments WHERE id = ${tournamentId};</stringProp>
+          <stringProp name="query">DELETE FROM tournaments WHERE title LIKE &apos;${title}%&apos;;</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
           <stringProp name="queryTimeout"></stringProp>
@@ -417,3 +387,4 @@ AND signed_up_users_id = ${userId}</stringProp>
     </hashTree>
   </hashTree>
 </jmeterTestPlan>
+

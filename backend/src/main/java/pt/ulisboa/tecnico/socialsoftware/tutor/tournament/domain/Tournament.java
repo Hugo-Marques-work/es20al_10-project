@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain;
 
+import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
 import org.springframework.data.util.Pair;
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuizAnswer;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
@@ -68,21 +69,22 @@ public class Tournament {
     }
 
     public Tournament(User creator, String title,
-                      LocalDateTime startDate, LocalDateTime concludeDate,
+                      LocalDateTime startDate, LocalDateTime conclusionDate,
                       int nQuestions) {
         checkTitle(title);
         setCreator(creator);
         checkStartingDate(startDate);
-        checkConclusionDate(concludeDate);
+        checkConclusionDate(conclusionDate);
 
         if (nQuestions < 1) {
-            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " number of questions " + this.numberOfQuestions);
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " number of questions " + this.numberOfQuestions
+                    + " must be greater than 1");
         }
         this.numberOfQuestions = nQuestions;
 
     }
 
-    private void setCreator(User creator) {
+    public void setCreator(User creator) {
         this.creator = creator;
     }
 
@@ -100,7 +102,7 @@ public class Tournament {
 
     public void checkTitle(String title) {
         if (title == null || title.isEmpty() || title.isBlank()) {
-            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " title " + title);
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " title " + title + " can't be blank");
         }
         setTitle(title);
     }
@@ -120,10 +122,15 @@ public class Tournament {
     public void addTopic(Topic topic) {
         Set<Topic> validTopics = courseExecution.getCourse().getTopics();
 
-        if (validTopics.stream().noneMatch(other -> topic == other)) {
-            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " topic" + topic);
+        if (!validTopics.contains(topic)) {
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " topic" + topic
+                    + " is invalid for this course execution");
         }
         topics.add(topic);
+    }
+
+    public void setQuiz(Quiz quiz) {
+        this.quiz = quiz;
     }
 
     public Integer getNumberOfQuestions() { return numberOfQuestions; }
@@ -166,12 +173,18 @@ public class Tournament {
         this.id = id;
     }
 
+    public void setNumberOfQuestions(Integer numberOfQuestions) {
+        this.numberOfQuestions = numberOfQuestions;
+    }
+
     void checkStartingDate(LocalDateTime startingDate) {
-        if (startingDate == null || startingDate.isBefore(LocalDateTime.now())) {
-            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " starting date " + startingDate);
+        if (startingDate == null || startingDate.isBefore(DateHandler.now())) {
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " starting date " + startingDate
+                    + " must be set in the future");
         }
         if (this.conclusionDate != null && !conclusionDate.isAfter(startingDate)) {
-            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " starting date " + startingDate + conclusionDate);
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " starting date " + startingDate
+                    + " must be before conclusion date " + conclusionDate);
         }
         setStartingDate(startingDate);
     }
@@ -182,30 +195,30 @@ public class Tournament {
         }
         if (this.startingDate != null && !conclusionDate.isAfter(startingDate)) {
             throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " conclusion date " + conclusionDate
-                    + " and starting date "  + startingDate);
+                    + " must be after starting date "  + startingDate);
         }
         setConclusionDate(conclusionDate);
     }
 
     public void checkReadyForSignUp() {
-        Status actualStatus = getValidatedStatus();
-        if (actualStatus.equals(Status.FINISHED) || actualStatus.equals(Status.RUNNING)){
+        updateStatus();
+        if (this.status.equals(Status.FINISHED) || this.status.equals(Status.RUNNING)){
             throw new TutorException(TOURNAMENT_SIGN_UP_OVER, this.id);
         }
-        else if (actualStatus.equals(Status.CANCELED)){
+        else if (this.status.equals(Status.CANCELED)){
             throw new TutorException(TOURNAMENT_SIGN_UP_CANCELED, this.id);
         }
     }
 
     public void checkAbleToBeCanceled() {
-        Status actualStatus = getValidatedStatus();
-        if (actualStatus.equals(Status.CANCELED)){
+        updateStatus();
+        if (this.status.equals(Status.CANCELED)){
             throw new TutorException(TOURNAMENT_ALREADY_CANCELED, this.id);
         }
-        else if (actualStatus.equals(Status.RUNNING)){
+        else if (this.status.equals(Status.RUNNING)){
             throw new TutorException(TOURNAMENT_RUNNING, this.id);
         }
-        else if (actualStatus.equals(Status.FINISHED)){
+        else if (this.status.equals(Status.FINISHED)){
             throw new TutorException(TOURNAMENT_FINISHED, this.id);
         }
     }
@@ -215,23 +228,31 @@ public class Tournament {
         status = Status.CANCELED;
     }
 
-    public Status getValidatedStatus() {
+    public void updateStatus() {
         if (status.equals(Status.CANCELED) || status.equals(Status.FINISHED)) {
-            return status;
+            return;
         }
 
-        LocalDateTime currentTime = LocalDateTime.now();
+        LocalDateTime currentTime = DateHandler.now();
         if(currentTime.isBefore(startingDate)) {
             setStatus(Status.OPEN);
+        } else if(!currentTime.isBefore(startingDate) && currentTime.isBefore(conclusionDate)) {
+            if (signedUpUsers.size() >= 2) {
+                setStatus(Status.RUNNING);
+            } else {
+                setStatus(Status.CANCELED);
+            }
+        } else {
+            if (!signedUpUsers.isEmpty()) {
+                setFinished();
+            } else {
+                setStatus(Status.CANCELED);
+            }
         }
-        else if(!currentTime.isBefore(startingDate) && currentTime.isBefore(conclusionDate)) {
-            setStatus(Status.RUNNING);
-        }
-        else {
-            setFinished();
-        }
+    }
 
-        return status;
+    public boolean needsQuiz() {
+        return this.status == Status.RUNNING && this.quiz == null;
     }
 
     public void setFinished() {

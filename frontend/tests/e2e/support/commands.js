@@ -25,26 +25,6 @@
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 /// <reference types="Cypress" />
 
-/* LOGIN Commands */
-/* Demo Login - Admin */
-Cypress.Commands.add('demoAdminLogin', () => {
-  cy.visit('/');
-  cy.get('[data-cy="adminButton"]').click();
-  cy.contains('Administration').click();
-  cy.contains('Manage Courses').click();
-});
-
-/* Demo Login - Teacher/Student */
-Cypress.Commands.add('demoLogin', type => {
-  cy.visit('/');
-  cy.get('[data-cy="' + type + 'Button"]').click();
-});
-
-Cypress.Commands.add('demoStudentLoginTournaments', () => {
-  cy.demoLogin('student');
-  cy.contains('Tournaments').click();
-});
-
 /* ----------------------- */
 /* Teacher Commands */
 
@@ -77,6 +57,14 @@ Cypress.Commands.add('clarificationList', () => {
 });
 
 Cypress.Commands.add('createClarification', clarificationMessage => {
+  cy.get('[data-cy="quizzesButton"]').click();
+  cy.contains('Solved').click();
+  cy.contains('Generated Quiz')
+    .parent()
+    .children()
+    .eq(3)
+    .find('i')
+    .click();
   cy.get('[data-cy="createClarificationButton"]').click();
   if (clarificationMessage != null)
     cy.get('[data-cy="clarificationText"]').type(clarificationMessage);
@@ -160,7 +148,7 @@ Cypress.Commands.add('cancelTournament', name => {
     .parent()
     .should('have.length', 1)
     .children()
-    .should('have.length', 7)
+    .should('have.length', 6)
     .find('[data-cy="cancel"]')
     .click();
 
@@ -172,11 +160,21 @@ Cypress.Commands.add('signUpForTournament', name => {
     .parent()
     .should('have.length', 1)
     .children()
-    .should('have.length', 7)
+    .should('have.length', 6)
     .find('[data-cy="signUp"]')
     .click();
 
   cy.get('[data-cy="executeSignUpButton"]').click();
+});
+
+Cypress.Commands.add('enterTournament', name => {
+  cy.contains(name)
+    .parent()
+    .should('have.length', 1)
+    .children()
+    .should('have.length', 6)
+    .find('[data-cy="enterTournament"]')
+    .click();
 });
 
 Cypress.Commands.add('seeSignedUpTournaments', () => {
@@ -194,14 +192,63 @@ Cypress.Commands.add('seeMyTournaments', () => {
   cy.contains('My Tournaments').click();
 });
 
+Cypress.Commands.add('deleteTournament', name => {
+  const pguser = Cypress.env('db_username');
+  const pgpassword = Cypress.env('db_password');
+  const pgname = Cypress.env('db_name');
+  const tournamentId = `(SELECT id FROM tournaments WHERE title = '${name}')`;
+  cy.exec(
+    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
+      `"DELETE FROM tournaments_topics WHERE tournaments_id = ${tournamentId};"`
+  );
+  cy.exec(
+    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
+      `"DELETE FROM tournaments_signed_up_users WHERE sign_up_tournaments_id = ${tournamentId};"`
+  );
+  cy.exec(
+    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
+      `"DELETE FROM tournaments WHERE id = ${tournamentId};"`
+  );
+});
+
+Cypress.Commands.add('prepareRunningTournament', name => {
+  const pguser = Cypress.env('db_username');
+  const pgpassword = Cypress.env('db_password');
+  const pgname = Cypress.env('db_name');
+  const tournamentId = `(SELECT id FROM tournaments WHERE title = '${name}')`;
+
+  let yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayString =
+    yesterday.getFullYear() +
+    '-' +
+    (yesterday.getMonth() + 1) +
+    '-' +
+    yesterday.getDate() +
+    ' ' +
+    yesterday.getHours() +
+    ':' +
+    yesterday.getMinutes();
+  // Modify the database so that it is instantly running
+
+  cy.exec(
+    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
+      `"INSERT INTO tournaments_signed_up_users (sign_up_tournaments_id, signed_up_users_id) VALUES (${tournamentId}, 651);"`
+  );
+  cy.exec(
+    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
+      `"UPDATE tournaments SET starting_date = '${yesterdayString}', number_of_questions = 5 WHERE title = '${name}'"`
+  );
+});
+
 /* ----------------------- */
 /* ADMIN Commands */
 
 Cypress.Commands.add('createCourseExecution', (name, acronym, academicTerm) => {
   cy.get('[data-cy="createButton"]').click();
-  cy.get('[data-cy="Name"]').type(name);
-  cy.get('[data-cy="Acronym"]').type(acronym);
-  cy.get('[data-cy="AcademicTerm"]').type(academicTerm);
+  cy.get('[data-cy="courseExecutionNameInput"]').type(name);
+  cy.get('[data-cy="courseExecutionAcronymInput"]').type(acronym);
+  cy.get('[data-cy="courseExecutionAcademicTermInput"]').type(academicTerm);
   cy.get('[data-cy="saveButton"]').click();
 });
 
@@ -215,8 +262,8 @@ Cypress.Commands.add(
       .should('have.length', 7)
       .find('[data-cy="createFromCourse"]')
       .click();
-    cy.get('[data-cy="Acronym"]').type(acronym);
-    cy.get('[data-cy="AcademicTerm"]').type(academicTerm);
+    cy.get('[data-cy="courseExecutionAcronymInput"]').type(acronym);
+    cy.get('[data-cy="courseExecutionAcademicTermInput"]').type(academicTerm);
     cy.get('[data-cy="saveButton"]').click();
   }
 );
@@ -247,8 +294,28 @@ Cypress.Commands.add('closeSuccessMessage', successMessage => {
     .click();
 });
 
-Cypress.Commands.add('logout', () => {
-  cy.get('[data-cy="logout"]').click();
+Cypress.Commands.add('setDateToYesterday', name => {
+  let pguser = Cypress.env('db_username');
+  let pgpassword = Cypress.env('db_password');
+  let pgname = Cypress.env('db_name');
+
+  let yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  let yesterdayString =
+    yesterday.getFullYear() +
+    '-' +
+    (yesterday.getMonth() + 1) +
+    '-' +
+    yesterday.getDate() +
+    ' ' +
+    yesterday.getHours() +
+    ':' +
+    yesterday.getMinutes();
+  // Modify the database so that it is instantly running
+  cy.exec(
+    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
+      `"UPDATE tournaments SET starting_date = '${yesterdayString}', number_of_questions = 5 WHERE title = '${name}'"`
+  );
 });
 
 /* ----------------------- */

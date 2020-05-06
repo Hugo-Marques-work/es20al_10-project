@@ -1,5 +1,6 @@
 import User from '@/models/user/User';
 import Topic from '@/models/management/Topic';
+import { ISOtoString } from '@/services/ConvertDateService';
 
 export enum TournamentStatus {
   Open = 'Open',
@@ -38,9 +39,14 @@ export class Tournament {
       this.id = jsonObj.id;
       this.title = jsonObj.title;
       this.numberOfQuestions = jsonObj.numberOfQuestions;
-      this.startingDate = jsonObj.startingDate;
-      this.conclusionDate = jsonObj.conclusionDate;
+
+      if (jsonObj.startingDate)
+        this.startingDate = ISOtoString(jsonObj.startingDate);
+      if (jsonObj.conclusionDate)
+        this.conclusionDate = ISOtoString(jsonObj.conclusionDate);
+
       this.status = stringToTournamentStatus(jsonObj.status.toString());
+
       if (jsonObj.creator) {
         this.creator = new User(jsonObj.creator);
       }

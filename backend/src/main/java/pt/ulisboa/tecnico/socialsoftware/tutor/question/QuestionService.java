@@ -7,7 +7,6 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository;
@@ -33,7 +32,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -113,11 +111,6 @@ public class QuestionService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public QuestionDto createQuestion(int courseId, QuestionDto questionDto) {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new TutorException(COURSE_NOT_FOUND, courseId));
-
-        if (questionDto.getCreationDate() == null) {
-            questionDto.setCreationDate(LocalDateTime.now().format(DateHandler.getFormatter()));
-        }
-
         Question question = new Question(course, questionDto);
         questionRepository.save(question);
         return new QuestionDto(question);
@@ -214,7 +207,6 @@ public class QuestionService {
 
         return latexExporter.export(questionRepository.findAll());
     }
-
 
     @Retryable(
             value = { SQLException.class },

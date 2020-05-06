@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
-import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
@@ -16,8 +15,6 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.OptionDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.QuestionDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository
 import spock.lang.Specification
-
-import java.time.LocalDateTime
 
 @DataJpaTest
 class ImportExportQuestionsTest extends Specification {
@@ -81,7 +78,6 @@ class ImportExportQuestionsTest extends Specification {
     def 'export and import questions to xml'() {
         given: 'a xml with questions'
         def questionsXml = questionService.exportQuestionsToXml()
-        System.out.println(questionsXml)
         and: 'a clean database'
         questionService.removeQuestion(questionId)
 
@@ -95,7 +91,6 @@ class ImportExportQuestionsTest extends Specification {
         questionResult.getTitle() == QUESTION_TITLE
         questionResult.getContent() == QUESTION_CONTENT
         questionResult.getStatus() == Question.Status.AVAILABLE.name()
-        questionResult.getCreationDate() == LocalDateTime.now().format(DateHandler.getFormatter())
         def imageResult = questionResult.getImage()
         imageResult.getWidth() == 20
         imageResult.getUrl() == URL
@@ -115,7 +110,6 @@ class ImportExportQuestionsTest extends Specification {
 
         then:
         questionsLatex != null
-        System.out.println(questionsLatex)
     }
 
     @TestConfiguration
@@ -126,5 +120,4 @@ class ImportExportQuestionsTest extends Specification {
             return new QuestionService()
         }
     }
-
 }

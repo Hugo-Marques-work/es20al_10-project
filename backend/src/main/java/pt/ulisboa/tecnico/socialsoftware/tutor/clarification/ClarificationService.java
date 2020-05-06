@@ -102,7 +102,7 @@ public class ClarificationService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public List<ClarificationDto> getClarificationsByCourse(int courseId) {
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new TutorException(ErrorMessage.COURSE_NOT_FOUND_ID, courseId));
+                .orElseThrow(() -> new TutorException(ErrorMessage.COURSE_NOT_FOUND, courseId));
         Set<Clarification> clarifications = new HashSet<>();
         List<Question> questions = new ArrayList<>(course.getQuestions());
         for (Question question : questions) {
@@ -189,7 +189,7 @@ public class ClarificationService {
 
     private void checkQuestion(Question question) {
         if (question == null)
-            throw new TutorException(ErrorMessage.QUESTION_MISSING_DATA);
+            throw new TutorException(QUESTION_NOT_FOUND);
 
         Question qt = questionRepository.findById(question.getId()).orElse(null);
         if (qt == null)

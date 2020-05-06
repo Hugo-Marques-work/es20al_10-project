@@ -61,6 +61,7 @@ class GetClarificationsSpockTest extends Specification{
         courseRepository.save(course)
         question = new Question()
         question.setKey(KEY)
+        question.setTitle("Title")
         question.setCourse(course)
         questionRepository.save(question)
         course.addQuestion(question)
@@ -175,7 +176,7 @@ class GetClarificationsSpockTest extends Specification{
 
         then:
         def error = thrown(TutorException)
-        error.errorMessage == ErrorMessage.COURSE_NOT_FOUND_ID
+        error.errorMessage == ErrorMessage.COURSE_NOT_FOUND
     }
 
     @TestConfiguration

@@ -4,15 +4,18 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import pt.ulisboa.tecnico.socialsoftware.tutor.answer.AnswerService
 import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
+import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.AnswersXmlImport
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
@@ -52,6 +55,15 @@ class GetOpenTournamentsSpockTest extends Specification {
     @Autowired
     UserService userService
 
+    @Autowired
+    QuizService quizService
+
+    @Autowired
+    AnswerService answerService
+
+    @Autowired
+    AnswersXmlImport answersXmlImport
+
     Course course
     CourseExecution courseExecution
     User student
@@ -88,14 +100,14 @@ class GetOpenTournamentsSpockTest extends Specification {
     }
 
     def setupSpec() {
-        START_DATE = DateHandler.format(LocalDateTime.now().plusDays(1))
-        CONCLUSION_DATE = DateHandler.format(LocalDateTime.now().plusDays(2))
+        START_DATE = DateHandler.toISOString(DateHandler.now().plusDays(1))
+        CONCLUSION_DATE = DateHandler.toISOString(DateHandler.now().plusDays(2))
     }
 
-    def "an open tournament and a cancelled one"() {
+    def "two open tournament and a cancelled one"() {
         given: "two valid tournament dto"
         def validTournament1 = createValidTournamentDto(START_DATE)
-        def otherDate =  DateHandler.format(LocalDateTime.now().plusDays(1).plusHours(12))
+        def otherDate =  DateHandler.toISOString(DateHandler.now().plusDays(1).plusHours(12))
         def validTournament2 = createValidTournamentDto(otherDate)
         and: "a tournament dto that has been canceled"
         def canceledTournament = createValidTournamentDto(START_DATE)
@@ -151,6 +163,21 @@ class GetOpenTournamentsSpockTest extends Specification {
         @Bean
         UserService userService() {
             return new UserService()
+        }
+
+        @Bean
+        QuizService quizService() {
+            return new QuizService()
+        }
+
+        @Bean
+        AnswerService answerService() {
+            return new AnswerService()
+        }
+
+        @Bean
+        AnswersXmlImport answersXmlImport() {
+            return new AnswersXmlImport()
         }
     }
 }
