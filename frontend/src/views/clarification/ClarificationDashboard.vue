@@ -26,6 +26,20 @@
           <p>Total Credited Clarifications</p>
         </div>
       </div>
+      <div class="items" style="text-align: center">
+        <br />
+        <br />
+        <br />
+        <v-switch
+          @change="toggleAvailability"
+          class="availabilityToggle"
+          v-model="switch1"
+          data-cy="availabilitySwitch"
+        ></v-switch>
+        <div class="project-name" style="margin-top: 10pt">
+          <p id="test">Availability: {{ availability }}</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -35,6 +49,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import RemoteServices from '@/services/RemoteServices';
 import AnimatedNumber from '@/components/AnimatedNumber.vue';
 import Clarification from '@/models/clarification/Clarification';
+import User from '@/models/user/User';
 
 @Component({
   components: { AnimatedNumber }
@@ -42,12 +57,34 @@ import Clarification from '@/models/clarification/Clarification';
 export default class ClarificationDashboard extends Vue {
   clarifications: Clarification[] = [];
   clarificationsCredited: Clarification[] = [];
+  user: User | null = null;
+  availability: string = 'Private';
+  switch1: boolean = false;
 
   async created() {
     await this.$store.dispatch('loading');
     try {
+      this.switch1 = await RemoteServices.getDashboardAvailability();
+      if (this.switch1) this.availability = 'Public';
       this.clarifications = await RemoteServices.getClarificationsByUser();
       this.clarificationsCredited = await RemoteServices.getCreditedClarificationsByStudent();
+    } catch (error) {
+      await this.$store.dispatch('error', error);
+    }
+    await this.$store.dispatch('clearLoading');
+  }
+
+  async toggleAvailability() {
+    if (this.availability == 'Private') this.availability = 'Public';
+    else this.availability = 'Private';
+
+    await this.$store.dispatch('loading');
+    try {
+      this.user = await RemoteServices.changeDashboardAvailability();
+      await this.$store.dispatch(
+        'confirmation',
+        'Dashboard availability changed to: ' + this.availability
+      );
     } catch (error) {
       await this.$store.dispatch('error', error);
     }
@@ -57,6 +94,11 @@ export default class ClarificationDashboard extends Vue {
 </script>
 
 <style lang="scss" scoped>
+.availabilityToggle {
+  transform: scale(2);
+  display: inline-block;
+}
+
 .stats-container {
   display: flex;
   flex-direction: row;
