@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
 import org.springframework.data.util.Pair;
+import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuestionAnswer;
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuizAnswer;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
@@ -13,6 +14,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 
@@ -56,9 +58,9 @@ public class Tournament {
     @JoinColumn(name = "course_execution_id")
     private CourseExecution courseExecution;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany
     @Column(name = "user_place_id")
-    private Map<Integer, User> leaderboard = new TreeMap<>();
+    private List<UserBoardPlace> leaderboard = new ArrayList<>();
 
     public Tournament() {}
 
@@ -259,7 +261,7 @@ public class Tournament {
         //no one participated in the quiz
         if(quiz == null) {
             for(User user : signedUpUsers) {
-                leaderboard.put(0,user);
+                leaderboard.add(new UserBoardPlace(user,0,1));
             }
             setStatus(Status.FINISHED);
             return;
@@ -268,16 +270,37 @@ public class Tournament {
         for(User user : signedUpUsers) {
             for (QuizAnswer quizAnswer : user.getQuizAnswers()) {
                 if (quizAnswer.getQuiz().equals(quiz)) {
-                    leaderboard.put(quizAnswer.getNumberOfCorrectAnswers(), user);
+                    int nCorrectAnswers = quizAnswer.getNumberOfCorrectAnswers();
+                    leaderboard.add(new UserBoardPlace(user, nCorrectAnswers,0));
                 } else {
-                    leaderboard.put(0, user);
+                    leaderboard.add(new UserBoardPlace(user, 0,0));
                 }
             }
         }
+        sortLeaderboardPlaces();
         setStatus(Status.FINISHED);
     }
 
-    public Map<Integer, User> getLeaderboard() {
+    private void sortLeaderboardPlaces() {
+        this.leaderboard.sort(Comparator.comparing(UserBoardPlace::getCorrectAnswers));
+
+        int place = 0;
+        int nextPlace = 1;
+        int lastCorrectAnswer = -1;
+        for(UserBoardPlace ubp : this.leaderboard) {
+            if(lastCorrectAnswer == ubp.getCorrectAnswers()) {
+                ubp.setPlace(place);
+                nextPlace++;
+            }
+            else {
+                ubp.setPlace(place + nextPlace);
+                nextPlace = 1;
+                lastCorrectAnswer = ubp.getCorrectAnswers();
+            }
+        }
+    }
+
+    public List<UserBoardPlace> getLeaderboard() {
         return leaderboard;
     }
 

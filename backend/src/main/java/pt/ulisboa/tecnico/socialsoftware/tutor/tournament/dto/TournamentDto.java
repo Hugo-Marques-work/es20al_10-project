@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
+import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.UserBoardPlace;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
@@ -19,7 +20,7 @@ public class TournamentDto {
     private int numberOfQuestions;
     private Set<TopicDto> topics = new HashSet<>();
     private Set<UserDto> signedUpUsers = new HashSet<>();
-    private Map<Integer, UserDto> leaderboard = new TreeMap<>();
+    private List<UserBoardPlaceDto> leaderboard = new ArrayList<>();
     private Tournament.Status status;
 
     public TournamentDto() {}
@@ -42,9 +43,9 @@ public class TournamentDto {
             this.signedUpUsers = tournament.getSignedUpUsers().stream()
                     .map(UserDto::new)
                     .collect(Collectors.toSet());
-            for(Map.Entry<Integer, User> entry : tournament.getLeaderboard().entrySet()) {
-                this.leaderboard.put(entry.getKey(), new UserDto(entry.getValue()));
-            }
+            this.leaderboard = tournament.getLeaderboard().stream()
+                    .map(UserBoardPlaceDto::new)
+                    .collect(Collectors.toList());
         }
     }
 
@@ -146,7 +147,7 @@ public class TournamentDto {
     }
 
 
-    public Map<Integer, UserDto> getLeaderboard() {
+    public List<UserBoardPlaceDto> getLeaderboard() {
         return leaderboard;
     }
 
