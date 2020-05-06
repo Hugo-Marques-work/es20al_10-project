@@ -47,9 +47,16 @@
         class="right-button"
         @click="confirmFinish"
         data-cy="confirmFinish"
-        v-if="questionOrder == statementQuiz.questions.length - 1"
+        v-if="questionOrder === statementQuiz.questions.length - 1"
         ><i class="fas fa-check"
       /></span>
+    </div>
+    <div v-if="showResult" style="padding-top: 25px">
+      <span
+        >Last answer:
+        <v-icon v-if="correctResult" large color="green">check_circle</v-icon>
+        <v-icon v-else large color="red">cancel</v-icon>
+      </span>
     </div>
     <question-component
       v-model="questionOrder"
@@ -63,11 +70,6 @@
       @finish="confirmFinish"
       @select-option="changeAnswer"
     />
-
-    <div class="question-navigation" v-if="showResult">
-      <span v-if="!result" style="{ center:0 ; color: #9c0000}">Errou</span>
-      <span v-if="result" style="{ center:0 ;color: darkgreen}">Acertou</span>
-    </div>
 
     <v-dialog v-model="nextConfirmationDialog" width="50%">
       <v-card>
@@ -162,7 +164,7 @@ export default class TournamentQuizView extends Vue {
   questionOrder: number = 0;
   hideTime: boolean = false;
   showResult: boolean = false;
-  result: boolean = false;
+  correctResult: boolean = false;
   submissionTimer: string = '';
 
   async created() {
@@ -189,7 +191,7 @@ export default class TournamentQuizView extends Vue {
         }
       }
     }
-    throw Error('Já respondeu ao quiz');
+    throw Error('You have already completed this tournament');
   }
 
   async increaseOrder(last: boolean) {
@@ -211,8 +213,7 @@ export default class TournamentQuizView extends Vue {
       );
 
       this.showResult = true;
-      this.result = correct;
-      console.log(correct);
+      this.correctResult = correct;
     }
   }
 

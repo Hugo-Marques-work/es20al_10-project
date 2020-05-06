@@ -48,6 +48,7 @@ public enum ErrorMessage {
     QUIZ_USER_MISMATCH("Quiz %s is not assigned to student %s"),
     QUIZ_MISMATCH("Quiz Answer Quiz %d does not match Quiz Question Quiz %d"),
     QUESTION_OPTION_MISMATCH("Question %d does not have option %d"),
+    QUESTION_ALREADY_ANSWERED("Question %d can't be answered twice"),
     COURSE_EXECUTION_MISMATCH("Course Execution %d does not have quiz %d"),
 
     DUPLICATE_TOPIC("Duplicate topic: %s"),

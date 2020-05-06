@@ -187,8 +187,11 @@ public class AnswerService {
                 if (isNotQuestionOption(questionAnswer.getQuizQuestion(), option)) {
                     throw new TutorException(QUESTION_OPTION_MISMATCH, questionAnswer.getQuizQuestion().getQuestion().getId(), option.getId());
                 }
-                if (questionAnswer.getOption() != null) {
-                    questionAnswer.getOption().getQuestionAnswers().remove(questionAnswer);
+                if (questionAnswer.getTimeTaken() != null) {
+                    throw new TutorException(QUESTION_ALREADY_ANSWERED, questionAnswer.getId());
+                }
+                if (answer.getTimeTaken() == null) {
+                    answer.setTimeTaken(1);
                 }
                 questionAnswer.setOption(option);
             }
