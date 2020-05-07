@@ -9,7 +9,7 @@
       :single-expand="true"
       :expanded.sync="expanded"
       :items-per-page="5"
-      @click:row="goToLeaderboard()"
+      @click:row="goToLeaderboard"
     >
       <!-- STATUS -->
       <template v-slot:top>
@@ -41,17 +41,25 @@
       </template>
 
       <template v-slot:item.place="{ item }">
-        <span> {{ getPlace(item) }}</span>
+        <a> {{ getPlace(item) }}</a>
       </template>
 
       <template v-slot:item.score="{ item }">
-        <span> {{ calculateScore(item) }}</span>
+        <a> {{ calculateScore(item) }}</a>
       </template>
       <!-- TOPICS -->
       <template v-slot:expanded-item="{ headers, item }">
         <td :colspan="headers.length">{{ getTopicNames(item) }}</td>
       </template>
     </v-data-table>
+
+    <!-- DIALOG -->
+    <tournament-leaderboard-dialog
+      v-if="currentTournament"
+      v-model="tournamentLeaderboardDialog"
+      :tournament="currentTournament"
+      v-on:close-dialog="onCloseDialog"
+    ></tournament-leaderboard-dialog>
   </v-card>
 </template>
 
@@ -64,14 +72,18 @@ import SignUpForTournamentDialog from '@/views/student/tournament/SignUpForTourn
 import CreateTournamentDialog from '@/views/student/tournament/CreateTournamentDialog.vue';
 import CancelTournamentDialog from '@/views/student/tournament/CancelTournamentDialog.vue';
 import { UserBoardPlace } from '@/models/tournament/UserBoardPlace';
+import TournamentLeaderboardDialog from '@/views/student/tournament/TournamentLeaderboardDialog.vue';
 
 @Component({
   components: {
+    'tournament-leaderboard-dialog': TournamentLeaderboardDialog
   }
 })
 export default class FinishedTournamentsView extends Vue {
   expanded: any = [];
   tournaments: Tournament[] = [];
+  currentTournament: Tournament | null = null;
+  tournamentLeaderboardDialog: boolean = false;
   search: string = '';
   headers: object = [
     {
@@ -164,11 +176,11 @@ export default class FinishedTournamentsView extends Vue {
       return 'Not applicable';
     }
     let place = userBoardPlace.place;
-    return place + '/' + tournament.signedUpUsers.length;
+    return place + '/' + tournament.leaderboard.length;
   }
 
   getUserBoardPlace(tournament: Tournament): UserBoardPlace | null {
-    for (let ubp of tournament.leaderBoard) {
+    for (let ubp of tournament.leaderboard) {
       if (ubp.user.name == this.$store.getters.getUser.name) {
         return ubp;
       }
@@ -180,10 +192,15 @@ export default class FinishedTournamentsView extends Vue {
     await this.getTournaments();
   }
 
-  goToLeaderboard(): void {
-
+  async goToLeaderboard(tournament: Tournament) {
+    this.currentTournament = tournament;
+    this.tournamentLeaderboardDialog = true;
   }
 
+  onCloseDialog() {
+    this.tournamentLeaderboardDialog = true;
+    this.currentTournament = null;
+  }
 }
 </script>
 

@@ -11,16 +11,11 @@ export enum TournamentStatus {
   Undefined = 'Undefined'
 }
 
-
 function stringToTournamentStatus(statusString: string): TournamentStatus {
-  if (statusString == 'OPEN')
-    return TournamentStatus.Open;
-  else if (statusString == 'RUNNING')
-    return TournamentStatus.Running;
-  else if (statusString == 'FINISHED')
-    return TournamentStatus.Finished;
-  else if (statusString == 'CANCELED')
-    return TournamentStatus.Canceled;
+  if (statusString == 'OPEN') return TournamentStatus.Open;
+  else if (statusString == 'RUNNING') return TournamentStatus.Running;
+  else if (statusString == 'FINISHED') return TournamentStatus.Finished;
+  else if (statusString == 'CANCELED') return TournamentStatus.Canceled;
   return TournamentStatus.Undefined;
 }
 
@@ -34,7 +29,7 @@ export class Tournament {
   status!: TournamentStatus;
   topics: Topic[] = [];
   signedUpUsers: User[] = [];
-  leaderBoard: UserBoardPlace[] = [];
+  leaderboard: UserBoardPlace[] = [];
 
   constructor(jsonObj?: Tournament) {
     if (jsonObj) {
@@ -63,8 +58,8 @@ export class Tournament {
           (user: User) => new User(user)
         );
       }
-      if (jsonObj.leaderBoard) {
-        this.leaderBoard = jsonObj.leaderBoard.map(
+      if (jsonObj.leaderboard) {
+        this.leaderboard = jsonObj.leaderboard.map(
           (ubp: UserBoardPlace) => new UserBoardPlace(ubp)
         );
       }
