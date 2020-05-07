@@ -236,6 +236,16 @@ public class TournamentService {
                 .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND, tournamentId));
     }
 
+    public Tournament findTournamentByQuizId(int quizId) {
+        return this.tournamentRepository.findAll().stream()
+                .filter(tournament -> {
+                        Quiz quiz = tournament.getQuiz();
+                        return (quiz != null) && quiz.getId() == quizId;
+                })
+                .findFirst()
+                .orElseThrow(() -> new TutorException(TOURNAMENT_NOT_FOUND_BY_QUIZ, quizId));
+    }
+
     @Retryable(
             value = { SQLException.class },
             backoff = @Backoff(delay = 5000))
@@ -281,5 +291,20 @@ public class TournamentService {
         return user.getClosedTournaments(courseExecutionId).stream()
                 .map(tournament -> new TournamentDto(tournament, true)).sorted(Comparator
                 .comparing(TournamentDto::getStartingDateDate)).collect(Collectors.toList());
+    }
+
+    public String getTournamentPrivacyPreference(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new TutorException(USER_NOT_FOUND, userId));
+
+        return user.getTournamentPrivacyPreference().toString();
+    }
+
+    public void setTournamentPrivacyPreference(int userId, String preference) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new TutorException(USER_NOT_FOUND, userId));
+
+        user.setTournamentPrivacyPreference(preference);
+        userRepository.save(user);
     }
 }

@@ -31,12 +31,12 @@
           </elementProp>
           <elementProp name="startingDate" elementType="Argument">
             <stringProp name="Argument.name">startingDate</stringProp>
-            <stringProp name="Argument.value">${__timeShift(yyyy-MM-dd HH:mm,,P1D,,)}</stringProp>
+            <stringProp name="Argument.value">${__timeShift(yyyy-MM-dd&apos;T&apos;HH:mm&apos;Z&apos;,,P1D,,)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="conclusionDate" elementType="Argument">
             <stringProp name="Argument.name">conclusionDate</stringProp>
-            <stringProp name="Argument.value">${__timeShift(yyyy-MM-dd HH:mm,,P3D,,)}</stringProp>
+            <stringProp name="Argument.value">${__timeShift(yyyy-MM-dd&apos;T&apos;HH:mm&apos;Z&apos;,,P3D,,)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="title" elementType="Argument">
@@ -68,7 +68,7 @@
         <stringProp name="timeout">10000</stringProp>
         <stringProp name="transactionIsolation">DEFAULT</stringProp>
         <stringProp name="trimInterval">60000</stringProp>
-        <stringProp name="username">ars</stringProp>
+        <stringProp name="username"></stringProp>
       </JDBCDataSource>
       <hashTree/>
       <SetupThreadGroup guiclass="SetupThreadGroupGui" testclass="SetupThreadGroup" testname="setUp Thread Group" enabled="true">

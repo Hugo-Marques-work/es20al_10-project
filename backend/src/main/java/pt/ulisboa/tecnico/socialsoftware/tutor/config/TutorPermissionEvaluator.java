@@ -87,6 +87,10 @@ public class TutorPermissionEvaluator implements PermissionEvaluator {
                     return userCreatedTournament(userId, id);
                 case "TOURNAMENT.ACCESS":
                     return userHasThisExecution(userId, tournamentService.findTournamentCourseExecution(id).getCourseExecutionId());
+                case "TOURNAMENT.PARTICIPATE":
+                    return userSignedUpTournament(userId, tournamentService.findTournamentByQuizId(id).getId());
+                case "TOURNAMENT.GET":
+                    return userSignedUpTournament(userId, id);
                 default: return false;
             }
         }
@@ -102,6 +106,11 @@ public class TutorPermissionEvaluator implements PermissionEvaluator {
     private boolean userHasThisExecution(int userId, int courseExecutionId) {
         return userService.getCourseExecutions(userId).stream()
                 .anyMatch(course -> course.getCourseExecutionId() == courseExecutionId);
+    }
+
+    private boolean userSignedUpTournament(int userId, int tournamentId) {
+        return userService.getSignedUpTournaments(userId).stream()
+                .anyMatch(tournament -> tournament.getId() == tournamentId);
     }
 
     private boolean userCreatedTournament(int userId, int id) {
