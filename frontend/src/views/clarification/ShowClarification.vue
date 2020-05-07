@@ -5,30 +5,21 @@
       class="clarificationContent"
       v-html="convertMarkDown(clarification.content)"
     />
-    <br />
     <span>{{ clarification.user.name }}</span>
     <br />
     <br />
-    <v-divider />
     <br />
-    <div v-if="hasAnswers">
+    <div>
       <ul class="answerContent">
         <li v-for="answer in answers" :key="answer.id">
           <span
             class="clarificationContent"
             v-html="convertMarkDown(answer.content)"
           />
-          <br />
           <span v-html="convertMarkDown(answer.user.name)" />
-          <br />
           <br />
         </li>
       </ul>
-    </div>
-    <div v-else>
-      <b
-        ><span style="font-size: 15pt" v-html="convertMarkDown('No answers')"
-      /></b>
     </div>
   </div>
 </template>
@@ -48,7 +39,6 @@ export default class ShowClarification extends Vue {
   @Prop({ type: Boolean, required: true })
   readonly refresh!: boolean;
   answers: ClarificationAnswer[] = [];
-  hasAnswers: boolean = true;
 
   @Watch('clarification')
   @Watch('refresh')
@@ -58,7 +48,6 @@ export default class ShowClarification extends Vue {
       this.answers = await RemoteServices.getClarificationAnswers(
         this.clarification
       );
-      this.hasAnswers = this.answers.length != 0;
       this.$forceUpdate();
     } catch (error) {
       await this.$store.dispatch('error', error);
@@ -72,7 +61,6 @@ export default class ShowClarification extends Vue {
       this.answers = await RemoteServices.getClarificationAnswers(
         this.clarification
       );
-      if (this.answers.length != 0) this.hasAnswers = true;
     } catch (error) {
       await this.$store.dispatch('error', error);
     }

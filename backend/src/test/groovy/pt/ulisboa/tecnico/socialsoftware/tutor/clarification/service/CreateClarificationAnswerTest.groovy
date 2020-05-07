@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.ClarificationService
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.domain.Clarification
+import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.domain.ClarificationAnswer
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.dto.ClarificationAnswerDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.repository.ClarificationAnswerRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.repository.ClarificationRepository
@@ -22,8 +23,9 @@ import spock.lang.Unroll
 class CreateClarificationAnswerTest extends Specification {
     static final String NAME = "test user"
     static final String USERNAME = "test_user"
+    static final String USERNAME2 = "test_user2"
     static final Integer USER_KEY = 1
-    static final User.Role ROLE = User.Role.TEACHER
+    static final Integer USER_KEY2 = 2
     static final String CONTENT = "I explain your clarification."
 
     static final enum unitType {
@@ -50,81 +52,102 @@ class CreateClarificationAnswerTest extends Specification {
     @Shared
     Clarification clarification
 
+    @Shared
+    User user
+
     def setup(){
+        user = new User(NAME, USERNAME, USER_KEY, User.Role.STUDENT)
+        userRepository.save(user)
         clarification = new Clarification()
         clarification.setContent(CONTENT)
+        clarification.setUser(user)
     }
 
-
-    def "user and clarification exists and creates clarification answers"(){
-        given: "a user"
-        def user = new User(NAME, USERNAME, USER_KEY, ROLE)
-        userRepository.save(user)
-        and: "a clarification"
+    def "student replies to the teacher answer"(){
+        given: "a clarification"
         clarificationRepository.save(clarification)
+        and: "a clarification answer from a teacher"
+        def teacher = new User("teacher", "teacher", USER_KEY + 1, User.Role.TEACHER)
+        userRepository.save(teacher)
+        clarificationService.createClarificationAnswer(clarification, teacher, CONTENT)
 
         when:
         clarificationService.createClarificationAnswer(clarification, user, CONTENT)
 
         then: "the correct clarification answer is inside the repository"
-        clarificationAnswerRepository.count() == 1
-        def result = clarificationAnswerRepository.findAll().get(0)
+        clarificationAnswerRepository.count() == 2
+        def result = clarificationAnswerRepository.findAll().get(1)
         result.getContent() == CONTENT
         and: "the clarification answer was added to the clarification"
-        clarification.getClarificationAnswers().size() == 1
+        clarification.getClarificationAnswers().size() == 2
     }
 
-    @Unroll("invalid user and clarification: #clarificationType | #userType || errorMessage")
+    def "student tries to send a second clarifications before it is answered"(){
+        given: "a clarification"
+        clarificationRepository.save(clarification)
+
+        when:
+        clarificationService.createClarificationAnswer(clarification, user, CONTENT)
+
+        then: "throws exception"
+        def error = thrown(TutorException)
+        error.errorMessage == ErrorMessage.CLARIFICATION_SAME_USER
+    }
+
+    @Unroll("invalid user and clarification: #clarificationType | #userType | #userRole || errorMessage")
     def "invalid user and clarification"() {
 
         when:
-        clarificationService.createClarificationAnswer(getClarification(clarificationType), getUser(userType), CONTENT)
+        clarificationService.createClarificationAnswer(getClarification(clarificationType), getUser(userType, userRole), CONTENT)
 
         then: "an exception is thrown"
         def error = thrown(TutorException)
         error.errorMessage == errorMessage
 
         where:
-        clarificationType   | userType              ||  errorMessage
-        unitType.INEXISTENT | unitType.EXISTENT     ||  ErrorMessage.CLARIFICATION_NOT_FOUND
-        unitType.NULL       | unitType.EXISTENT     ||  ErrorMessage.CLARIFICATION_NOT_FOUND
-        unitType.EXISTENT   | unitType.INEXISTENT   ||  ErrorMessage.USER_NOT_FOUND
-        unitType.EXISTENT   | unitType.NULL         ||  ErrorMessage.USER_NOT_FOUND
+        clarificationType   | userType              | userRole            ||  errorMessage
+        unitType.INEXISTENT | unitType.EXISTENT     | User.Role.TEACHER   ||  ErrorMessage.CLARIFICATION_NOT_FOUND
+        unitType.INEXISTENT | unitType.EXISTENT     | User.Role.STUDENT   ||  ErrorMessage.CLARIFICATION_NOT_FOUND
+        unitType.NULL       | unitType.EXISTENT     | User.Role.TEACHER   ||  ErrorMessage.CLARIFICATION_NOT_FOUND
+        unitType.NULL       | unitType.EXISTENT     | User.Role.STUDENT   ||  ErrorMessage.CLARIFICATION_NOT_FOUND
+        unitType.EXISTENT   | unitType.INEXISTENT   | User.Role.TEACHER   ||  ErrorMessage.USER_NOT_FOUND
+        unitType.EXISTENT   | unitType.INEXISTENT   | User.Role.STUDENT   ||  ErrorMessage.USER_NOT_FOUND
+        unitType.EXISTENT   | unitType.NULL         | User.Role.TEACHER   ||  ErrorMessage.USER_NOT_FOUND
+        unitType.EXISTENT   | unitType.NULL         | User.Role.STUDENT   ||  ErrorMessage.USER_NOT_FOUND
     }
 
-    @Unroll("invalid arguments: #content | #role || errorMessage")
+    @Unroll("invalid arguments: #content || errorMessage")
     def "invalid input values"(){
         given: "a user"
-        def user = new User(NAME, USERNAME, USER_KEY, role)
-        userRepository.save(user)
+        def teacher = new User(NAME, USERNAME2, USER_KEY2, User.Role.TEACHER)
+        userRepository.save(teacher)
         and: "a clarification"
         clarificationRepository.save(clarification)
 
         when:
-        clarificationService.createClarificationAnswer(clarification, user, content)
+        clarificationService.createClarificationAnswer(clarification, teacher, content)
 
         then: "an exception is thrown"
         def error = thrown(TutorException)
         error.errorMessage == errorMessage
 
         where:
-        content |   role                ||  errorMessage
-        null    |   User.Role.TEACHER   ||  ErrorMessage.CLARIFICATION_ANSWER_IS_EMPTY
-        "  "    |   User.Role.TEACHER   ||  ErrorMessage.CLARIFICATION_ANSWER_IS_EMPTY
-        CONTENT |   User.Role.STUDENT   ||  ErrorMessage.CLARIFICATION_WRONG_USER
+        content ||  errorMessage
+        null    ||  ErrorMessage.CLARIFICATION_ANSWER_IS_EMPTY
+        "  "    ||  ErrorMessage.CLARIFICATION_ANSWER_IS_EMPTY
     }
 
-    def getUser(type) {
-        def user = new User(NAME, USERNAME, USER_KEY, ROLE)
+    def getUser(type, userRole) {
+        def newUser = new User(NAME, USERNAME2, USER_KEY2, userRole)
 
         switch (type) {
             case unitType.EXISTENT:
-                userRepository.save(user)
-                return user
+                userRepository.save(newUser)
+                return newUser
             case unitType.INEXISTENT:
-                userRepository.save(user)
-                userRepository.delete(user)
-                return user
+                userRepository.save(newUser)
+                userRepository.delete(newUser)
+                return newUser
             case unitType.NULL:
             default:
                 return null

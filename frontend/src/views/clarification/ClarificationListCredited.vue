@@ -102,22 +102,6 @@
           </template>
           <span>View Clarification</span>
         </v-tooltip>
-        <v-tooltip bottom>
-          <template
-            v-slot:activator="{ on }"
-            v-if="isTeacher && !item.availableByTeacher"
-          >
-            <v-icon
-              small
-              class="mr-2"
-              v-on="on"
-              @click="makeClarificationVisible(item)"
-              data-cy="makeClarificationVisible"
-              >mdi-share-variant</v-icon
-            >
-          </template>
-          <span>Make Clarification Visible</span>
-        </v-tooltip>
       </template>
     </v-data-table>
 
@@ -139,7 +123,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import RemoteServices from '@/services/RemoteServices';
 import Clarification from '@/models/clarification/Clarification';
 import Course from '@/models/user/Course';
@@ -153,8 +137,7 @@ import ShowClarificationDialog from '@/views/clarification/ShowClarificationDial
     'show-clarification-dialog': ShowClarificationDialog
   }
 })
-export default class ClarificationListView extends Vue {
-  @Prop({ type: Boolean, required: false }) readonly onlyAvailable!: boolean;
+export default class ClarificationListCredited extends Vue {
   isTeacher: boolean = false;
   clarifications: Clarification[] = [];
   currentCourse: Course | null = null;
@@ -205,16 +188,9 @@ export default class ClarificationListView extends Vue {
   async getClarifications() {
     await this.$store.dispatch('loading');
     try {
-      this.isTeacher =
-        this.$store.getters.isTeacher || this.$store.getters.isAdmin;
-      if (this.isTeacher || this.onlyAvailable) {
-        this.clarifications = (
-          await RemoteServices.getClarificationsByCurrentCourse()
-        ).reverse();
-      } else
-        this.clarifications = (
-          await RemoteServices.getClarificationsByUser()
-        ).reverse();
+      this.clarifications = (
+        await RemoteServices.getCreditedClarificationsByStudent()
+      ).reverse();
     } catch (error) {
       await this.$store.dispatch('error', error);
     }
@@ -222,6 +198,7 @@ export default class ClarificationListView extends Vue {
   }
 
   async updateAnsweredStatus() {
+    console.log('update');
     await this.$store.dispatch('loading');
     try {
       this.clarifications = (
@@ -252,27 +229,17 @@ export default class ClarificationListView extends Vue {
 
   async makeClarificationVisible(clarification: Clarification) {
     try {
-      if (this.$store.getters.isTeacher) {
-        await RemoteServices.makeClarificationAvailableByTeacher(clarification);
-        await this.$store.dispatch(
-          'confirmation',
-          'Clarification is now available in anonymity'
-        );
-        this.refresh();
-      } else if (this.$store.getters.isStudent) {
-        await RemoteServices.makeClarificationAvailableByStudent(clarification);
-        await this.$store.dispatch(
-          'confirmation',
-          'Clarification is now available'
-        );
-        this.refresh();
-      }
+      await RemoteServices.makeClarificationAvailableByStudent(clarification);
+      await this.$store.dispatch(
+        'confirmation',
+        'Clarification is now available'
+      );
+      this.refresh();
     } catch (error) {
       await this.$store.dispatch('error', error);
     }
   }
 
-  @Watch('onlyAvailable')
   async refresh() {
     await this.getClarifications();
   }

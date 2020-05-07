@@ -28,6 +28,8 @@ import CoursesView from '@/views/admin/Courses/CoursesView.vue';
 import ClarificationView from '@/views/clarification/ClarificationView.vue';
 import ClarificationListView from '@/views/clarification/ClarificationListView.vue';
 import TournamentsView from '@/views/student/tournament/TournamentsView.vue';
+import ClarificationDashboard from '@/views/clarification/ClarificationDashboard.vue';
+import ClarificationListCredited from '@/views/clarification/ClarificationListCredited.vue';
 
 Vue.use(Router);
 
@@ -205,12 +207,31 @@ let router = new Router({
       component: ClarificationView,
       children: [
         {
+          path: 'dashboard',
+          name: 'dashboard-clarifications',
+          component: ClarificationDashboard,
+          meta: {
+            title: process.env.VUE_APP_NAME + ' - List Clarifications',
+            requiredAuth: 'Student'
+          }
+        },
+        {
           path: 'list',
           name: 'list-clarifications',
           component: ClarificationListView,
+          props: { onlyAvailable: false },
           meta: {
             title: process.env.VUE_APP_NAME + ' - List Clarifications',
             requiredAuth: 'Student Teacher'
+          }
+        },
+        {
+          path: 'list/credited',
+          name: 'list-credited-clarifications',
+          component: ClarificationListCredited,
+          meta: {
+            title: process.env.VUE_APP_NAME + ' - List Clarifications',
+            requiredAuth: 'Student'
           }
         },
         {
@@ -220,6 +241,16 @@ let router = new Router({
           meta: {
             title: process.env.VUE_APP_NAME + ' - View Clarification',
             requiredAuth: 'Student Teacher'
+          }
+        },
+        {
+          path: 'available',
+          name: 'available-clarification',
+          component: ClarificationListView,
+          props: { onlyAvailable: true },
+          meta: {
+            title: process.env.VUE_APP_NAME + ' - Available Clarifications',
+            requiredAuth: 'Student'
           }
         }
       ]

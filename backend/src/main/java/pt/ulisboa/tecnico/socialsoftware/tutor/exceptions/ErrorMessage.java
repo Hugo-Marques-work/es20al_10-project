@@ -40,6 +40,8 @@ public enum ErrorMessage {
 
     CLARIFICATION_IS_EMPTY("The clarification content is empty"),
     CLARIFICATION_WRONG_USER("The user has to be associated with a %s"),
+    CLARIFICATION_NOT_CREATOR("The user is not the clarification creator"),
+    CLARIFICATION_SAME_USER("Cannot send two consecutive clarifications, please wait for a response."),
     CLARIFICATION_NOT_FOUND("Clarification not found with id %s"),
 
     CLARIFICATION_ANSWER_NOT_FOUND("Clarification answer not found with id %s"),

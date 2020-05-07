@@ -18,13 +18,15 @@ import spock.lang.Shared
 import spock.lang.Specification
 
 @DataJpaTest
-class GetClarificationsSpockPerformanceTest extends Specification {
+class getCreditedClarifications extends Specification {
     static final String NAME = "test user"
     static final String USERNAME = "test_user"
     static final Integer KEY = 1
     static final User.Role ROLE = User.Role.STUDENT
     static final String CONTENT = "I want a clarification in this question."
+    static final String CONTENT_AVAILABLE = "I want a clarification available in this question."
     static final String COURSE_NAME = "Software Architecture"
+    static final int NON_EXISTING_ID = 1000
 
     @Autowired
     ClarificationService clarificationService
@@ -48,48 +50,42 @@ class GetClarificationsSpockPerformanceTest extends Specification {
     User user
     Question question
     Course course
+    Clarification clarification1
+    Clarification clarification2
 
-    def setup() {
+    def setup(){
         user = new User(NAME, USERNAME, KEY, ROLE)
         userRepository.save(user)
+
         course = new Course(COURSE_NAME, Course.Type.TECNICO)
         courseRepository.save(course)
+
         question = new Question()
         question.setKey(KEY)
         question.setTitle("Title")
         question.setCourse(course)
         questionRepository.save(question)
         course.addQuestion(question)
-        1.upto(1, {
-            def clarification = new Clarification(CONTENT, question, user)
-            clarificationRepository.save(clarification)
-            user.addClarification(clarification)
-            question.addClarification(clarification)
-        })
+
+        clarification1 = new Clarification(CONTENT, question, user)
+        clarification1.setAvailability(Clarification.Availability.NONE)
+        clarificationRepository.save(clarification1)
+        user.addClarification(clarification1)
+        question.addClarification(clarification1)
+
+        clarification2 = new Clarification(CONTENT, question, user)
+        clarification2.setAvailability(Clarification.Availability.BOTH)
+        clarificationRepository.save(clarification2)
+        user.addClarification(clarification2)
+        question.addClarification(clarification2)
     }
 
-    def "performance test to get 1000 clarifications by user" () {
+    def "change dashboard availability" () {
         when:
-        1.upto(1, {clarificationService.getClarificationsByUser(user.getId())})
+        def results = clarificationService.getCreditedClarificationsByStudent(user.getId())
 
-        then:
-        true
-    }
-
-    def "performance test to get 1000 clarifications by question" () {
-        when:
-        1.upto(1, {clarificationService.getClarificationsByQuestion(question.getId())})
-
-        then:
-        true
-    }
-
-    def "performance test to get 1000 clarifications by course" () {
-        when:
-        1.upto(1, {clarificationService.getClarificationsByCourse(course.getId(), User.Role.TEACHER)})
-
-        then:
-        true
+        then: "dashboard availability should be public"
+        results.size() == 1
     }
 
     @TestConfiguration

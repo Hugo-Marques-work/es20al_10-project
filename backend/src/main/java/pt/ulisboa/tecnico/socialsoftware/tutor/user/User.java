@@ -28,12 +28,17 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.US
 public class User implements UserDetails, DomainEntity {
     public enum Role {STUDENT, TEACHER, ADMIN, DEMO_ADMIN}
 
+    public enum DashboardAvailability {PRIVATE, PUBLIC}
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(unique=true, nullable = false)
     private Integer key;
+
+    @Column
+    private DashboardAvailability dashboardAvailability;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -96,6 +101,7 @@ public class User implements UserDetails, DomainEntity {
         this.numberOfCorrectTeacherAnswers = 0;
         this.numberOfCorrectInClassAnswers = 0;
         this.numberOfCorrectStudentAnswers = 0;
+        this.dashboardAvailability = DashboardAvailability.PRIVATE;
     }
 
     @Override
@@ -325,6 +331,22 @@ public class User implements UserDetails, DomainEntity {
     public void setClarificationAnswers(Set<ClarificationAnswer> clarificationAnswers) { this.clarificationAnswers = clarificationAnswers; }
 
     public void addClarificationAnswer(ClarificationAnswer clarificationAnswer) {this.clarificationAnswers.add(clarificationAnswer);}
+
+    public DashboardAvailability getDashboardPublic() {
+        if (this.dashboardAvailability == null) this.dashboardAvailability = DashboardAvailability.PRIVATE;
+        return this.dashboardAvailability;
+    }
+
+    public void setDashboardPublic(DashboardAvailability dashboardAvailability) {
+        this.dashboardAvailability = dashboardAvailability;
+    }
+
+    public void toggleDashboardAvailability() {
+        if (this.dashboardAvailability == null || this.dashboardAvailability == DashboardAvailability.PRIVATE)
+            this.dashboardAvailability = DashboardAvailability.PUBLIC;
+        else this.dashboardAvailability = DashboardAvailability.PRIVATE;
+    }
+
 
     @Override
     public String toString() {

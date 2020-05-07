@@ -25,7 +25,7 @@
           </elementProp>
           <elementProp name="id" elementType="Argument">
             <stringProp name="Argument.name">id</stringProp>
-            <stringProp name="Argument.value">1</stringProp>
+            <stringProp name="Argument.value">2050</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="questionId" elementType="Argument">
@@ -57,8 +57,8 @@
         <stringProp name="checkQuery"></stringProp>
         <stringProp name="dbUrl">jdbc:postgresql://localhost:5432/tutordb</stringProp>
         <stringProp name="driver">org.postgresql.Driver</stringProp>
-        <stringProp name="username">galmeida</stringProp>
-        <stringProp name="password">gabiru99</stringProp>
+        <stringProp name="username">ars</stringProp>
+        <stringProp name="password"></stringProp>
         <stringProp name="connectionProperties"></stringProp>
       </JDBCDataSource>
       <hashTree/>

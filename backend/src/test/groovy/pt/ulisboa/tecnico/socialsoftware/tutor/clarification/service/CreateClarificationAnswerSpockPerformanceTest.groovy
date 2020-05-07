@@ -16,8 +16,9 @@ import spock.lang.Specification
 class CreateClarificationAnswerSpockPerformanceTest extends Specification {
     static final String NAME = "test user"
     static final String USERNAME = "test_user"
+    static final String USERNAME2 = "test_user2"
     static final Integer USER_KEY = 1
-    static final User.Role ROLE = User.Role.TEACHER
+    static final Integer USER_KEY2 = 2
     static final String CONTENT = "I explain your clarification."
 
     @Autowired
@@ -33,17 +34,21 @@ class CreateClarificationAnswerSpockPerformanceTest extends Specification {
     ClarificationAnswerRepository clarificationAnswerRepository
 
     def "performance testing to create 5000 clarification answers"(){
-        given: "a user"
-        def user = new User(NAME, USERNAME, USER_KEY, ROLE)
-        userRepository.save(user)
+        given: "a teacher"
+        def teacher = new User(NAME, USERNAME, USER_KEY, User.Role.TEACHER)
+        userRepository.save(teacher)
+        and: "a student"
+        def student = new User(NAME, USERNAME2, USER_KEY2, User.Role.STUDENT)
+        userRepository.save(student)
         and: "a clarification"
         def clarification = new Clarification()
         clarification.setContent(CONTENT)
+        clarification.setUser(student)
         clarificationRepository.save(clarification)
 
         when:
         1.upto(1, {
-            clarificationService.createClarificationAnswer(clarification, user, CONTENT)
+            clarificationService.createClarificationAnswer(clarification, teacher, CONTENT)
         })
 
         then:

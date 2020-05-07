@@ -27,6 +27,7 @@ class GetClarificationsSpockTest extends Specification{
     static final Integer KEY = 1
     static final User.Role ROLE = User.Role.STUDENT
     static final String CONTENT = "I want a clarification in this question."
+    static final String CONTENT_AVAILABLE = "I want a clarification available in this question."
     static final String COURSE_NAME = "Software Architecture"
     static final int NON_EXISTING_ID = 1000
 
@@ -66,12 +67,14 @@ class GetClarificationsSpockTest extends Specification{
         questionRepository.save(question)
         course.addQuestion(question)
         clarification = new Clarification(CONTENT, question, user)
+        clarification.setAvailability(Clarification.Availability.BOTH)
         clarificationRepository.save(clarification)
         user.addClarification(clarification)
         question.addClarification(clarification)
     }
 
     def "User exists and returns clarifications with no answers" () {
+
         when:
         def result = clarificationService.getClarificationsByUser(user.getId())
 
@@ -95,7 +98,7 @@ class GetClarificationsSpockTest extends Specification{
 
     def "Course exists and returns clarifications with no answers" () {
         when:
-        def result = clarificationService.getClarificationsByCourse(course.getId())
+        def result = clarificationService.getClarificationsByCourse(course.getId(), User.Role.TEACHER)
 
         then:
         result.get(0).content == CONTENT
@@ -105,8 +108,11 @@ class GetClarificationsSpockTest extends Specification{
     }
 
     def "User exists and returns clarifications with answers" () {
-        given: "a clarification answer"
-        def clarificationAnswer = new ClarificationAnswer(CONTENT, clarification, user)
+        given: "a teacher"
+        def teacher = new User(NAME, "test", KEY+1, User.Role.TEACHER)
+        userRepository.save(teacher)
+        and: "a clarification answer"
+        def clarificationAnswer = new ClarificationAnswer(CONTENT, clarification, teacher)
         clarificationAnswerRepository.save(clarificationAnswer)
         clarification.addClarificationAnswer(clarificationAnswer)
 
@@ -121,8 +127,11 @@ class GetClarificationsSpockTest extends Specification{
     }
 
     def "Question exists and returns clarifications with answers" () {
-        given: "a clarification answer"
-        def clarificationAnswer = new ClarificationAnswer(CONTENT, clarification, user)
+        given: "a teacher"
+        def teacher = new User(NAME, "test", KEY+1, User.Role.TEACHER)
+        userRepository.save(teacher)
+        and: "a clarification answer"
+        def clarificationAnswer = new ClarificationAnswer(CONTENT, clarification, teacher)
         clarificationAnswerRepository.save(clarificationAnswer)
         clarification.addClarificationAnswer(clarificationAnswer)
 
@@ -137,13 +146,16 @@ class GetClarificationsSpockTest extends Specification{
     }
 
     def "Course exists and returns clarifications with answers" () {
-        given: "a clarification answer"
-        def clarificationAnswer = new ClarificationAnswer(CONTENT, clarification, user)
+        given: "a teacher"
+        def teacher = new User(NAME, "test", KEY+1, User.Role.TEACHER)
+        userRepository.save(teacher)
+        and: "a clarification answer"
+        def clarificationAnswer = new ClarificationAnswer(CONTENT, clarification, teacher)
         clarificationAnswerRepository.save(clarificationAnswer)
         clarification.addClarificationAnswer(clarificationAnswer)
 
         when:
-        def result = clarificationService.getClarificationsByCourse(course.getId())
+        def result = clarificationService.getClarificationsByCourse(course.getId(), User.Role.TEACHER)
 
         then:
         result.get(0).content == CONTENT
@@ -152,7 +164,87 @@ class GetClarificationsSpockTest extends Specification{
         result.get(0).answered
     }
 
-    def "User does not exists and a an error is returned" () {
+    def "Course exists and has two clarifications, only one is with full availability, student only sees one" () {
+        given: "a clarification not available"
+        clarification.setAvailability(Clarification.Availability.NONE)
+
+        and: "a clarification available"
+        def clarificationAvailable = new Clarification(CONTENT_AVAILABLE, question, user)
+        clarificationAvailable.setAvailability(Clarification.Availability.BOTH)
+        question.addClarification(clarificationAvailable)
+        clarificationRepository.save(clarificationAvailable)
+
+        when:
+        def result = clarificationService.getClarificationsByCourse(course.getId(), ROLE.STUDENT)
+
+        then:
+        result.size() == 1
+        result.get(0).content == clarificationAvailable.content
+        result.get(0).content != clarification.content
+        result.get(0).question.getId() == question.getId()
+        result.get(0).user.getId() == user.getId()
+    }
+
+    def "Course exists and has two clarifications, only one is with student availability, student only sees one" () {
+        given: "a clarification not available"
+        clarification.setAvailability(Clarification.Availability.NONE)
+
+        and: "a clarification available"
+        def clarificationAvailable = new Clarification(CONTENT_AVAILABLE, question, user)
+        clarificationAvailable.setAvailability(Clarification.Availability.STUDENT)
+        clarificationRepository.save(clarificationAvailable)
+        question.addClarification(clarificationAvailable)
+
+        when:
+        def result = clarificationService.getClarificationsByCourse(course.getId(), ROLE.STUDENT)
+
+        then:
+        result.size() == 1
+        result.get(0).content == clarificationAvailable.content
+        result.get(0).content != clarification.content
+        result.get(0).question.getId() == question.getId()
+        result.get(0).user.getId() == user.getId()
+    }
+
+    def "Course exists and has two clarifications, only one is with teacher availability, student only sees one" () {
+        given: "a clarification not available"
+        clarification.setAvailability(Clarification.Availability.NONE)
+
+        and: "a clarification available"
+        def clarificationAvailable = new Clarification(CONTENT_AVAILABLE, question, user)
+        clarificationAvailable.setAvailability(Clarification.Availability.TEACHER)
+        clarificationRepository.save(clarificationAvailable)
+        question.addClarification(clarificationAvailable)
+
+        when:
+        def result = clarificationService.getClarificationsByCourse(course.getId(), ROLE.STUDENT)
+
+        then:
+        result.size() == 1
+        result.get(0).content == clarificationAvailable.content
+        result.get(0).content != clarification.content
+        result.get(0).question.getId() == question.getId()
+        result.get(0).user == null
+    }
+
+    def "Course exists and has two clarifications, none is available, student doesn't see anything" () {
+        given: "a clarification not available"
+        clarification.setAvailability(Clarification.Availability.NONE)
+
+        and: "a clarification available"
+        def clarificationNotAvailable = new Clarification(CONTENT, question, user)
+        clarificationNotAvailable.setAvailability(Clarification.Availability.NONE)
+        clarificationRepository.save(clarificationNotAvailable)
+        question.addClarification(clarificationNotAvailable)
+
+        when:
+        def result = clarificationService.getClarificationsByCourse(course.getId(), ROLE.STUDENT)
+
+        then:
+        result.size() == 0
+    }
+
+    def "User does not exist and a an error is returned" () {
         when:
         clarificationService.getClarificationsByUser(NON_EXISTING_ID)
 
@@ -161,7 +253,7 @@ class GetClarificationsSpockTest extends Specification{
         error.errorMessage == ErrorMessage.USER_NOT_FOUND
     }
 
-    def "Question does not exists and an error is returned" () {
+    def "Question does not exist and an error is returned" () {
         when:
         clarificationService.getClarificationsByQuestion(NON_EXISTING_ID)
 
@@ -170,9 +262,9 @@ class GetClarificationsSpockTest extends Specification{
         error.errorMessage == ErrorMessage.QUESTION_NOT_FOUND
     }
 
-    def "Course does not exists and an error is returned" () {
+    def "Course does not exist and an error is returned" () {
         when:
-        clarificationService.getClarificationsByCourse(NON_EXISTING_ID)
+        clarificationService.getClarificationsByCourse(NON_EXISTING_ID, User.Role.TEACHER)
 
         then:
         def error = thrown(TutorException)
