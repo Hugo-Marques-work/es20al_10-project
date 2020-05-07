@@ -218,7 +218,7 @@ Cypress.Commands.add('prepareRunningTournament', name => {
   const tournamentId = `(SELECT id FROM tournaments WHERE title = '${name}')`;
 
   let yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
+  yesterday.setDate(yesterday.getDate() - 2);
   const yesterdayString =
     yesterday.getFullYear() +
     '-' +
@@ -241,7 +241,7 @@ Cypress.Commands.add('prepareRunningTournament', name => {
   );
   cy.exec(
     `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
-      `"UPDATE tournaments SET starting_date = '${yesterdayString}', number_of_questions = 9 WHERE title = '${name}'"`
+      `"UPDATE tournaments SET starting_date = '${yesterdayString}', number_of_questions = 5 WHERE title = '${name}'"`
   );
 });
 
@@ -250,21 +250,22 @@ Cypress.Commands.add('finishTournament', name => {
   const pgpassword = Cypress.env('db_password');
   const pgname = Cypress.env('db_name');
 
-  const now = new Date();
+  let yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
   const nowString =
-    now.getFullYear() +
+    yesterday.getFullYear() +
     '-' +
-    (now.getMonth() + 1) +
+    (yesterday.getMonth() + 1) +
     '-' +
-    now.getDate() +
+    yesterday.getDate() +
     ' ' +
-    now.getHours() +
+    yesterday.getHours() +
     ':' +
-    now.getMinutes();
+    yesterday.getMinutes();
 
   cy.exec(
     `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
-      `"UPDATE tournaments SET conclusion_date = '${nowString} WHERE title = '${name}'"`
+      `"UPDATE tournaments SET conclusion_date = '${nowString}' WHERE title = '${name}'"`
   );
 });
 

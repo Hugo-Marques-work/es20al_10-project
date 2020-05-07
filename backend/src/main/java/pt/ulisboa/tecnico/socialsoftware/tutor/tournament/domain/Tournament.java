@@ -44,7 +44,7 @@ public class Tournament {
     private LocalDateTime conclusionDate;
 
     @Enumerated(EnumType.STRING)
-    private Status status = Status.OPEN;;
+    private Status status = Status.OPEN;
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Column(name = "user_id")
@@ -58,7 +58,7 @@ public class Tournament {
     @JoinColumn(name = "course_execution_id")
     private CourseExecution courseExecution;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Column(name = "user_place_id")
     private List<UserBoardPlace> leaderboard = new ArrayList<>();
 
@@ -258,20 +258,16 @@ public class Tournament {
     }
 
     public void setFinished() {
+        System.out.println("CONA");
         for(User user : signedUpUsers) {
-            boolean foundOne = false;
-            if(quiz != null) {
-                for (QuizAnswer quizAnswer : user.getQuizAnswers()) {
-                    if (quizAnswer.getQuiz().equals(quiz)) {
-                        int nCorrectAnswers = quizAnswer.getNumberOfCorrectAnswers();
-                        leaderboard.add(new UserBoardPlace(user, nCorrectAnswers, 0));
-                        foundOne = true;
-                        break;
-                    }
-                }
-            }
-            if(!foundOne) {
-                leaderboard.add(new UserBoardPlace(user, 0,0));
+            Optional<QuizAnswer> quizAnswer = user.getQuizAnswers().stream()
+                    .filter(qa -> qa.getQuiz().equals(quiz))
+                    .findFirst();
+
+            if (quizAnswer.isEmpty()) {
+                leaderboard.add(new UserBoardPlace(user, 0, 0));
+            } else {
+                leaderboard.add(new UserBoardPlace(user, quizAnswer.get().getNumberOfCorrectAnswers(), 0));
             }
         }
         sortLeaderboardPlaces();

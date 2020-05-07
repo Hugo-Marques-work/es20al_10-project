@@ -1,11 +1,8 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain;
 
-import org.springframework.context.annotation.Primary;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "userBoardPlace")

@@ -177,19 +177,13 @@
         <!-- Tournaments -->
         <v-menu offset-y v-if="isStudent && currentCourse" open-on-hover>
           <template v-slot:activator="{ on }">
-            <v-btn
-              v-on="on"
-              to="/student/tournaments"
-              v-if="isStudent && currentCourse"
-              text
-              dark
-            >
+            <v-btn v-on="on" text dark data-cy="tournamentsButton">
               Tournaments
               <v-icon>fas fa-trophy</v-icon>
             </v-btn>
           </template>
           <v-list dense>
-            <v-list-item to="/student/tournaments">
+            <v-list-item to="/student/tournaments" data-cy="availableTournaments">
               <v-list-item-action>
                 <v-icon>assignment</v-icon>
               </v-list-item-action>
@@ -197,14 +191,12 @@
                 <v-list-item-title>Available</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
-            <v-list-item to="/student/finishedTournaments">
+            <v-list-item to="/student/finishedTournaments" data-cy="finishedTournaments">
               <v-list-item-action>
                 <v-icon>assignment</v-icon>
               </v-list-item-action>
               <v-list-item-content>
-                <v-list-item-title data-cy="finishedTournaments"
-                  >Finished</v-list-item-title
-                >
+                <v-list-item-title>Finished</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list>
@@ -405,8 +397,10 @@
         <v-list-group
 
                 prepend-icon="fas fa-trophy"
-                :value="false"
-                offset-y v-if="isStudent && currentCourse">
+          :value="false"
+          offset-y
+          v-if="isStudent && currentCourse"
+        >
           <template v-slot:activator>
             <v-list-item-title>Tournaments</v-list-item-title>
           </template>

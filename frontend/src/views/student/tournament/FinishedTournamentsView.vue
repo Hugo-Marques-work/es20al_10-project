@@ -174,7 +174,8 @@ export default class FinishedTournamentsView extends Vue {
   async getTournaments() {
     await this.$store.dispatch('loading');
     try {
-      let tournaments: Tournament[] = await RemoteServicesStub.getUserClosedTournaments();
+      let tournaments: Tournament[] = await RemoteServices.getUserClosedTournaments();
+      
       this.tournaments = tournaments;
     } catch (error) {
       await this.$store.dispatch('error', error);

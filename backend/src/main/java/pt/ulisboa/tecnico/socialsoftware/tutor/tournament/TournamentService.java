@@ -282,11 +282,10 @@ public class TournamentService {
     }
 
     public List<TournamentDto> getClosedTournaments(int userId, int courseExecutionId) {
-        courseExecutionRepository.findById(courseExecutionId).orElseThrow(
-                () -> new TutorException(COURSE_EXECUTION_NOT_FOUND, courseExecutionId));
+        CourseExecution courseExecution = getCourseExecution(courseExecutionId);
+        User user = getUser(userId);
 
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new TutorException(USER_NOT_FOUND, userId));
+        getUpdatedTournaments(courseExecution);
 
         return user.getClosedTournaments(courseExecutionId).stream()
                 .map(tournament -> new TournamentDto(tournament, true)).sorted(Comparator
