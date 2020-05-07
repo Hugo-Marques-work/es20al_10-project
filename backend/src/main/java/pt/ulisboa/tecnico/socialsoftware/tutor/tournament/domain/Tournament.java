@@ -260,12 +260,14 @@ public class Tournament {
     public void setFinished() {
         for(User user : signedUpUsers) {
             boolean foundOne = false;
-            for (QuizAnswer quizAnswer : user.getQuizAnswers()) {
-                if (quizAnswer.getQuiz().equals(quiz)) {
-                    int nCorrectAnswers = quizAnswer.getNumberOfCorrectAnswers();
-                    leaderboard.add(new UserBoardPlace(user, nCorrectAnswers,0));
-                    foundOne = true;
-                    break;
+            if(quiz != null) {
+                for (QuizAnswer quizAnswer : user.getQuizAnswers()) {
+                    if (quizAnswer.getQuiz().equals(quiz)) {
+                        int nCorrectAnswers = quizAnswer.getNumberOfCorrectAnswers();
+                        leaderboard.add(new UserBoardPlace(user, nCorrectAnswers, 0));
+                        foundOne = true;
+                        break;
+                    }
                 }
             }
             if(!foundOne) {
@@ -279,19 +281,16 @@ public class Tournament {
     private void sortLeaderboardPlaces() {
         this.leaderboard.sort(Comparator.comparing(UserBoardPlace::getCorrectAnswers));
 
-        int place = 0;
+        int place = 1;
         int nextPlace = 1;
         int lastCorrectAnswer = -1;
         for(UserBoardPlace ubp : this.leaderboard) {
-            if(lastCorrectAnswer == ubp.getCorrectAnswers()) {
-                ubp.setPlace(place);
-                nextPlace++;
+            if(lastCorrectAnswer != ubp.getCorrectAnswers()) {
+                place = nextPlace;
             }
-            else {
-                ubp.setPlace(place + nextPlace);
-                nextPlace = 1;
-                lastCorrectAnswer = ubp.getCorrectAnswers();
-            }
+            nextPlace++;
+            lastCorrectAnswer = ubp.getCorrectAnswers();
+            ubp.setPlace(place);
         }
     }
 

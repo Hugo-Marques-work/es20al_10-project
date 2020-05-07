@@ -80,6 +80,7 @@ import CreateTournamentDialog from '@/views/student/tournament/CreateTournamentD
 import CancelTournamentDialog from '@/views/student/tournament/CancelTournamentDialog.vue';
 import { UserBoardPlace } from '@/models/tournament/UserBoardPlace';
 import TournamentLeaderboardDialog from '@/views/student/tournament/TournamentLeaderboardDialog.vue';
+import RemoteServicesStub from '@/services/RemoteServicesStub';
 
 @Component({
   components: {
@@ -171,7 +172,7 @@ export default class FinishedTournamentsView extends Vue {
   async getTournaments() {
     await this.$store.dispatch('loading');
     try {
-      let tournaments: Tournament[] = await RemoteServices.getUserClosedTournaments();
+      let tournaments: Tournament[] = await RemoteServicesStub.getUserClosedTournaments();
       this.tournaments = tournaments;
     } catch (error) {
       await this.$store.dispatch('error', error);
