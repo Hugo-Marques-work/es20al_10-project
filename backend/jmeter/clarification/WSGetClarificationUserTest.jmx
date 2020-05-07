@@ -20,7 +20,7 @@
           </elementProp>
           <elementProp name="content" elementType="Argument">
             <stringProp name="Argument.name">content</stringProp>
-            <stringProp name="Argument.value">&apos;jmeter test&apos;</stringProp>
+            <stringProp name="Argument.value">&apos;jmeter test nvbcnmnbvnbnvb&apos;</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="id" elementType="Argument">
@@ -57,7 +57,7 @@
         <stringProp name="checkQuery"></stringProp>
         <stringProp name="dbUrl">jdbc:postgresql://localhost:5432/tutordb</stringProp>
         <stringProp name="driver">org.postgresql.Driver</stringProp>
-        <stringProp name="username">ars</stringProp>
+        <stringProp name="username"></stringProp>
         <stringProp name="password"></stringProp>
         <stringProp name="connectionProperties"></stringProp>
       </JDBCDataSource>
@@ -351,7 +351,7 @@ insert into clarifications values(${id}, ${content}, false, ${questionId}, ${use
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
           <stringProp name="dataSource">clarifications</stringProp>
           <stringProp name="queryType">Callable Statement</stringProp>
-          <stringProp name="query">delete from clarifications where id = ${id};</stringProp>
+          <stringProp name="query">delete from clarifications where content like &apos;%nvbcnmnbvnbnvb%&apos;;</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
           <stringProp name="variableNames"></stringProp>

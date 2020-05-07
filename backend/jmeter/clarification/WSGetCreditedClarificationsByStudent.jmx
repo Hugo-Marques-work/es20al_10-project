@@ -20,7 +20,7 @@
           </elementProp>
           <elementProp name="content" elementType="Argument">
             <stringProp name="Argument.name">content</stringProp>
-            <stringProp name="Argument.value">&apos;jmeter test&apos;</stringProp>
+            <stringProp name="Argument.value">&apos;jmeter test jfhsdhlfasdkjhfjsdk&apos;</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="questionId" elementType="Argument">
@@ -53,13 +53,13 @@
         <stringProp name="driver">org.postgresql.Driver</stringProp>
         <stringProp name="initQuery"></stringProp>
         <boolProp name="keepAlive">true</boolProp>
-        <stringProp name="password">gabiru99</stringProp>
+        <stringProp name="password"></stringProp>
         <stringProp name="poolMax">0</stringProp>
         <boolProp name="preinit">false</boolProp>
         <stringProp name="timeout">10000</stringProp>
         <stringProp name="transactionIsolation">DEFAULT</stringProp>
         <stringProp name="trimInterval">60000</stringProp>
-        <stringProp name="username">galmeida</stringProp>
+        <stringProp name="username"></stringProp>
       </JDBCDataSource>
       <hashTree/>
       <SetupThreadGroup guiclass="SetupThreadGroupGui" testclass="SetupThreadGroup" testname="setUp Thread Group" enabled="true">
@@ -78,10 +78,9 @@
       <hashTree>
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
           <stringProp name="dataSource">clarification</stringProp>
-          <stringProp name="query">delete from clarifications where id = ${id};
-delete from clarifications where id = 1;
-insert into clarifications(id, content, question_id, user_id, is_answered, availability) values(1, ${content}, ${questionId}, ${studentId}, false, 0);
-insert into clarifications(id, content, question_id, user_id, is_answered, availability) values(${id}, ${content}, ${questionId}, ${studentId}, false, 3);</stringProp>
+          <stringProp name="query">delete from clarifications where content like &apos;%jfhsdhlfasdkjhfjsdk%&apos;;
+insert into clarifications(content, question_id, user_id, is_answered, availability) values(${content}, ${questionId}, ${studentId}, false, 0);
+insert into clarifications(content, question_id, user_id, is_answered, availability) values(${content}, ${questionId}, ${studentId}, false, 3);</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
           <stringProp name="queryTimeout"></stringProp>
@@ -169,7 +168,7 @@ insert into clarifications(id, content, question_id, user_id, is_answered, avail
           <hashTree>
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert content" enabled="true">
               <stringProp name="JSON_PATH">$[0].content</stringProp>
-              <stringProp name="EXPECTED_VALUE">jmeter test</stringProp>
+              <stringProp name="EXPECTED_VALUE">jmeter test jfhsdhlfasdkjhfjsdk</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
               <boolProp name="INVERT">false</boolProp>
@@ -179,15 +178,6 @@ insert into clarifications(id, content, question_id, user_id, is_answered, avail
             <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert user id" enabled="true">
               <stringProp name="JSON_PATH">$[0].user.id</stringProp>
               <stringProp name="EXPECTED_VALUE">${studentId}</stringProp>
-              <boolProp name="JSONVALIDATION">true</boolProp>
-              <boolProp name="EXPECT_NULL">false</boolProp>
-              <boolProp name="INVERT">false</boolProp>
-              <boolProp name="ISREGEX">false</boolProp>
-            </JSONPathAssertion>
-            <hashTree/>
-            <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Assert id" enabled="true">
-              <stringProp name="JSON_PATH">$[0].id</stringProp>
-              <stringProp name="EXPECTED_VALUE">${id}</stringProp>
               <boolProp name="JSONVALIDATION">true</boolProp>
               <boolProp name="EXPECT_NULL">false</boolProp>
               <boolProp name="INVERT">false</boolProp>

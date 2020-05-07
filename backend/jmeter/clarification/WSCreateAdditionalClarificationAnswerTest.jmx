@@ -58,13 +58,13 @@
         <stringProp name="driver">org.postgresql.Driver</stringProp>
         <stringProp name="initQuery"></stringProp>
         <boolProp name="keepAlive">true</boolProp>
-        <stringProp name="password"></stringProp>
+        <stringProp name="password">gabiru99</stringProp>
         <stringProp name="poolMax">0</stringProp>
         <boolProp name="preinit">false</boolProp>
         <stringProp name="timeout">10000</stringProp>
         <stringProp name="transactionIsolation">DEFAULT</stringProp>
         <stringProp name="trimInterval">60000</stringProp>
-        <stringProp name="username"></stringProp>
+        <stringProp name="username">galmeida</stringProp>
       </JDBCDataSource>
       <hashTree/>
       <SetupThreadGroup guiclass="SetupThreadGroupGui" testclass="SetupThreadGroup" testname="setUp Thread Group" enabled="true">
@@ -85,7 +85,7 @@
           <stringProp name="dataSource">clarification</stringProp>
           <stringProp name="query">delete from clarification_answers where id = ${id};
 delete from clarifications where id = ${id};
-insert into clarifications values(${id}, ${content}, false, ${questionId}, ${studentId});
+insert into clarifications(id, content, is_answered, question_id, user_id) values(${id}, ${content}, false, ${questionId}, ${studentId});
 insert into clarification_answers values(${id}, ${content}, ${id}, ${teacherId})</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>

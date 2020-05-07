@@ -37,7 +37,7 @@
         <stringProp name="checkQuery"></stringProp>
         <stringProp name="dbUrl">jdbc:postgresql://localhost:5432/tutordb</stringProp>
         <stringProp name="driver">org.postgresql.Driver</stringProp>
-        <stringProp name="username">ars</stringProp>
+        <stringProp name="username"></stringProp>
         <stringProp name="password"></stringProp>
         <stringProp name="connectionProperties"></stringProp>
       </JDBCDataSource>
@@ -103,7 +103,7 @@
               <collectionProp name="Arguments.arguments">
                 <elementProp name="" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">jmeter test</stringProp>
+                  <stringProp name="Argument.value">jmeter test uytwegdljhbgwhe</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
               </collectionProp>
@@ -234,7 +234,7 @@
       <hashTree>
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
           <stringProp name="dataSource">deleteClarification</stringProp>
-          <stringProp name="query">delete from clarifications where content = &apos;jmeter test&apos;;</stringProp>
+          <stringProp name="query">delete from clarifications where content like&apos;%uytwegdljhbgwhe%&apos;;</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
           <stringProp name="queryTimeout"></stringProp>
