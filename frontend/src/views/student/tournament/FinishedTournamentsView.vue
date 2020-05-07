@@ -1,5 +1,12 @@
 <template>
   <v-card class="table">
+    <v-col style="display: flex;  ;left: 0">
+      <v-switch
+        v-model="publishPreferenceOn"
+        label="Publish informations"
+        data-cy="privacyToggle"
+      />
+    </v-col>
     <v-data-table
       :headers="headers"
       :fixed-header="true"
@@ -56,7 +63,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import RemoteServices from '@/services/RemoteServices';
 import { Tournament, TournamentStatus } from '@/models/tournament/Tournament';
 import Topic from '@/models/management/Topic';
@@ -66,10 +73,10 @@ import CancelTournamentDialog from '@/views/student/tournament/CancelTournamentD
 import { UserBoardPlace } from '@/models/tournament/UserBoardPlace';
 
 @Component({
-  components: {
-  }
+  components: {}
 })
 export default class FinishedTournamentsView extends Vue {
+  publishPreferenceOn: boolean = true;
   expanded: any = [];
   tournaments: Tournament[] = [];
   search: string = '';
@@ -122,7 +129,17 @@ export default class FinishedTournamentsView extends Vue {
   async created() {
     await this.$store.dispatch('loading');
     await this.$store.dispatch('clearLoading');
+    let preference = await RemoteServices.getUserTournamentPrivacyPreference();
+    this.setPrivacyPreference(preference);
     await this.getTournaments();
+  }
+
+  setPrivacyPreference(preference: string): void {
+    if (preference == 'PUBLIC') {
+      this.publishPreferenceOn = true;
+    } else {
+      this.publishPreferenceOn = false;
+    }
   }
 
   getTopicNames(topicItems: any): String {
@@ -180,10 +197,14 @@ export default class FinishedTournamentsView extends Vue {
     await this.getTournaments();
   }
 
-  goToLeaderboard(): void {
+  goToLeaderboard(): void {}
 
+  @Watch('publishPreferenceOn')
+  async checkPrivacy() {
+    if (this.publishPreferenceOn)
+      await RemoteServices.setUserTournamentPrivacyPreference('PUBLIC');
+    else await RemoteServices.setUserTournamentPrivacyPreference('PRIVATE');
   }
-
 }
 </script>
 

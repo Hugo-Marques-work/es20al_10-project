@@ -152,4 +152,9 @@ describe('Tournament walkthrough', () => {
       .click();
     cy.deleteTournament(name);
   });
+
+  it.only('user changes his privacy preference', () => {
+    cy.get('[data-cy="finishedTournaments"]').click();
+    cy.get('[data-cy="privacyToggle"]').click();
+  });
 });

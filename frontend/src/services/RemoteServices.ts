@@ -764,13 +764,35 @@ export default class RemoteServices {
     return httpClient
       .get(
         '/executions/' +
-        Store.getters.getCurrentCourse.courseExecutionId +
-        '/tournaments/closed'
+          Store.getters.getCurrentCourse.courseExecutionId +
+          '/tournaments/closed'
       )
       .then(response => {
         return response.data.map((tournament: any) => {
           return new Tournament(tournament);
         });
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static async getUserTournamentPrivacyPreference(): Promise<string> {
+    return httpClient
+      .get('/tournaments/user-privacy-preference/get')
+      .then(response => {
+        return response.data;
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static async setUserTournamentPrivacyPreference(preference: string) {
+    return httpClient
+      .post('/tournaments/user-privacy-preference/set/' + preference)
+      .then(response => {
+        return;
       })
       .catch(async error => {
         throw Error(await this.errorMessage(error));
