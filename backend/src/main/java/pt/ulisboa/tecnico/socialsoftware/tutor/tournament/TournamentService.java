@@ -154,7 +154,7 @@ public class TournamentService {
         }
     }
 
-    private void generateQuiz(Tournament tournament) {
+    public void generateQuiz(Tournament tournament) {
         // check if quiz was already generated
         if (!tournament.needsQuiz()) {
             return;

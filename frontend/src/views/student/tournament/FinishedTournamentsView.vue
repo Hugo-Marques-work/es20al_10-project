@@ -9,6 +9,7 @@
       :single-expand="true"
       :expanded.sync="expanded"
       :items-per-page="5"
+      @click:row="goToLeaderboard()"
     >
       <!-- STATUS -->
       <template v-slot:top>
@@ -62,6 +63,7 @@ import Topic from '@/models/management/Topic';
 import SignUpForTournamentDialog from '@/views/student/tournament/SignUpForTournamentDialog.vue';
 import CreateTournamentDialog from '@/views/student/tournament/CreateTournamentDialog.vue';
 import CancelTournamentDialog from '@/views/student/tournament/CancelTournamentDialog.vue';
+import { UserBoardPlace } from '@/models/tournament/UserBoardPlace';
 
 @Component({
   components: {
@@ -148,16 +150,38 @@ export default class FinishedTournamentsView extends Vue {
   }
 
   calculateScore(tournament: Tournament): String {
-    let rightAnswer = 0;
-    return rightAnswer + '/' + tournament.numberOfQuestions;
+    let userBoardPlace = this.getUserBoardPlace(tournament);
+    if (userBoardPlace == null) {
+      return 'Not applicable';
+    }
+    let correctAnswers = userBoardPlace.correctAnswers;
+    return correctAnswers + '/' + tournament.numberOfQuestions;
   }
 
   getPlace(tournament: Tournament): String {
-   return '0' + '/' + tournament.signedUpUsers.length;
+    let userBoardPlace = this.getUserBoardPlace(tournament);
+    if (userBoardPlace == null) {
+      return 'Not applicable';
+    }
+    let place = userBoardPlace.place;
+    return place + '/' + tournament.signedUpUsers.length;
+  }
+
+  getUserBoardPlace(tournament: Tournament): UserBoardPlace | null {
+    for (let ubp of tournament.leaderBoard) {
+      if (ubp.user.name == this.$store.getters.getUser.name) {
+        return ubp;
+      }
+    }
+    return null;
   }
 
   async refresh() {
     await this.getTournaments();
+  }
+
+  goToLeaderboard(): void {
+
   }
 
 }

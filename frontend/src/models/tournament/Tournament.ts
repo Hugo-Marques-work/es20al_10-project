@@ -1,6 +1,7 @@
 import User from '@/models/user/User';
 import Topic from '@/models/management/Topic';
 import { ISOtoString } from '@/services/ConvertDateService';
+import { UserBoardPlace } from '@/models/tournament/UserBoardPlace';
 
 export enum TournamentStatus {
   Open = 'Open',
@@ -33,6 +34,7 @@ export class Tournament {
   status!: TournamentStatus;
   topics: Topic[] = [];
   signedUpUsers: User[] = [];
+  leaderBoard: UserBoardPlace[] = [];
 
   constructor(jsonObj?: Tournament) {
     if (jsonObj) {
@@ -59,6 +61,11 @@ export class Tournament {
       if (jsonObj.signedUpUsers) {
         this.signedUpUsers = jsonObj.signedUpUsers.map(
           (user: User) => new User(user)
+        );
+      }
+      if (jsonObj.leaderBoard) {
+        this.leaderBoard = jsonObj.leaderBoard.map(
+          (ubp: UserBoardPlace) => new UserBoardPlace(ubp)
         );
       }
     }

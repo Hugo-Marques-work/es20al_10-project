@@ -4,16 +4,19 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import pt.ulisboa.tecnico.socialsoftware.tutor.answer.AnswerService
 import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
+import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.AnswersXmlImport
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto
@@ -68,6 +71,7 @@ class GetUserFinishedTournamentsSpockTest extends Specification {
     CourseExecution courseExecution
     CourseExecution otherCourseExecution
     User student
+    User student2
     Set<User> studentSet
     TopicDto topicDto
 
@@ -97,7 +101,6 @@ class GetUserFinishedTournamentsSpockTest extends Specification {
         tournamentRepository.save(tournament);
         tournament.setStartingDate( FINISHED_START_DATE)
         tournament.setConclusionDate( FINISHED_CONCLUSION_DATE)
-        tournament.getValidatedStatus()
         return tournament;
     }
 
@@ -113,10 +116,15 @@ class GetUserFinishedTournamentsSpockTest extends Specification {
 
         student = new User("Joao", "joao", 1, User.Role.STUDENT)
         userRepository.save(student)
-        userService.addCourseExecution(student.getUsername(),courseExecution.getId());
+        userService.addCourseExecution(student.getId(),courseExecution.getId());
+
+        student2 = new User("Joaquina", "joaquina", 2, User.Role.STUDENT)
+        userRepository.save(student2)
+        userService.addCourseExecution(student2.getId(),courseExecution.getId());
 
         studentSet = new HashSet<User>()
         studentSet.add(student)
+        studentSet.add(student2)
 
         topicDto = new TopicDto()
         topicDto.setName(TOPIC_NAME)
@@ -124,8 +132,8 @@ class GetUserFinishedTournamentsSpockTest extends Specification {
     }
 
     def setupSpec() {
-        START_DATE = DateHandler.format(LocalDateTime.now().plusDays(1))
-        CONCLUSION_DATE = DateHandler.format(LocalDateTime.now().plusDays(2))
+        START_DATE = DateHandler.toISOString(LocalDateTime.now().plusDays(1))
+        CONCLUSION_DATE = DateHandler.toISOString(LocalDateTime.now().plusDays(2))
         FINISHED_START_DATE = LocalDateTime.now().minusDays(10)
         FINISHED_CONCLUSION_DATE = LocalDateTime.now().minusDays(9)
     }
@@ -145,7 +153,9 @@ class GetUserFinishedTournamentsSpockTest extends Specification {
 
         validFinishedTournament.setCourseExecution(courseExecution);
         student.setSignUpTournaments(tournamentSet)
+        student2.setSignUpTournaments(tournamentSet)
         validFinishedTournament.setSignedUpUsers(studentSet);
+        validFinishedTournament.updateStatus()
 
         and: "a tournament dto that has finished that the user participated in with another courseExecution"
         def validFinishedTournament2 = createValidClosedTournament(tournamentName2);
@@ -154,7 +164,9 @@ class GetUserFinishedTournamentsSpockTest extends Specification {
         validFinishedTournament2.setCourseExecution(otherCourseExecution);
 
         student.setSignUpTournaments(tournamentSet)
+        student2.setSignUpTournaments(tournamentSet)
         validFinishedTournament2.setSignedUpUsers(studentSet);
+        validFinishedTournament2.updateStatus()
 
         and: "a tournament dto that has finished that the user did not participate in"
         createValidClosedTournament(tournamentName2);
@@ -190,6 +202,20 @@ class GetUserFinishedTournamentsSpockTest extends Specification {
     @TestConfiguration
     static class ServiceImplTestContextConfiguration {
 
+        @Bean
+        AnswersXmlImport answersXmlImport() {
+            return new AnswersXmlImport()
+        }
+
+        @Bean
+        AnswerService answerService() {
+            return new AnswerService()
+        }
+
+        @Bean
+        QuizService quizService() {
+            return new QuizService()
+        }
         @Bean
         TournamentService tournamentService() {
             return new TournamentService()

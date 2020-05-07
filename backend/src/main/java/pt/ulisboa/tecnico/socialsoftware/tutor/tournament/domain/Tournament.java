@@ -58,7 +58,7 @@ public class Tournament {
     @JoinColumn(name = "course_execution_id")
     private CourseExecution courseExecution;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @Column(name = "user_place_id")
     private List<UserBoardPlace> leaderboard = new ArrayList<>();
 
@@ -258,23 +258,18 @@ public class Tournament {
     }
 
     public void setFinished() {
-        //no one participated in the quiz
-        if(quiz == null) {
-            for(User user : signedUpUsers) {
-                leaderboard.add(new UserBoardPlace(user,0,1));
-            }
-            setStatus(Status.FINISHED);
-            return;
-        }
-
         for(User user : signedUpUsers) {
+            boolean foundOne = false;
             for (QuizAnswer quizAnswer : user.getQuizAnswers()) {
                 if (quizAnswer.getQuiz().equals(quiz)) {
                     int nCorrectAnswers = quizAnswer.getNumberOfCorrectAnswers();
                     leaderboard.add(new UserBoardPlace(user, nCorrectAnswers,0));
-                } else {
-                    leaderboard.add(new UserBoardPlace(user, 0,0));
+                    foundOne = true;
+                    break;
                 }
+            }
+            if(!foundOne) {
+                leaderboard.add(new UserBoardPlace(user, 0,0));
             }
         }
         sortLeaderboardPlaces();
@@ -320,10 +315,6 @@ public class Tournament {
                 ", numberOfQuestions=" + numberOfQuestions +
                 ", topics=" + topics +
                 '}';
-    }
-
-    public void setNumberOfQuestions(Integer numberOfQuestions) {
-        this.numberOfQuestions = numberOfQuestions;
     }
 
     private class LeaderBoardComparator implements Comparator<QuizAnswer> {

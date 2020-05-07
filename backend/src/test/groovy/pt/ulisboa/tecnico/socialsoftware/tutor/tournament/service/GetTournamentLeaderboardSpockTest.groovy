@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import pt.ulisboa.tecnico.socialsoftware.tutor.answer.AnswerService
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuestionAnswer
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuizAnswer
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.repository.QuizAnswerRepository
@@ -13,6 +14,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
+import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.AnswersXmlImport
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Option
@@ -20,6 +22,8 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.OptionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.QuizQuestion
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizQuestionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizRepository
@@ -122,11 +126,13 @@ class GetTournamentLeaderboardSpockTest extends Specification {
         def tournament = new Tournament(studentSet[0], TITLE,  LocalDateTime.now().plusDays(1),
                 LocalDateTime.now().plusDays(2), NUMBER_QUESTIONS)
         tournament.setCourseExecution(courseExecution)
+        tournamentRepository.save(tournament);
+
+        tournament.setQuiz(new Quiz())
         def quizQuestion1 = new QuizQuestion(tournament.getQuiz(),question1,0)
         def quizQuestion2 = new QuizQuestion(tournament.getQuiz(),question2,0)
         quizQuestionRepository.save(quizQuestion1)
         quizQuestionRepository.save(quizQuestion2)
-        tournamentRepository.save(tournament);
         return tournament;
     }
 
@@ -152,26 +158,26 @@ class GetTournamentLeaderboardSpockTest extends Specification {
             tournament.setStartingDate(FINISHED_START_DATE)
             tournament.setConclusionDate(FINISHED_CONCLUSION_DATE)
             tournament.setSignedUpUsers(studentSet)
-            tournament.getValidatedStatus()
+            tournament.updateStatus()
         }
     }
 
     def setupUsers() {
         def student1 = new User(NAME1, USERNAME1, 1, User.Role.STUDENT)
         userRepository.save(student1)
-        userService.addCourseExecution(student1.getUsername(),courseExecution.getId());
+        userService.addCourseExecution(student1.getId(),courseExecution.getId());
 
         def student2 = new User(NAME2, USERNAME2, 2, User.Role.STUDENT)
         userRepository.save(student2)
-        userService.addCourseExecution(student2.getUsername(),courseExecution.getId());
+        userService.addCourseExecution(student2.getId(),courseExecution.getId());
 
         def student3 = new User(NAME3, USERNAME3, 3, User.Role.STUDENT)
         userRepository.save(student3)
-        userService.addCourseExecution(student3.getUsername(),courseExecution.getId());
+        userService.addCourseExecution(student3.getId(),courseExecution.getId());
 
         def student4 = new User(NAME4, USERNAME4, 4, User.Role.STUDENT)
         userRepository.save(student4)
-        userService.addCourseExecution(student4.getUsername(),courseExecution.getId());
+        userService.addCourseExecution(student4.getId(),courseExecution.getId());
 
         studentSet = new ArrayList<User>()
         studentSet.add(student1)
@@ -204,21 +210,27 @@ class GetTournamentLeaderboardSpockTest extends Specification {
 
         question1 = new Question()
         question1.setKey(1)
+        question1.setTitle("Question Title1")
         question1.setCourse(course)
         course.addQuestion(question1)
 
         question2 = new Question()
         question2.setKey(2)
+        question2.setTitle("Question Title2")
         question2.setCourse(course)
         course.addQuestion(question2)
 
         optionOK1 = new Option()
         optionOK1.setCorrect(true)
-        question1.addOption(optionOK1)
+        optionOK1.setContent("Option Content")
+        optionOK1.setSequence(1)
+        optionOK1.setQuestion(question1)
 
         optionOK2 = new Option()
         optionOK2.setCorrect(true)
-        question1.addOption(optionOK1)
+        optionOK2.setContent("Option Content")
+        optionOK2.setSequence(1)
+        optionOK2.setQuestion(question2)
 
         questionRepository.save(question1)
         questionRepository.save(question2)
@@ -227,8 +239,8 @@ class GetTournamentLeaderboardSpockTest extends Specification {
     }
 
     def setupSpec() {
-        START_DATE = DateHandler.format(LocalDateTime.now().plusDays(1))
-        CONCLUSION_DATE = DateHandler.format(LocalDateTime.now().plusDays(2))
+        START_DATE = DateHandler.toISOString(LocalDateTime.now().plusDays(1))
+        CONCLUSION_DATE = DateHandler.toISOString(LocalDateTime.now().plusDays(2))
         FINISHED_START_DATE = LocalDateTime.now().minusDays(10)
         FINISHED_CONCLUSION_DATE = LocalDateTime.now().minusDays(9)
     }
@@ -307,35 +319,22 @@ class GetTournamentLeaderboardSpockTest extends Specification {
             }
         }
     }
-
-    def "invalid tournament id"() {
-        expect:
-        true
-    }
-
-    def "2 open tournaments, 3 finished ones"() {
-    }
-
-    def "invalid user id"() {
-        when: "an invalid user id is passed"
-        tournamentService.getClosedTournaments(-1,courseExecution.getId());
-
-        then: "an exception is thrown"
-        def error = thrown(TutorException)
-        error.errorMessage == USER_NOT_FOUND
-    }
-
-    def "invalid course execution id"() {
-        when: "an invalid course execution is passed"
-        tournamentService.getClosedTournaments(student.getId(),-1);
-
-        then: "an exception is thrown"
-        def error = thrown(TutorException)
-        error.errorMessage == COURSE_EXECUTION_NOT_FOUND
-    }
-
     @TestConfiguration
     static class ServiceImplTestContextConfiguration {
+        @Bean
+        AnswersXmlImport answersXmlImport() {
+            return new AnswersXmlImport()
+        }
+
+        @Bean
+        AnswerService answerService() {
+            return new AnswerService()
+        }
+
+        @Bean
+        QuizService quizService() {
+            return new QuizService()
+        }
 
         @Bean
         TournamentService tournamentService() {
