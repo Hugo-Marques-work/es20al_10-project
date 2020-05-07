@@ -776,4 +776,26 @@ export default class RemoteServices {
         throw Error(await this.errorMessage(error));
       });
   }
+
+  static async getUserTournamentPrivacyPreference(): Promise<string> {
+    return httpClient
+      .get('/tournaments/user-privacy-preference/get')
+      .then(response => {
+        return response.data;
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static async setUserTournamentPrivacyPreference(preference: string) {
+    return httpClient
+      .post('/tournaments/user-privacy-preference/set/' + preference)
+      .then(response => {
+        return;
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
 }
