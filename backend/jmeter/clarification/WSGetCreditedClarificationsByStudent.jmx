@@ -204,8 +204,7 @@ insert into clarifications(content, question_id, user_id, is_answered, availabil
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
           <stringProp name="dataSource">clarification</stringProp>
           <stringProp name="queryType">Callable Statement</stringProp>
-          <stringProp name="query">delete from clarifications where id = 1;
-delete from clarifications where id = ${id};</stringProp>
+          <stringProp name="query">delete from clarifications where content like &apos;%jfhsdhlfasdkjhfjsdk%&apos;;</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
           <stringProp name="variableNames"></stringProp>
