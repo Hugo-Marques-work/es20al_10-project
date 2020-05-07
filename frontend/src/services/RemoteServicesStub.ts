@@ -3,7 +3,7 @@ import { Tournament } from '@/models/tournament/Tournament';
 
 export default class RemoteServicesStub {
   static async getUserClosedTournaments() {
-    let tournament = {
+    let tournament = ({
       id: 4217,
       title: 'Testtournament3455556',
       creator: {
@@ -98,7 +98,7 @@ export default class RemoteServicesStub {
       open: false,
       conclusionDateDate: [2020, 5, 3, 14, 39],
       startingDateDate: [2020, 5, 3, 14, 38]
-    } as Tournament;
+    } as unknown) as Tournament;
     return [new Tournament(tournament)];
   }
 }

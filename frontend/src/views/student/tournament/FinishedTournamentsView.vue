@@ -1,12 +1,5 @@
 <template>
   <v-card class="table">
-    <v-col style="display: flex;  ;left: 0">
-      <v-switch
-        v-model="publishPreferenceOn"
-        label="Publish informations"
-        data-cy="privacyToggle"
-      />
-    </v-col>
     <v-data-table
       :headers="headers"
       :fixed-header="true"
@@ -31,8 +24,9 @@
             />
             <!-- REFRESH -->
             <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
+              <template v-slot:activator="{ on }" >
                 <v-icon
+                        style="padding-left:10px; padding-right: 30px;"
                   small
                   class="mr-2"
                   v-on="on"
@@ -43,6 +37,14 @@
               </template>
               <span>Refresh</span>
             </v-tooltip>
+
+            <v-switch
+                    v-model="publishPreferenceOn"
+                    label="Publish informations"
+
+                    data-cy="privacyToggle"
+            />
+
           </v-card-title>
         </template>
       </template>

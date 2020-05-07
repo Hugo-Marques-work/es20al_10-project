@@ -177,7 +177,8 @@
         <!-- Tournaments -->
         <v-menu offset-y v-if="isStudent && currentCourse" open-on-hover>
           <template v-slot:activator="{ on }">
-            <v-btn v-on="on"
+            <v-btn
+              v-on="on"
               to="/student/tournaments"
               v-if="isStudent && currentCourse"
               text
@@ -201,7 +202,9 @@
                 <v-icon>assignment</v-icon>
               </v-list-item-action>
               <v-list-item-content>
-                <v-list-item-title data-cy="finishedTournaments">Finished</v-list-item-title>
+                <v-list-item-title data-cy="finishedTournaments"
+                  >Finished</v-list-item-title
+                >
               </v-list-item-content>
             </v-list-item>
           </v-list>
@@ -390,19 +393,40 @@
             </v-list-item-action>
             <v-list-item-content>Solved Quizzes</v-list-item-content>
           </v-list-item>
-
-          <v-list-item to="/student/tournaments">
-            <v-list-item-action>
-              <v-icon>fas fa-trophy</v-icon>
-            </v-list-item-action>
-            <v-list-item-content>Tournaments</v-list-item-content>
-          </v-list-item>
-
           <v-list-item to="/student/stats">
             <v-list-item-action>
               <v-icon>fas fa-user</v-icon>
             </v-list-item-action>
             <v-list-item-content>Stats</v-list-item-content>
+          </v-list-item>
+        </v-list-group>
+
+        <!-- Tournament group -->
+        <v-list-group
+
+                prepend-icon="fas fa-trophy"
+                :value="false"
+                offset-y v-if="isStudent && currentCourse">
+          <template v-slot:activator>
+            <v-list-item-title>Tournaments</v-list-item-title>
+          </template>
+          <v-list-item to="/student/tournaments">
+            <v-list-item-action>
+              <v-icon>assignment</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>Available</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item to="/student/finishedTournaments">
+            <v-list-item-action>
+              <v-icon>assignment</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title data-cy="finishedTournaments"
+                >Finished</v-list-item-title
+              >
+            </v-list-item-content>
           </v-list-item>
         </v-list-group>
 
