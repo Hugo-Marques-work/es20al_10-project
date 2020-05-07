@@ -201,7 +201,7 @@
                 <v-icon>assignment</v-icon>
               </v-list-item-action>
               <v-list-item-content>
-                <v-list-item-title>Finished</v-list-item-title>
+                <v-list-item-title data-cy="finishedTournaments">Finished</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list>

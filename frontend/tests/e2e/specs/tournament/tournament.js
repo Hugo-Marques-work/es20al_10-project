@@ -129,7 +129,7 @@ describe('Tournament walkthrough', () => {
     cy.contains(name).should('exist');
     cy.enterTournament(name);
 
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 8; i++) {
       cy.get('.option-content')
         .eq(0)
         .click();
@@ -150,6 +150,10 @@ describe('Tournament walkthrough', () => {
     cy.get('[data-cy="confirmFinishDialog"]')
       .eq(0)
       .click();
+
+    cy.finishTournament(name);
+    cy.get('[data-cy="finishedTournaments"]').click();
+    cy.contains(name).click();
     cy.deleteTournament(name);
   });
 

@@ -237,7 +237,34 @@ Cypress.Commands.add('prepareRunningTournament', name => {
   );
   cy.exec(
     `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
-      `"UPDATE tournaments SET starting_date = '${yesterdayString}', number_of_questions = 5 WHERE title = '${name}'"`
+      `"INSERT INTO tournaments_signed_up_users (sign_up_tournaments_id, signed_up_users_id) VALUES (${tournamentId}, 652);"`
+  );
+  cy.exec(
+    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
+      `"UPDATE tournaments SET starting_date = '${yesterdayString}', number_of_questions = 9 WHERE title = '${name}'"`
+  );
+});
+
+Cypress.Commands.add('finishTournament', name => {
+  const pguser = Cypress.env('db_username');
+  const pgpassword = Cypress.env('db_password');
+  const pgname = Cypress.env('db_name');
+
+  const now = new Date();
+  const nowString =
+    now.getFullYear() +
+    '-' +
+    (now.getMonth() + 1) +
+    '-' +
+    now.getDate() +
+    ' ' +
+    now.getHours() +
+    ':' +
+    now.getMinutes();
+
+  cy.exec(
+    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
+      `"UPDATE tournaments SET conclusion_date = '${nowString} WHERE title = '${name}'"`
   );
 });
 
