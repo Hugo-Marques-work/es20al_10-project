@@ -98,6 +98,8 @@
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="JDBC Request" enabled="true">
           <stringProp name="dataSource">sampleReq</stringProp>
           <stringProp name="query">DELETE FROM tournaments_signed_up_users;
+DELETE FROM tournaments_topics;
+DELETE FROM tournaments_leaderboard;
 DELETE FROM tournaments;</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
