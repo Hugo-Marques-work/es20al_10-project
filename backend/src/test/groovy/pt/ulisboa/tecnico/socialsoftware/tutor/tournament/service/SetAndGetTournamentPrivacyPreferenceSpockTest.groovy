@@ -5,35 +5,23 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.AnswerService
-import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
-import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
-import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.AnswersXmlImport
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
-import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament
-import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserService
 import spock.lang.Specification
 
-import java.time.LocalDateTime
-
 @DataJpaTest
-class CancelTournamentSpockPerformanceTest extends Specification{
-    static final Integer NUMBER_QUESTIONS = 1
-    public static final String COURSE_NAME = "Software Architecture"
-    public static final String ACRONYM = "AS1"
-    public static final String ACADEMIC_TERM = "1 SEM"
-
-    static final String TOPIC_NAME = "Risk Management"
+class SetAndGetTournamentPrivacyPreferenceSpockTest extends Specification {
 
     @Autowired
     UserRepository userRepository
@@ -45,13 +33,16 @@ class CancelTournamentSpockPerformanceTest extends Specification{
     TournamentRepository tournamentRepository
 
     @Autowired
-    TopicService topicService
-
-    @Autowired
     CourseRepository courseRepository
 
     @Autowired
     CourseExecutionRepository courseExecutionRepository
+
+    @Autowired
+    TopicRepository topicRepository
+
+    @Autowired
+    QuestionRepository questionRepository
 
     @Autowired
     UserService userService
@@ -65,51 +56,31 @@ class CancelTournamentSpockPerformanceTest extends Specification{
     @Autowired
     AnswersXmlImport answersXmlImport
 
-    static final String TITLE = "Test Tournament"
-    String START_DATE
-    String CONCLUSION_DATE
+    def setup() {}
 
-    def setup() {
-        START_DATE = DateHandler.toISOString(DateHandler.now().plusDays(1))
-        CONCLUSION_DATE = DateHandler.toISOString(DateHandler.now().plusDays(2))
+    def "get the tournament privacy preference of an user"() {
+        given: "one user"
+        def user = new User("User", "user", 1, User.Role.STUDENT)
+        userRepository.save(user)
+
+        when: "the tournament privacy preference is requested"
+        def result = tournamentService.getTournamentPrivacyPreference(user.getId())
+
+        then: "the returned data is correct"
+        user.tournamentPrivacyPreference.toString() == result
     }
 
-    def "cancel tournament performance test"() {
-        given: "a student"
-        def student = new User("Bernardo", "berna", 1, User.Role.STUDENT)
-        userRepository.save(student)
-        and: "a course execution"
-        def course = new Course(COURSE_NAME, Course.Type.TECNICO)
-        courseRepository.save(course)
-        def courseExecution = new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
-        courseExecutionRepository.save(courseExecution)
-        and: "a topic"
-        def topicDto = new TopicDto()
-        topicDto.setName(TOPIC_NAME)
-        topicDto = topicService.createTopic(course.getId(), topicDto)
-        and: "a tournament dto"
-        def tournamentDto = new TournamentDto()
-        tournamentDto.setTitle(TITLE)
-        tournamentDto.setStartingDate(START_DATE)
-        tournamentDto.setConclusionDate(CONCLUSION_DATE)
-        tournamentDto.setNumberOfQuestions(NUMBER_QUESTIONS)
-        tournamentDto.addTopic(topicDto)
-        and: "10000 tournaments"
-        1.upto(1,  {
-            def tournament = new Tournament(student, tournamentDto)
-            tournament.setId(it)
-            tournamentRepository.save(tournament)
-        })
+    def "set the tournament privacy preference of an user to PUBLIC"() {
+        given: "one user"
+        def user = new User("User", "user", 1, User.Role.STUDENT)
+        userRepository.save(user)
 
-        when:
-        1.upto(1,  {
-            tournamentService.cancelTournament(it)
-        })
+        when: "the tournament privacy preference is set to PUBLIC "
+        tournamentService.setTournamentPrivacyPreference(user.getId(), "PUBLIC")
 
-        then:
-        true
+        then: "the returned data is correct"
+        user.tournamentPrivacyPreference == User.TournamentPrivacyPreference.PUBLIC
     }
-
 
     @TestConfiguration
     static class ServiceImplTestContextConfiguration {

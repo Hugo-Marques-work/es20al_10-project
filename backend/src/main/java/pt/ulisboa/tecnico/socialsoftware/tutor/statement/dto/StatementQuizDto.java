@@ -38,6 +38,10 @@ public class StatementQuizDto implements Serializable {
             this.timeToSubmission = ChronoUnit.MILLIS.between(DateHandler.now(), quizAnswer.getQuiz().getConclusionDate());
         }
 
+        if (quizAnswer.getQuiz().getConclusionDate() != null && quizAnswer.getQuiz().getType().equals(Quiz.QuizType.TOURNAMENT)) {
+            this.timeToSubmission = ChronoUnit.MILLIS.between(DateHandler.now(), quizAnswer.getQuiz().getConclusionDate());
+        }
+
         if (quizAnswer.getQuiz().getResultsDate() != null && quizAnswer.getQuiz().getType().equals(Quiz.QuizType.IN_CLASS)) {
             this.timeToResults = ChronoUnit.MILLIS.between(DateHandler.now(), quizAnswer.getQuiz().getResultsDate());
         }

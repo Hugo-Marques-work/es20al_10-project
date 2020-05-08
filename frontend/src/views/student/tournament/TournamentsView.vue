@@ -106,7 +106,14 @@
         <!-- enter tournament -->
         <v-tooltip v-if="enterTournamentConditions(item)" bottom>
           <template v-slot:activator="{ on }">
-            <v-icon small class="mr-2" v-on="on">fas fa-sign-in-alt</v-icon>
+            <v-icon
+              small
+              class="mr-2"
+              v-on="on"
+              @click="solveQuiz(item)"
+              data-cy="enterTournament"
+              >fas fa-sign-in-alt</v-icon
+            >
           </template>
           <span>Enter Tournament</span>
         </v-tooltip>
@@ -149,6 +156,8 @@ import Topic from '@/models/management/Topic';
 import SignUpForTournamentDialog from '@/views/student/tournament/SignUpForTournamentDialog.vue';
 import CreateTournamentDialog from '@/views/student/tournament/CreateTournamentDialog.vue';
 import CancelTournamentDialog from '@/views/student/tournament/CancelTournamentDialog.vue';
+import StatementQuiz from '@/models/statement/StatementQuiz';
+import StatementManager from '@/models/statement/StatementManager';
 
 @Component({
   components: {
@@ -167,22 +176,17 @@ export default class TournamentsView extends Vue {
   search: string = '';
   statusSearchList: string[] = [
     'Open Tournaments',
-    'Signed Up Tournaments',
     'Running Tournaments',
     'My Tournaments'
   ];
+  requestStatus: string = 'open';
   activeFilters: { (tournament: Tournament): boolean }[] = [];
   statusSearch: string = this.statusSearchList[0];
+  quiz: StatementQuiz | null = null;
   headers: object = [
     {
       text: 'Tournament Title',
       value: 'title',
-      align: 'center',
-      width: '10%'
-    },
-    {
-      text: 'Status',
-      value: 'status',
       align: 'center',
       width: '10%'
     },
@@ -236,6 +240,23 @@ export default class TournamentsView extends Vue {
     this.currentTournamentToCancel = null;
   }
 
+  async getQuiz(id: number) {
+    await this.$store.dispatch('loading');
+    try {
+      this.quiz = await RemoteServices.getAvailableQuiz(id);
+    } catch (error) {
+      await this.$store.dispatch('error', error);
+    }
+    await this.$store.dispatch('clearLoading');
+  }
+
+  async solveQuiz(tournament: Tournament) {
+    await this.getQuiz(tournament.id);
+    let statementManager: StatementManager = StatementManager.getInstance;
+    statementManager.statementQuiz = this.quiz;
+    await this.$router.push({ name: 'solve-tournament-quiz' });
+  }
+
   getTopicNames(topicItems: any): String {
     let result = '';
 
@@ -286,7 +307,9 @@ export default class TournamentsView extends Vue {
   async getTournaments() {
     await this.$store.dispatch('loading');
     try {
-      let tournaments: Tournament[] = await RemoteServices.getTournaments();
+      let tournaments: Tournament[] = await RemoteServices.getTournaments(
+        this.requestStatus
+      );
       this.activeFilters.forEach(filter => {
         tournaments = tournaments.filter(tournament => filter(tournament));
       });
@@ -322,24 +345,15 @@ export default class TournamentsView extends Vue {
     this.statusSearch = item;
     switch (item) {
       case this.statusSearchList[0]:
-        this.activeFilters = [
-          t => !this.userSignedInTournament(t),
-          t => this.hasStatus(t, TournamentStatus.Open)
-        ];
+        this.requestStatus = 'open';
+        this.activeFilters = [];
         break;
       case this.statusSearchList[1]:
-        this.activeFilters = [
-          this.userSignedInTournament,
-          t => this.hasStatus(t, TournamentStatus.Open)
-        ];
+        this.requestStatus = 'running';
+        this.activeFilters = [this.userSignedInTournament];
         break;
       case this.statusSearchList[2]:
-        this.activeFilters = [
-          this.userSignedInTournament,
-          t => this.hasStatus(t, TournamentStatus.Running)
-        ];
-        break;
-      case this.statusSearchList[3]:
+        this.requestStatus = 'open';
         this.activeFilters = [this.userCreatedTournament];
         break;
     }

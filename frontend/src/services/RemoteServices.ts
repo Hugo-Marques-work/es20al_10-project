@@ -246,6 +246,17 @@ export default class RemoteServices {
       });
   }
 
+  static async getAvailableQuiz(tournamentId: number): Promise<StatementQuiz> {
+    return httpClient
+      .get(`/tournaments/${tournamentId}/quiz`)
+      .then(response => {
+        return new StatementQuiz(response.data);
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
   static async generateStatementQuiz(params: object): Promise<StatementQuiz> {
     return httpClient
       .post(
@@ -310,6 +321,20 @@ export default class RemoteServices {
   static async submitAnswer(quizId: number, answer: StatementAnswer) {
     return httpClient
       .post(`/quizzes/${quizId}/submit`, answer)
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static async submitTournamentAnswer(
+    quizId: number,
+    answer: StatementAnswer
+  ): Promise<boolean> {
+    return httpClient
+      .post(`/tournament/quiz/${quizId}/submit`, answer)
+      .then(response => {
+        return response.data;
+      })
       .catch(async error => {
         throw Error(await this.errorMessage(error));
       });
@@ -752,12 +777,13 @@ export default class RemoteServices {
       });
   }
 
-  static async getTournaments(): Promise<Tournament[]> {
+  static async getTournaments(status: String): Promise<Tournament[]> {
     return httpClient
       .get(
         '/executions/' +
           Store.getters.getCurrentCourse.courseExecutionId +
-          '/tournaments/open'
+          '/tournaments/' +
+          status
       )
       .then(response => {
         return response.data.map((tournament: any) => {
@@ -768,6 +794,7 @@ export default class RemoteServices {
         throw Error(await this.errorMessage(error));
       });
   }
+
   static async signUpForTournament(tournamentId: number) {
     return httpClient
       .post('/tournaments/' + tournamentId + '/signUp')
@@ -782,6 +809,45 @@ export default class RemoteServices {
   static async cancelTournament(tournamentId: number) {
     return httpClient
       .post('/tournaments/' + tournamentId + '/cancel')
+      .then(response => {
+        return;
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static async getUserClosedTournaments() {
+    return httpClient
+      .get(
+        '/executions/' +
+          Store.getters.getCurrentCourse.courseExecutionId +
+          '/tournaments/closed'
+      )
+      .then(response => {
+        return response.data.map((tournament: any) => {
+          return new Tournament(tournament);
+        });
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static async getUserTournamentPrivacyPreference(): Promise<string> {
+    return httpClient
+      .get('/tournaments/user-privacy-preference/get')
+      .then(response => {
+        return response.data;
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static async setUserTournamentPrivacyPreference(preference: string) {
+    return httpClient
+      .post('/tournaments/user-privacy-preference/set/' + preference)
       .then(response => {
         return;
       })

@@ -144,4 +144,12 @@ public class UserService {
         return user.getCreatedTournaments().stream()
                 .map(tournament -> new TournamentDto(tournament, false)).collect(Collectors.toList());
     }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public List<TournamentDto> getSignedUpTournaments(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, userId));
+
+        return user.getSignUpTournaments().stream()
+                .map(tournament -> new TournamentDto(tournament, false)).collect(Collectors.toList());
+    }
 }

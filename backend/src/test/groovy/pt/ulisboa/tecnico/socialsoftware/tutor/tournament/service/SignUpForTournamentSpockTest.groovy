@@ -4,9 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import pt.ulisboa.tecnico.socialsoftware.tutor.answer.AnswerService
+import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
+import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.AnswersXmlImport
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository
@@ -30,6 +35,14 @@ class SignUpForTournamentSpockTest extends Specification{
     CourseExecutionRepository courseExecutionRepository
     @Autowired
     UserRepository userRepository
+    @Autowired
+    QuizService quizService
+    @Autowired
+    AnswerService answerService
+    @Autowired
+    AnswersXmlImport answersXmlImport
+    @Autowired
+    QuestionService questionService
 
     @Shared
     LocalDateTime BAD_START_DATE
@@ -44,7 +57,7 @@ class SignUpForTournamentSpockTest extends Specification{
         creator = new User("host", "chost", 1, User.Role.STUDENT)
         userRepository.save(creator)
 
-        def currentDate = LocalDateTime.now();
+        def currentDate = DateHandler.now();
         LocalDateTime startingDate = currentDate.plusDays(1)
         GOOD_START_DATE = currentDate.plusDays(1)
         BAD_START_DATE = currentDate.minusDays(1)
@@ -151,7 +164,7 @@ class SignUpForTournamentSpockTest extends Specification{
 
         where:
         startingDate    | validUserId  | validTournamentId || errorMessage
-        BAD_START_DATE  | true         | true              || TOURNAMENT_SIGN_UP_OVER
+        BAD_START_DATE  | true         | true              || TOURNAMENT_SIGN_UP_CANCELED
         GOOD_START_DATE | false        | true              || USER_NOT_FOUND
         GOOD_START_DATE | true         | false             || TOURNAMENT_NOT_FOUND
     }
@@ -162,6 +175,26 @@ class SignUpForTournamentSpockTest extends Specification{
         @Bean
         TournamentService tournamentService() {
             return new TournamentService()
+        }
+
+        @Bean
+        QuizService quizService() {
+            return new QuizService()
+        }
+
+        @Bean
+        AnswerService answerService() {
+            return new AnswerService()
+        }
+
+        @Bean
+        AnswersXmlImport answersXmlImport() {
+            return new AnswersXmlImport()
+        }
+
+        @Bean
+        QuestionService questionService() {
+            return new QuestionService()
         }
     }
 }
