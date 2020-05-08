@@ -29,7 +29,7 @@ describe('Clarifications creating, answering and viewing', () => {
 
   it('login, answers a clarification and sees it', () => {
     cy.demoTeacherLogin();
-    cy.clarificationList();
+    cy.clarificationListAll();
     cy.createClarificationAnswer(clarificationTitle, clarificationAnswer);
     cy.closeSuccessMessage('Answer sent');
     cy.contains(clarificationAnswer);
@@ -37,7 +37,7 @@ describe('Clarifications creating, answering and viewing', () => {
 
   it('login, answers a clarification with empty string and sees error', () => {
     cy.demoTeacherLogin();
-    cy.clarificationList();
+    cy.clarificationListAll();
     cy.createClarificationAnswer(clarificationTitle, null);
     cy.closeErrorMessage();
   });
@@ -86,7 +86,7 @@ describe('Clarifications creating, answering and viewing', () => {
   it('create clarification with another student, login, teacher makes clarification available', () => {
     cy.addClarificationToDB(clarificationHash);
     cy.demoTeacherLogin();
-    cy.clarificationList();
+    cy.clarificationListAll();
     cy.makeClarificationAvailable(clarificationHash);
     cy.closeSuccessMessage('Clarification is now available in anonymity');
   });

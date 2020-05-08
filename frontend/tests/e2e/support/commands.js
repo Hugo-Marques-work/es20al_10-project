@@ -47,6 +47,12 @@ Cypress.Commands.add('makeClarificationAvailable', title => {
     .find('[data-cy="makeClarificationVisible"]')
     .click();
 });
+
+Cypress.Commands.add('clarificationListAll', () => {
+  cy.get('[data-cy="clarificationsButton"]').click();
+  cy.get('[data-cy="clarificationListAll"]').click();
+  cy.get('[data-cy="clarificationsButton"]').click();
+});
 /* ----------------------- */
 /* Student Commands */
 
