@@ -14,27 +14,29 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.AnswersXmlImport
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
-import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto.TournamentDto
+import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament
+import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserService
-import spock.lang.Shared
 import spock.lang.Specification
-
-import java.time.LocalDateTime
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.COURSE_EXECUTION_NOT_FOUND
 
 @DataJpaTest
-class GetOpenTournamentsSpockTest extends Specification {
+class GetRunningTournamentsSpockTest extends Specification {
     public static final String COURSE_NAME = "Software Architecture"
     public static final String ACRONYM = "AS1"
     public static final String ACADEMIC_TERM = "1 SEM"
 
     static final String TOPIC_NAME = "Risk Management"
+    static final String QUESTION_TITLE = "QUESTION"
     static final Integer NUMBER_QUESTIONS = 1
 
     @Autowired
@@ -44,13 +46,19 @@ class GetOpenTournamentsSpockTest extends Specification {
     TournamentService tournamentService
 
     @Autowired
+    TournamentRepository tournamentRepository
+
+    @Autowired
     CourseRepository courseRepository
 
     @Autowired
     CourseExecutionRepository courseExecutionRepository
 
     @Autowired
-    TopicService topicService
+    TopicRepository topicRepository
+
+    @Autowired
+    QuestionRepository questionRepository
 
     @Autowired
     UserService userService
@@ -67,21 +75,34 @@ class GetOpenTournamentsSpockTest extends Specification {
     Course course
     CourseExecution courseExecution
     User student
-    TopicDto topicDto
+    Topic topic
+    Question question
 
-    @Shared
-    String START_DATE
-    @Shared
-    String CONCLUSION_DATE
+    def createValidTournament() {
+        def tournament = new Tournament()
+        tournament.setTitle("TEST")
+        tournament.setCreator(student)
+        tournament.setCourseExecution(courseExecution)
+        tournament.setStartingDate(DateHandler.now())
+        tournament.setConclusionDate(DateHandler.now().plusDays(2))
+        tournament.setNumberOfQuestions(NUMBER_QUESTIONS)
+        tournament.addTopic(topicRepository.findAll().getAt(0))
+        def randomUser = new User("Zé", "zepedro", 2, User.Role.STUDENT)
+        userRepository.save(randomUser)
+        tournament.addSignUp(student)
+        tournament.addSignUp(randomUser)
+        tournament.setStatus(Tournament.Status.OPEN)
+        tournamentRepository.save(tournament)
+        courseExecution.addTournament(tournament);
+        student.addCreatedTournament(tournament);
+        return tournament
+    }
 
-    def createValidTournamentDto(String startDate) {
-        def tournamentDto = new TournamentDto()
-        tournamentDto.setTitle("TEST")
-        tournamentDto.setStartingDate(startDate)
-        tournamentDto.setConclusionDate(CONCLUSION_DATE)
-        tournamentDto.setNumberOfQuestions(NUMBER_QUESTIONS)
-        tournamentDto.addTopic(topicDto)
-        return tournamentService.createTournament(student.getId(), courseExecution.getId(), tournamentDto)
+    def createCanceledTournament() {
+        def tournament = new Tournament()
+        tournament.setTitle("CANCELED")
+        tournament.setStatus(Tournament.Status.CANCELED)
+        tournamentRepository.save(tournament)
     }
 
     def setup() {
@@ -94,43 +115,40 @@ class GetOpenTournamentsSpockTest extends Specification {
         student = new User("Joao", "joao", 1, User.Role.STUDENT)
         userRepository.save(student)
 
-        topicDto = new TopicDto()
-        topicDto.setName(TOPIC_NAME)
-        topicDto = topicService.createTopic(course.getId(), topicDto)
+        topic = new Topic()
+        topic.setName(TOPIC_NAME)
+        topicRepository.save(topic)
+        course.addTopic(topic)
+
+        question = new Question()
+        question.setTitle(QUESTION_TITLE)
+        question.setCourse(course)
+        question.addTopic(topic)
+        question.setStatus(Question.Status.AVAILABLE)
+        topic.addQuestion(question)
+
+        questionRepository.save(question)
+
     }
 
-    def setupSpec() {
-        START_DATE = DateHandler.toISOString(DateHandler.now().plusDays(1))
-        CONCLUSION_DATE = DateHandler.toISOString(DateHandler.now().plusDays(2))
-    }
-
-    def "two open tournament and a cancelled one"() {
-        given: "two valid tournament dto"
-        def validTournament1 = createValidTournamentDto(START_DATE)
-        def otherDate =  DateHandler.toISOString(DateHandler.now().plusDays(1).plusHours(12))
-        def validTournament2 = createValidTournamentDto(otherDate)
+    def "one running tournament and a cancelled one"() {
+        given: "one valid tournament dto"
+        def tournament = createValidTournament()
         and: "a tournament dto that has been canceled"
-        def canceledTournament = createValidTournamentDto(START_DATE)
-        tournamentService.cancelTournament(canceledTournament.getId())
+        createCanceledTournament()
 
         when:
-        def result = tournamentService.getOpenTournaments(courseExecution.getId())
+        def result = tournamentService.getRunningTournaments(courseExecution.getId())
 
         then: "the returned data is correct"
-        result.size() == 2
+        result.size() == 1
         def firstTournament = result[0]
-        firstTournament.getId() == validTournament1.getId()
-        firstTournament.startingDate == START_DATE
-        firstTournament.conclusionDate == CONCLUSION_DATE
-        firstTournament.numberOfQuestions == NUMBER_QUESTIONS
-        firstTournament.getTopics().getAt(0).name == TOPIC_NAME
-        def secondTournament = result[1]
-        secondTournament.getId() == validTournament2.getId()
-        secondTournament.startingDate == otherDate
-        secondTournament.conclusionDate == CONCLUSION_DATE
-        secondTournament.numberOfQuestions == NUMBER_QUESTIONS
-        secondTournament.getTopics().getAt(0).name == TOPIC_NAME
-
+        firstTournament.getId() == tournament.getId()
+        firstTournament.getStatus() == Tournament.Status.RUNNING
+        and: "the tournament was updated to be running"
+        tournament.quiz.quizQuestions.size() == NUMBER_QUESTIONS
+        tournament.quiz.quizQuestions.findAll()[0].question.title == QUESTION_TITLE
+        tournament.getStatus() == Tournament.Status.RUNNING
     }
 
     def "invalid course execution id"() {

@@ -50,6 +50,7 @@ public enum ErrorMessage {
     QUIZ_USER_MISMATCH("Quiz %s is not assigned to student %s"),
     QUIZ_MISMATCH("Quiz Answer Quiz %d does not match Quiz Question Quiz %d"),
     QUESTION_OPTION_MISMATCH("Question %d does not have option %d"),
+    QUESTION_ALREADY_ANSWERED("Question %d can't be answered twice"),
     COURSE_EXECUTION_MISMATCH("Course Execution %d does not have quiz %d"),
 
     DUPLICATE_TOPIC("Duplicate topic: %s"),
@@ -79,15 +80,18 @@ public enum ErrorMessage {
     AUTHENTICATION_ERROR("Authentication Error"),
     FENIX_CONFIGURATION_ERROR("Incorrect server configuration files for fenix"),
 
-    TOURNAMENT_NOT_CONSISTENT("Field %s of tournament is not consistent"),
+    TOURNAMENT_NOT_CONSISTENT("Field %s"),
     TOURNAMENT_NOT_FOUND("Tournament not found with id %s"),
-    TOURNAMENT_SIGN_UP_OVER("Tournament sign up was over at %s"),
+    TOURNAMENT_NOT_FOUND_BY_QUIZ("Tournament not found with quiz id %s"),
+    TOURNAMENT_SIGN_UP_OVER("Tournament %d sign up is already over"),
     TOURNAMENT_SIGN_UP_CANCELED("The tournament with id %s has been canceled"),
     TOURNAMENT_DUPLICATE_SIGN_UP("The user has already signed up for tournament with id %s"),
     TOURNAMENT_NOT_THE_CREATOR("The user is not the creator of the tournament with id %s"),
     TOURNAMENT_ALREADY_CANCELED("The tournament with id %s has already been canceled"),
     TOURNAMENT_RUNNING("The tournament with id %s is running so it can not be canceled"),
     TOURNAMENT_FINISHED("The tournament with id %s has been finished so it can not be canceled"),
+    TOURNAMENT_QUIZ_COMPLETED("The quiz of the tournament with id %s has finished"),
+    TOURNAMENT_QUIZ_NOT_GENERATED("The quiz of the tournament with id %s was not created"),
 
     ACCESS_DENIED("You do not have permission to view this resource"),
     CANNOT_OPEN_FILE("Cannot open file");

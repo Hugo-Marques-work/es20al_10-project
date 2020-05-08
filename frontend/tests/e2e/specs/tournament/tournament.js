@@ -1,7 +1,8 @@
 describe('Tournament walkthrough', () => {
   beforeEach(() => {
     cy.demoStudentLogin();
-    cy.contains('Tournaments').click();
+    cy.get('[data-cy="tournamentsButton"]').click();
+    cy.get('[data-cy="availableTournaments"]').click();
   });
 
   it('login creates a tournament and sees it on open tournaments', () => {
@@ -15,7 +16,7 @@ describe('Tournament walkthrough', () => {
         expect(item).to.have.length(1);
       });
 
-    cy.cancelTournament(name);
+    cy.deleteTournament(name);
   });
 
   it('login creates a tournament and cancel it', () => {
@@ -25,31 +26,33 @@ describe('Tournament walkthrough', () => {
 
     cy.contains(name).should('not.exist');
 
-    cy.seeSignedUpTournaments();
-    cy.contains(name).should('not.exist');
-
     cy.seeRunningTournaments();
     cy.contains(name).should('not.exist');
 
     cy.seeMyTournaments();
     cy.contains(name).should('not.exist');
+    cy.deleteTournament(name);
   });
 
-  it('login creates a tournament, signs up and sees it on sign up tournaments', () => {
+  it('login creates a tournament, signs up and verifies that the action is not there anymore', () => {
     let name = Math.random().toString(36);
     cy.createTournament(name, 12, 13);
     cy.signUpForTournament(name);
 
-    cy.contains(name).should('not.exist');
-
-    cy.seeSignedUpTournaments();
-    cy.contains(name).should('exist');
+    // verify that can't sign up
+    cy.contains(name)
+      .parent()
+      .should('have.length', 1)
+      .children()
+      .find('[data-cy="signUp"]')
+      .should('not.exist');
 
     cy.seeRunningTournaments();
     cy.contains(name).should('not.exist');
 
     cy.seeMyTournaments();
     cy.contains(name).should('not.exist');
+    cy.deleteTournament(name);
   });
 
   it('login create tournaments with missing title', () => {
@@ -115,5 +118,50 @@ describe('Tournament walkthrough', () => {
   it('login create tournaments with starting date after conclusion date', () => {
     cy.createTournament('Test', 13, 12);
     cy.closeErrorMessage();
+  });
+
+  it('create running tournament, participate in it and visit leaderboard', () => {
+    let name = Math.random().toString(36);
+    cy.createTournament(name, 12, 13);
+    cy.signUpForTournament(name);
+    cy.prepareRunningTournament(name);
+
+    cy.seeRunningTournaments();
+    cy.contains(name).should('exist');
+    cy.enterTournament(name);
+
+    for (let i = 0; i < 4; i++) {
+      cy.get('.option-content')
+        .eq(0)
+        .click();
+      cy.get('[data-cy="confirmAnswer"]')
+        .eq(0)
+        .click();
+      cy.get('[data-cy="confirm"]')
+        .eq(0)
+        .click();
+    }
+
+    cy.get('.option-content')
+      .eq(0)
+      .click();
+    cy.get('[data-cy="confirmFinish"]')
+      .eq(0)
+      .click();
+    cy.get('[data-cy="confirmFinishDialog"]')
+      .eq(0)
+      .click();
+
+    cy.finishTournament(name);
+    cy.get('[data-cy="tournamentsButton"]').click();
+    cy.get('[data-cy="finishedTournaments"]').click();
+    cy.contains(name).click();
+    cy.deleteTournament(name);
+  });
+
+  it('user changes his privacy preference', () => {
+    cy.get('[data-cy="tournamentsButton"]').click();
+    cy.get('[data-cy="finishedTournaments"]').click();
+    cy.get('[data-cy="privacyToggle"]').click({ force: true });
   });
 });

@@ -187,7 +187,7 @@ Cypress.Commands.add('cancelTournament', name => {
     .parent()
     .should('have.length', 1)
     .children()
-    .should('have.length', 7)
+    .should('have.length', 6)
     .find('[data-cy="cancel"]')
     .click();
 
@@ -199,11 +199,21 @@ Cypress.Commands.add('signUpForTournament', name => {
     .parent()
     .should('have.length', 1)
     .children()
-    .should('have.length', 7)
+    .should('have.length', 6)
     .find('[data-cy="signUp"]')
     .click();
 
   cy.get('[data-cy="executeSignUpButton"]').click();
+});
+
+Cypress.Commands.add('enterTournament', name => {
+  cy.contains(name)
+    .parent()
+    .should('have.length', 1)
+    .children()
+    .should('have.length', 6)
+    .find('[data-cy="enterTournament"]')
+    .click();
 });
 
 Cypress.Commands.add('seeSignedUpTournaments', () => {
@@ -219,6 +229,87 @@ Cypress.Commands.add('seeRunningTournaments', () => {
 Cypress.Commands.add('seeMyTournaments', () => {
   cy.get('[data-cy="filter"]').click();
   cy.contains('My Tournaments').click();
+});
+
+Cypress.Commands.add('deleteTournament', name => {
+  const pguser = Cypress.env('db_username');
+  const pgpassword = Cypress.env('db_password');
+  const pgname = Cypress.env('db_name');
+  const tournamentId = `(SELECT id FROM tournaments WHERE title = '${name}')`;
+  cy.exec(
+    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
+      `"DELETE FROM tournaments_topics WHERE tournaments_id = ${tournamentId};"`
+  );
+  cy.exec(
+    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
+      `"DELETE FROM tournaments_signed_up_users WHERE sign_up_tournaments_id = ${tournamentId};"`
+  );
+  cy.exec(
+    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
+      `"DELETE FROM tournaments_leaderboard WHERE tournament_id = ${tournamentId};"`
+  );
+  cy.exec(
+    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
+      `"DELETE FROM tournaments WHERE id = ${tournamentId};"`
+  );
+});
+
+Cypress.Commands.add('prepareRunningTournament', name => {
+  const pguser = Cypress.env('db_username');
+  const pgpassword = Cypress.env('db_password');
+  const pgname = Cypress.env('db_name');
+  const tournamentId = `(SELECT id FROM tournaments WHERE title = '${name}')`;
+
+  let yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 2);
+  const yesterdayString =
+    yesterday.getFullYear() +
+    '-' +
+    (yesterday.getMonth() + 1) +
+    '-' +
+    yesterday.getDate() +
+    ' ' +
+    yesterday.getHours() +
+    ':' +
+    yesterday.getMinutes();
+  // Modify the database so that it is instantly running
+
+  cy.exec(
+    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
+      `"INSERT INTO tournaments_signed_up_users (sign_up_tournaments_id, signed_up_users_id) VALUES (${tournamentId}, 651);"`
+  );
+  cy.exec(
+    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
+      `"INSERT INTO tournaments_signed_up_users (sign_up_tournaments_id, signed_up_users_id) VALUES (${tournamentId}, 652);"`
+  );
+  cy.exec(
+    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
+      `"UPDATE tournaments SET starting_date = '${yesterdayString}', number_of_questions = 5 WHERE title = '${name}'"`
+  );
+});
+
+Cypress.Commands.add('finishTournament', name => {
+  const pguser = Cypress.env('db_username');
+  const pgpassword = Cypress.env('db_password');
+  const pgname = Cypress.env('db_name');
+
+  let yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const nowString =
+    yesterday.getFullYear() +
+    '-' +
+    (yesterday.getMonth() + 1) +
+    '-' +
+    yesterday.getDate() +
+    ' ' +
+    yesterday.getHours() +
+    ':' +
+    yesterday.getMinutes();
+
+  cy.exec(
+    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
+      `"UPDATE tournaments SET conclusion_date = '${nowString}' WHERE title = '${name}'"`
+  );
 });
 
 /* ----------------------- */
@@ -272,6 +363,30 @@ Cypress.Commands.add('closeSuccessMessage', successMessage => {
     .parent()
     .find('button')
     .click();
+});
+
+Cypress.Commands.add('setDateToYesterday', name => {
+  let pguser = Cypress.env('db_username');
+  let pgpassword = Cypress.env('db_password');
+  let pgname = Cypress.env('db_name');
+
+  let yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  let yesterdayString =
+    yesterday.getFullYear() +
+    '-' +
+    (yesterday.getMonth() + 1) +
+    '-' +
+    yesterday.getDate() +
+    ' ' +
+    yesterday.getHours() +
+    ':' +
+    yesterday.getMinutes();
+  // Modify the database so that it is instantly running
+  cy.exec(
+    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
+      `"UPDATE tournaments SET starting_date = '${yesterdayString}', number_of_questions = 5 WHERE title = '${name}'"`
+  );
 });
 
 /* ----------------------- */

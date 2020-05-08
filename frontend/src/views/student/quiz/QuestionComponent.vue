@@ -15,7 +15,14 @@
         class="question-content"
         v-html="convertMarkDown(question.content, question.image)"
       ></div>
-      <div class="square" @click="increaseOrder">
+      <div
+        class="square"
+        @click="finish"
+        v-if="tournament && questionOrder === questionNumber - 1"
+      >
+        <i class="fas fa-check" />
+      </div>
+      <div v-else class="square" @click="increaseOrder">
         <i
           v-if="questionOrder !== questionNumber - 1"
           class="fas fa-chevron-right"
@@ -55,11 +62,17 @@ export default class QuestionComponent extends Vue {
   @Prop(Number) optionId: number | undefined;
   @Prop() readonly questionNumber!: number;
   @Prop() readonly backsies!: boolean;
+  @Prop() readonly tournament!: boolean;
   hover: boolean = false;
   optionLetters: string[] = ['A', 'B', 'C', 'D'];
 
   @Emit()
   increaseOrder() {
+    return 1;
+  }
+
+  @Emit()
+  finish() {
     return 1;
   }
 

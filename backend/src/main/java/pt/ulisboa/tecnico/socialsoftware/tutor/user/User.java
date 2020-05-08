@@ -28,6 +28,8 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.US
 public class User implements UserDetails, DomainEntity {
     public enum Role {STUDENT, TEACHER, ADMIN, DEMO_ADMIN}
 
+    public enum TournamentPrivacyPreference {PUBLIC, PRIVATE}
+
     public enum DashboardAvailability {PRIVATE, PUBLIC}
 
     @Id
@@ -42,6 +44,9 @@ public class User implements UserDetails, DomainEntity {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Enumerated(EnumType.STRING)
+    private TournamentPrivacyPreference tournamentPrivacyPreference;
     
     @Column(unique=true)
     private String username;
@@ -68,7 +73,7 @@ public class User implements UserDetails, DomainEntity {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval=true)
     private Set<QuizAnswer> quizAnswers = new HashSet<>();
 
-    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "signedUpUsers")
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "signedUpUsers")
     private Set<Tournament> signUpTournaments = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "creator", orphanRemoval=true)
@@ -101,6 +106,7 @@ public class User implements UserDetails, DomainEntity {
         this.numberOfCorrectTeacherAnswers = 0;
         this.numberOfCorrectInClassAnswers = 0;
         this.numberOfCorrectStudentAnswers = 0;
+        this.tournamentPrivacyPreference = TournamentPrivacyPreference.PRIVATE;
         this.dashboardAvailability = DashboardAvailability.PRIVATE;
     }
 
@@ -144,6 +150,23 @@ public class User implements UserDetails, DomainEntity {
 
     public void setEnrolledCoursesAcronyms(String enrolledCoursesAcronyms) {
         this.enrolledCoursesAcronyms = enrolledCoursesAcronyms;
+    }
+
+    public TournamentPrivacyPreference getTournamentPrivacyPreference() {
+        if (tournamentPrivacyPreference == null)
+            tournamentPrivacyPreference = TournamentPrivacyPreference.PRIVATE;
+        return tournamentPrivacyPreference;
+    }
+
+    public void setTournamentPrivacyPreference(TournamentPrivacyPreference tournamentPrivacyPreference) {
+        this.tournamentPrivacyPreference = tournamentPrivacyPreference;
+    }
+
+    public void setTournamentPrivacyPreference(String preference) {
+        if (preference.equals(TournamentPrivacyPreference.PUBLIC.toString()))
+            this.tournamentPrivacyPreference = TournamentPrivacyPreference.PUBLIC;
+        else
+            this.tournamentPrivacyPreference = TournamentPrivacyPreference.PRIVATE;
     }
 
     public Role getRole() {
@@ -503,11 +526,20 @@ public class User implements UserDetails, DomainEntity {
     }
 
     public Set<Tournament> getSignUpTournaments() {
-        return signUpTournaments;
+        return this.signUpTournaments;
     }
 
     public Set<Tournament> getCreatedTournaments() {
         return this.createdTournaments;
+    }
+
+    public Set<Tournament> getClosedTournaments(int courseExecutionId) {
+        Set<Tournament> result = new HashSet<>();
+        for(Tournament tournament : this.signUpTournaments) {
+            if(tournament.isClosed() && tournament.getCourseExecution().getId() == courseExecutionId)
+                result.add(tournament);
+        }
+        return result;
     }
 
     public void addCreatedTournament(Tournament tournament) {
@@ -531,4 +563,5 @@ public class User implements UserDetails, DomainEntity {
             throw new TutorException(TOURNAMENT_DUPLICATE_SIGN_UP, tournament.getId().toString());
         }
     }
+
 }

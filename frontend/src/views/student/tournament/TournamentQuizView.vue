@@ -2,9 +2,7 @@
   <div
     tabindex="0"
     class="quiz-container"
-    @keydown.right="confirmAnswer"
-    @keydown.left="decreaseOrder"
-    v-if="!confirmed"
+    v-if="!confirmed && questionOrderCalculated"
   >
     <header>
       <span
@@ -16,10 +14,11 @@
         <span v-if="!hideTime">{{ submissionTimer }}</span>
       </span>
       <span
+        color="primary"
         class="end-quiz"
-        @click="confirmationDialog = true"
-        data-cy="endQuizButton"
-        ><i class="fas fa-times" />End Quiz</span
+        @click="leaveQuiz"
+        data-cy="leaveQuizButton"
+        ><i class="fas fa-times" />Leave Quiz</span
       >
     </header>
 
@@ -38,17 +37,26 @@
         </span>
       </div>
       <span
-        class="left-button"
-        @click="decreaseOrder"
-        v-if="questionOrder !== 0 && !statementQuiz.oneWay"
-        ><i class="fas fa-chevron-left"
-      /></span>
-      <span
         class="right-button"
         @click="confirmAnswer"
+        data-cy="confirmAnswer"
         v-if="questionOrder !== statementQuiz.questions.length - 1"
         ><i class="fas fa-chevron-right"
       /></span>
+      <span
+        class="right-button"
+        @click="confirmFinish"
+        data-cy="confirmFinish"
+        v-if="questionOrder === statementQuiz.questions.length - 1"
+        ><i class="fas fa-check"
+      /></span>
+    </div>
+    <div v-if="showResult" style="padding-top: 25px">
+      <span
+        >Last answer:
+        <v-icon v-if="correctResult" large color="green">check_circle</v-icon>
+        <v-icon v-else large color="red">cancel</v-icon>
+      </span>
     </div>
     <question-component
       v-model="questionOrder"
@@ -56,58 +64,12 @@
       :optionId="statementQuiz.answers[questionOrder].optionId"
       :question="statementQuiz.questions[questionOrder]"
       :questionNumber="statementQuiz.questions.length"
-      :backsies="!statementQuiz.oneWay"
-      :tournament="false"
+      :backsies="false"
+      :tournament="true"
       @increase-order="confirmAnswer"
+      @finish="confirmFinish"
       @select-option="changeAnswer"
-      @decrease-order="decreaseOrder"
     />
-
-    <v-dialog v-model="confirmationDialog" width="50%">
-      <v-card>
-        <v-card-title primary-title class="secondary white--text headline">
-          Confirmation
-        </v-card-title>
-
-        <v-card-text class="text--black title">
-          <br />
-          Are you sure you want to finish?
-          <br />
-          <span
-            v-if="
-              statementQuiz.answers
-                .map(answer => answer.optionId)
-                .filter(optionId => optionId == null).length
-            "
-          >
-            You still have
-            {{
-              statementQuiz.answers
-                .map(answer => answer.optionId)
-                .filter(optionId => optionId == null).length
-            }}
-            unanswered questions!
-          </span>
-        </v-card-text>
-
-        <v-divider />
-
-        <v-card-actions>
-          <v-spacer />
-          <v-btn color="secondary" text @click="confirmationDialog = false">
-            Cancel
-          </v-btn>
-          <v-btn
-            color="primary"
-            text
-            @click="concludeQuiz"
-            data-cy="endQuizImSureButton"
-          >
-            I'm sure
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
 
     <v-dialog v-model="nextConfirmationDialog" width="50%">
       <v-card>
@@ -128,20 +90,52 @@
           <v-btn color="secondary" text @click="nextConfirmationDialog = false">
             Cancel
           </v-btn>
-          <v-btn color="primary" text @click="increaseOrder">
+          <v-btn
+            color="primary"
+            text
+            @click="increaseOrder(false)"
+            data-cy="confirm"
+          >
             I'm sure
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </div>
 
-  <div class="container" v-else-if="statementQuiz.timeToResults">
-    <v-card>
-      <v-card-title class="justify-center">
-        Hold on and wait {{ resultsTimer }} to view the results
-      </v-card-title>
-    </v-card>
+    <v-dialog v-model="finishConfirmationDialog" width="50%">
+      <v-card>
+        <v-card-title primary-title class="secondary white--text headline">
+          Confirmation
+        </v-card-title>
+
+        <v-card-text class="text--black title">
+          <br />
+          Are you sure you want to finish the tournament?
+          <br />
+        </v-card-text>
+
+        <v-divider />
+
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            color="secondary"
+            text
+            @click="finishConfirmationDialog = false"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            color="primary"
+            text
+            @click="increaseOrder(true)"
+            data-cy="confirmFinishDialog"
+          >
+            I'm sure
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -158,53 +152,68 @@ import { milisecondsToHHMMSS } from '@/services/ConvertDateService';
     'question-component': QuestionComponent
   }
 })
-export default class QuizView extends Vue {
+export default class TournamentQuizView extends Vue {
   statementManager: StatementManager = StatementManager.getInstance;
   statementQuiz: StatementQuiz | null =
     StatementManager.getInstance.statementQuiz;
-  confirmationDialog: boolean = false;
+  questionOrderCalculated: boolean = false;
   confirmed: boolean = false;
   nextConfirmationDialog: boolean = false;
+  finishConfirmationDialog: boolean = false;
   startTime: Date = new Date();
   questionOrder: number = 0;
   hideTime: boolean = false;
+  showResult: boolean = false;
+  correctResult: boolean = false;
   submissionTimer: string = '';
-  resultsTimer: string = '';
 
   async created() {
     if (!this.statementQuiz?.id) {
-      await this.$router.push({ name: 'create-quiz' });
+      await this.$router.push({ name: 'tournaments' });
     } else {
       try {
         await RemoteServices.startQuiz(this.statementQuiz?.id);
+        this.updateQuestionOrder();
+        this.questionOrderCalculated = true;
       } catch (error) {
         await this.$store.dispatch('error', error);
-        await this.$router.push({ name: 'available-quizzes' });
+        await this.$router.push({ name: 'tournaments' });
       }
     }
   }
 
-  increaseOrder(): void {
-    if (this.questionOrder + 1 < +this.statementQuiz!.questions.length) {
-      this.calculateTime();
-      this.questionOrder += 1;
+  updateQuestionOrder(): void {
+    if (this.statementQuiz?.answers.length) {
+      for (let i = 0; i < this.statementQuiz?.answers.length; i++) {
+        if (!this.statementQuiz?.answers[i].timeTaken) {
+          this.questionOrder = i;
+          return;
+        }
+      }
     }
+    throw Error('You have already completed this tournament');
+  }
+
+  async increaseOrder(last: boolean) {
+    this.calculateTime();
+    await this.submitAnswer();
+    if (!last) this.questionOrder += 1;
+    else await this.leaveQuiz();
     this.nextConfirmationDialog = false;
   }
 
-  decreaseOrder(): void {
-    if (this.questionOrder > 0 && !this.statementQuiz?.oneWay) {
-      this.calculateTime();
-      this.questionOrder -= 1;
-    }
-  }
+  private async submitAnswer() {
+    if (this.statementQuiz) {
+      if (!this.statementQuiz.answers[this.questionOrder].optionId)
+        this.statementQuiz.answers[this.questionOrder].optionId = null;
 
-  changeOrder(newOrder: number): void {
-    if (!this.statementQuiz?.oneWay) {
-      if (newOrder >= 0 && newOrder < +this.statementQuiz!.questions.length) {
-        this.calculateTime();
-        this.questionOrder = newOrder;
-      }
+      let correct = await RemoteServices.submitTournamentAnswer(
+        this.statementQuiz.id,
+        this.statementQuiz.answers[this.questionOrder]
+      );
+
+      this.showResult = true;
+      this.correctResult = correct;
     }
   }
 
@@ -222,11 +231,6 @@ export default class QuizView extends Vue {
         } else {
           this.statementQuiz.answers[this.questionOrder].optionId = optionId;
         }
-
-        await RemoteServices.submitAnswer(
-          this.statementQuiz.id,
-          this.statementQuiz.answers[this.questionOrder]
-        );
       } catch (error) {
         this.statementQuiz.answers[
           this.questionOrder
@@ -238,11 +242,11 @@ export default class QuizView extends Vue {
   }
 
   confirmAnswer() {
-    if (this.statementQuiz?.oneWay) {
-      this.nextConfirmationDialog = true;
-    } else {
-      this.increaseOrder();
-    }
+    this.nextConfirmationDialog = true;
+  }
+
+  confirmFinish() {
+    this.finishConfirmationDialog = true;
   }
 
   @Watch('statementQuiz.timeToSubmission')
@@ -256,19 +260,10 @@ export default class QuizView extends Vue {
     );
   }
 
-  @Watch('statementQuiz.timeToResults')
-  resultsTimerWatcher() {
-    if (!!this.statementQuiz && this.statementQuiz.timeToResults === 0) {
-      this.concludeQuiz();
-    }
-
-    this.resultsTimer = milisecondsToHHMMSS(this.statementQuiz?.timeToResults);
-  }
-
   async concludeQuiz() {
     await this.$store.dispatch('loading');
     try {
-      this.calculateTime();
+      //this.calculateTime();
       this.confirmed = true;
       await this.statementManager.concludeQuiz();
 
@@ -282,6 +277,10 @@ export default class QuizView extends Vue {
       await this.$store.dispatch('error', error);
     }
     await this.$store.dispatch('clearLoading');
+  }
+
+  async leaveQuiz() {
+    await this.$router.push({ name: 'tournaments' });
   }
 
   calculateTime() {

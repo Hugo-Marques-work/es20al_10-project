@@ -6,9 +6,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TournamentDto {
@@ -20,6 +18,7 @@ public class TournamentDto {
     private int numberOfQuestions;
     private Set<TopicDto> topics = new HashSet<>();
     private Set<UserDto> signedUpUsers = new HashSet<>();
+    private List<UserBoardPlaceDto> leaderboard = new ArrayList<>();
     private Tournament.Status status;
 
     public TournamentDto() {}
@@ -28,7 +27,7 @@ public class TournamentDto {
         this.id = tournament.getId();
         this.title = tournament.getTitle();
         this.numberOfQuestions = tournament.getNumberOfQuestions();
-        this.status = tournament.getValidatedStatus();
+        this.status = tournament.getStatus();
         if (tournament.getStartingDate() != null)
             this.startingDate = DateHandler.toISOString(tournament.getStartingDate());
         if (tournament.getConclusionDate() != null)
@@ -42,6 +41,9 @@ public class TournamentDto {
             this.signedUpUsers = tournament.getSignedUpUsers().stream()
                     .map(UserDto::new)
                     .collect(Collectors.toSet());
+            this.leaderboard = tournament.getLeaderboard().stream()
+                    .map(UserBoardPlaceDto::new)
+                    .collect(Collectors.toList());
         }
     }
 
@@ -141,4 +143,10 @@ public class TournamentDto {
     public void setCreator(UserDto creator) {
         this.creator = creator;
     }
+
+
+    public List<UserBoardPlaceDto> getLeaderboard() {
+        return leaderboard;
+    }
+
 }
