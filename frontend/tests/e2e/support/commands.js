@@ -26,6 +26,23 @@
 /// <reference types="Cypress" />
 
 /* ----------------------- */
+const dateStringFromOffset = offset => {
+  date = new Date();
+  date.setDate(date.getDate() + offset);
+
+  return (
+    date.getFullYear() +
+    '-' +
+    (date.getMonth() + 1) +
+    '-' +
+    date.getDate() +
+    ' ' +
+    date.getHours() +
+    ':' +
+    date.getMinutes()
+  );
+};
+
 /* Teacher Commands */
 
 Cypress.Commands.add('createClarificationAnswer', (title, message) => {
@@ -238,83 +255,39 @@ Cypress.Commands.add('seeMyTournaments', () => {
 });
 
 Cypress.Commands.add('deleteTournament', name => {
-  const pguser = Cypress.env('db_username');
-  const pgpassword = Cypress.env('db_password');
-  const pgname = Cypress.env('db_name');
   const tournamentId = `(SELECT id FROM tournaments WHERE title = '${name}')`;
-  cy.exec(
-    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
-      `"DELETE FROM tournaments_topics WHERE tournaments_id = ${tournamentId};"`
+  cy.executeSQL(
+    `DELETE FROM tournaments_topics WHERE tournaments_id = ${tournamentId};`
   );
-  cy.exec(
-    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
-      `"DELETE FROM tournaments_signed_up_users WHERE sign_up_tournaments_id = ${tournamentId};"`
+  cy.executeSQL(
+    `DELETE FROM tournaments_signed_up_users WHERE sign_up_tournaments_id = ${tournamentId};`
   );
-  cy.exec(
-    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
-      `"DELETE FROM tournaments_leaderboard WHERE tournament_id = ${tournamentId};"`
+  cy.executeSQL(
+    `DELETE FROM tournaments_leaderboard WHERE tournament_id = ${tournamentId};`
   );
-  cy.exec(
-    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
-      `"DELETE FROM tournaments WHERE id = ${tournamentId};"`
-  );
+  cy.executeSQL(`DELETE FROM tournaments WHERE id = ${tournamentId};`);
 });
 
 Cypress.Commands.add('prepareRunningTournament', name => {
-  const pguser = Cypress.env('db_username');
-  const pgpassword = Cypress.env('db_password');
-  const pgname = Cypress.env('db_name');
   const tournamentId = `(SELECT id FROM tournaments WHERE title = '${name}')`;
+  let beforeYesterday = dateStringFromOffset(-2);
 
-  let yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 2);
-  const yesterdayString =
-    yesterday.getFullYear() +
-    '-' +
-    (yesterday.getMonth() + 1) +
-    '-' +
-    yesterday.getDate() +
-    ' ' +
-    yesterday.getHours() +
-    ':' +
-    yesterday.getMinutes();
-  // Modify the database so that it is instantly running
-
-  cy.exec(
-    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
-      `"INSERT INTO tournaments_signed_up_users (sign_up_tournaments_id, signed_up_users_id) VALUES (${tournamentId}, 651);"`
+  cy.executeSQL(
+    `INSERT INTO tournaments_signed_up_users (sign_up_tournaments_id, signed_up_users_id) VALUES (${tournamentId}, 651);`
   );
-  cy.exec(
-    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
-      `"INSERT INTO tournaments_signed_up_users (sign_up_tournaments_id, signed_up_users_id) VALUES (${tournamentId}, 652);"`
+  cy.executeSQL(
+    `INSERT INTO tournaments_signed_up_users (sign_up_tournaments_id, signed_up_users_id) VALUES (${tournamentId}, 652);`
   );
-  cy.exec(
-    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
-      `"UPDATE tournaments SET starting_date = '${yesterdayString}', number_of_questions = 5 WHERE title = '${name}'"`
+  cy.executeSQL(
+    `UPDATE tournaments SET starting_date = '${beforeYesterday}', number_of_questions = 5 WHERE title = '${name}'`
   );
 });
 
 Cypress.Commands.add('finishTournament', name => {
-  const pguser = Cypress.env('db_username');
-  const pgpassword = Cypress.env('db_password');
-  const pgname = Cypress.env('db_name');
+  const yesterday = dateStringFromOffset(-1);
 
-  let yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const nowString =
-    yesterday.getFullYear() +
-    '-' +
-    (yesterday.getMonth() + 1) +
-    '-' +
-    yesterday.getDate() +
-    ' ' +
-    yesterday.getHours() +
-    ':' +
-    yesterday.getMinutes();
-
-  cy.exec(
-    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
-      `"UPDATE tournaments SET conclusion_date = '${nowString}' WHERE title = '${name}'"`
+  cy.executeSQL(
+    `UPDATE tournaments SET conclusion_date = '${yesterday}' WHERE title = '${name}'`
   );
 });
 
@@ -371,44 +344,24 @@ Cypress.Commands.add('closeSuccessMessage', successMessage => {
     .click();
 });
 
-Cypress.Commands.add('setDateToYesterday', name => {
-  let pguser = Cypress.env('db_username');
-  let pgpassword = Cypress.env('db_password');
-  let pgname = Cypress.env('db_name');
-
-  let yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  let yesterdayString =
-    yesterday.getFullYear() +
-    '-' +
-    (yesterday.getMonth() + 1) +
-    '-' +
-    yesterday.getDate() +
-    ' ' +
-    yesterday.getHours() +
-    ':' +
-    yesterday.getMinutes();
-  // Modify the database so that it is instantly running
+Cypress.Commands.add('executeSQL', query => {
+  const pg_user = Cypress.env('db_username');
+  const pg_password = Cypress.env('db_password');
+  const pg_name = Cypress.env('db_name');
   cy.exec(
-    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
-      `"UPDATE tournaments SET starting_date = '${yesterdayString}', number_of_questions = 5 WHERE title = '${name}'"`
+    `psql -c "${query}" postgres://${pg_user}:${pg_password}@localhost:5432/${pg_name}`
   );
 });
 
 /* ----------------------- */
 
 Cypress.Commands.add('addClarificationToDB', content => {
-  let pg_name = Cypress.env('db_name');
-  let pg_user = Cypress.env('db_username');
-  let pg_password = Cypress.env('db_password');
-
   let questionId = '1786';
   let studentKey = '678';
 
-  cy.exec(
-    'psql -c "INSERT INTO clarifications(content, question_id, user_id, is_answered) ' +
-      `VALUES ('${content}', ${questionId}, ${studentKey}, FALSE);" ` +
-      `postgres://${pg_user}:${pg_password}@localhost:5432/${pg_name}`
+  cy.executeSQL(
+    'INSERT INTO clarifications(content, question_id, user_id, is_answered) ' +
+      `VALUES ('${content}', ${questionId}, ${studentKey}, FALSE);`
   );
 });
 
