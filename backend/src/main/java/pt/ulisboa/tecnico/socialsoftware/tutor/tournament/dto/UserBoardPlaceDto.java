@@ -1,10 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.dto;
 
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.UserBoardPlace;
-import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
-
-import javax.persistence.*;
 
 public class UserBoardPlaceDto {
     private Integer id;

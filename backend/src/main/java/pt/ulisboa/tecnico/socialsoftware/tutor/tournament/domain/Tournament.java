@@ -305,11 +305,4 @@ public class Tournament {
                 ", topics=" + topics +
                 '}';
     }
-
-    private class LeaderBoardComparator implements Comparator<QuizAnswer> {
-        @Override
-        public int compare(QuizAnswer q1, QuizAnswer q2) {
-            return 0;
-        }
-    }
 }
