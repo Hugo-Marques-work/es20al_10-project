@@ -27,6 +27,8 @@ import CreateQuizzesView from '@/views/student/CreateQuizzesView.vue';
 import CoursesView from '@/views/admin/Courses/CoursesView.vue';
 import ClarificationView from '@/views/clarification/ClarificationView.vue';
 import ClarificationListView from '@/views/clarification/ClarificationListView.vue';
+import ClarificationDashboard from '@/views/clarification/ClarificationDashboard.vue';
+import ClarificationListCredited from '@/views/clarification/ClarificationListCredited.vue';
 import TournamentsView from '@/views/student/tournament/TournamentsView.vue';
 import TournamentQuizView from '@/views/student/tournament/TournamentQuizView.vue';
 import FinishedTournamentsView from '@/views/student/tournament/FinishedTournamentsView.vue';

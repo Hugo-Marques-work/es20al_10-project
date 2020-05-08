@@ -106,11 +106,8 @@ public class User implements UserDetails, DomainEntity {
         this.numberOfCorrectTeacherAnswers = 0;
         this.numberOfCorrectInClassAnswers = 0;
         this.numberOfCorrectStudentAnswers = 0;
-<<<<<<< HEAD
         this.tournamentPrivacyPreference = TournamentPrivacyPreference.PRIVATE;
-=======
         this.dashboardAvailability = DashboardAvailability.PRIVATE;
->>>>>>> develop
     }
 
     @Override
