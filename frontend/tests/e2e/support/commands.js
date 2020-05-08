@@ -207,6 +207,10 @@ Cypress.Commands.add('deleteTournament', name => {
   );
   cy.exec(
     `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
+      `"DELETE FROM tournaments_leaderboard WHERE tournament_id = ${tournamentId};"`
+  );
+  cy.exec(
+    `PGPASSWORD=${pgpassword} psql -d ${pgname} -U ${pguser} -h localhost -c ` +
       `"DELETE FROM tournaments WHERE id = ${tournamentId};"`
   );
 });

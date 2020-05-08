@@ -1,8 +1,6 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
-import org.springframework.data.util.Pair;
-import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuestionAnswer;
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuizAnswer;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
@@ -14,7 +12,6 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 
@@ -60,7 +57,7 @@ public class Tournament {
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Column(name = "user_place_id")
-    private List<UserBoardPlace> leaderboard = new ArrayList<>();
+    private Set<UserBoardPlace> leaderboard = new HashSet<>();
 
     public Tournament() {}
 
@@ -258,7 +255,6 @@ public class Tournament {
     }
 
     public void setFinished() {
-        System.out.println("CONA");
         for(User user : signedUpUsers) {
             Optional<QuizAnswer> quizAnswer = user.getQuizAnswers().stream()
                     .filter(qa -> qa.getQuiz().equals(quiz))
@@ -275,8 +271,6 @@ public class Tournament {
     }
 
     private void sortLeaderboardPlaces() {
-        this.leaderboard.sort(Comparator.comparing(UserBoardPlace::getCorrectAnswers));
-
         int place = 1;
         int nextPlace = 1;
         int lastCorrectAnswer = -1;
@@ -290,7 +284,7 @@ public class Tournament {
         }
     }
 
-    public List<UserBoardPlace> getLeaderboard() {
+    public Set<UserBoardPlace> getLeaderboard() {
         return leaderboard;
     }
 

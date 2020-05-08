@@ -134,7 +134,7 @@ let router = new Router({
           meta: {
             title: process.env.VUE_APP_NAME + ' - Tournaments',
             requiredAuth: 'Student'
-          },
+          }
         },
         {
           path: 'finishedTournaments',

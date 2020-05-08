@@ -24,9 +24,9 @@
             />
             <!-- REFRESH -->
             <v-tooltip bottom>
-              <template v-slot:activator="{ on }" >
+              <template v-slot:activator="{ on }">
                 <v-icon
-                        style="padding-left:10px; padding-right: 30px;"
+                  style="padding-left:10px; padding-right: 30px;"
                   small
                   class="mr-2"
                   v-on="on"
@@ -39,12 +39,10 @@
             </v-tooltip>
 
             <v-switch
-                    v-model="publishPreferenceOn"
-                    label="Publish informations"
-
-                    data-cy="privacyToggle"
+              v-model="publishPreferenceOn"
+              label="Publish informations"
+              data-cy="privacyToggle"
             />
-
           </v-card-title>
         </template>
       </template>
@@ -175,7 +173,7 @@ export default class FinishedTournamentsView extends Vue {
     await this.$store.dispatch('loading');
     try {
       let tournaments: Tournament[] = await RemoteServices.getUserClosedTournaments();
-      
+
       this.tournaments = tournaments;
     } catch (error) {
       await this.$store.dispatch('error', error);

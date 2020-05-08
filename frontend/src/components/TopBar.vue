@@ -183,7 +183,10 @@
             </v-btn>
           </template>
           <v-list dense>
-            <v-list-item to="/student/tournaments" data-cy="availableTournaments">
+            <v-list-item
+              to="/student/tournaments"
+              data-cy="availableTournaments"
+            >
               <v-list-item-action>
                 <v-icon>assignment</v-icon>
               </v-list-item-action>
@@ -191,7 +194,10 @@
                 <v-list-item-title>Available</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
-            <v-list-item to="/student/finishedTournaments" data-cy="finishedTournaments">
+            <v-list-item
+              to="/student/finishedTournaments"
+              data-cy="finishedTournaments"
+            >
               <v-list-item-action>
                 <v-icon>assignment</v-icon>
               </v-list-item-action>
@@ -395,8 +401,7 @@
 
         <!-- Tournament group -->
         <v-list-group
-
-                prepend-icon="fas fa-trophy"
+          prepend-icon="fas fa-trophy"
           :value="false"
           offset-y
           v-if="isStudent && currentCourse"
