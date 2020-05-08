@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain;
 
 import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler;
+import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuizAnswer;
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
@@ -10,8 +11,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 
@@ -30,7 +30,7 @@ public class Tournament {
     @JoinColumn(name = "creator_id")
     private User creator;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @Column(name = "topic_id")
     private Set<Topic> topics = new HashSet<>();
 
@@ -41,9 +41,9 @@ public class Tournament {
     private LocalDateTime conclusionDate;
 
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private Status status = Status.OPEN;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Column(name = "user_id")
     private Set<User> signedUpUsers = new HashSet<>();
 
@@ -54,6 +54,10 @@ public class Tournament {
     @ManyToOne
     @JoinColumn(name = "course_execution_id")
     private CourseExecution courseExecution;
+
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @Column(name = "user_place_id")
+    private Set<UserBoardPlace> leaderboard = new HashSet<>();
 
     public Tournament() {}
 
@@ -71,7 +75,6 @@ public class Tournament {
         checkStartingDate(startDate);
         checkConclusionDate(conclusionDate);
 
-        this.status = Status.OPEN;
         if (nQuestions < 1) {
             throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " number of questions " + this.numberOfQuestions
                     + " must be greater than 1");
@@ -240,7 +243,7 @@ public class Tournament {
             }
         } else {
             if (!signedUpUsers.isEmpty()) {
-                setStatus(Status.FINISHED);
+                setFinished();
             } else {
                 setStatus(Status.CANCELED);
             }
@@ -249,6 +252,44 @@ public class Tournament {
 
     public boolean needsQuiz() {
         return this.status == Status.RUNNING && this.quiz == null;
+    }
+
+    public void setFinished() {
+        for(User user : signedUpUsers) {
+            Optional<QuizAnswer> quizAnswer = user.getQuizAnswers().stream()
+                    .filter(qa -> qa.getQuiz().equals(quiz))
+                    .findFirst();
+
+            if (quizAnswer.isEmpty()) {
+                leaderboard.add(new UserBoardPlace(user, 0, 0));
+            } else {
+                leaderboard.add(new UserBoardPlace(user, quizAnswer.get().getNumberOfCorrectAnswers(), 0));
+            }
+        }
+        sortLeaderboardPlaces();
+        setStatus(Status.FINISHED);
+    }
+
+    private void sortLeaderboardPlaces() {
+        int place = 1;
+        int nextPlace = 1;
+        int lastCorrectAnswer = -1;
+        for(UserBoardPlace ubp : this.leaderboard) {
+            if(lastCorrectAnswer != ubp.getCorrectAnswers()) {
+                place = nextPlace;
+            }
+            nextPlace++;
+            lastCorrectAnswer = ubp.getCorrectAnswers();
+            ubp.setPlace(place);
+        }
+    }
+
+    public Set<UserBoardPlace> getLeaderboard() {
+        return leaderboard;
+    }
+
+    public boolean isClosed() {
+        return status == Status.FINISHED;
     }
 
     @Override

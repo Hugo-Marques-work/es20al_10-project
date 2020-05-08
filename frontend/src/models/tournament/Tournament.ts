@@ -1,13 +1,24 @@
 import User from '@/models/user/User';
 import Topic from '@/models/management/Topic';
 import { ISOtoString } from '@/services/ConvertDateService';
+import { UserBoardPlace } from '@/models/tournament/UserBoardPlace';
 
 export enum TournamentStatus {
   Open = 'Open',
   Running = 'Running',
   Finished = 'Finished',
-  Canceled = 'Canceled'
+  Canceled = 'Canceled',
+  Undefined = 'Undefined'
 }
+
+function stringToTournamentStatus(statusString: string): TournamentStatus {
+  if (statusString == 'OPEN') return TournamentStatus.Open;
+  else if (statusString == 'RUNNING') return TournamentStatus.Running;
+  else if (statusString == 'FINISHED') return TournamentStatus.Finished;
+  else if (statusString == 'CANCELED') return TournamentStatus.Canceled;
+  return TournamentStatus.Undefined;
+}
+
 export class Tournament {
   id!: number;
   title!: string;
@@ -18,6 +29,7 @@ export class Tournament {
   status!: TournamentStatus;
   topics: Topic[] = [];
   signedUpUsers: User[] = [];
+  leaderboard: UserBoardPlace[] = [];
 
   constructor(jsonObj?: Tournament) {
     if (jsonObj) {
@@ -30,15 +42,8 @@ export class Tournament {
       if (jsonObj.conclusionDate)
         this.conclusionDate = ISOtoString(jsonObj.conclusionDate);
 
-      if (jsonObj.status.toString() == 'OPEN')
-        this.status = TournamentStatus.Open;
-      else if (jsonObj.status.toString() == 'RUNNING')
-        this.status = TournamentStatus.Running;
-      else if (jsonObj.status.toString() == 'FINISHED')
-        this.status = TournamentStatus.Finished;
-      else if (jsonObj.status.toString() == 'CANCELED')
-        this.status = TournamentStatus.Canceled;
-      else this.status = jsonObj.status;
+      this.status = stringToTournamentStatus(jsonObj.status.toString());
+
       if (jsonObj.creator) {
         this.creator = new User(jsonObj.creator);
       }
@@ -51,6 +56,11 @@ export class Tournament {
       if (jsonObj.signedUpUsers) {
         this.signedUpUsers = jsonObj.signedUpUsers.map(
           (user: User) => new User(user)
+        );
+      }
+      if (jsonObj.leaderboard) {
+        this.leaderboard = jsonObj.leaderboard.map(
+          (ubp: UserBoardPlace) => new UserBoardPlace(ubp)
         );
       }
     }

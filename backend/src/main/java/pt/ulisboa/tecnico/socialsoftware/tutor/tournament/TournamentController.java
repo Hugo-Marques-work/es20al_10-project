@@ -33,6 +33,15 @@ public class TournamentController {
         return tournamentService.getOpenTournaments(executionId);
     }
 
+    @GetMapping("/executions/{executionId}/tournaments/closed")
+    @PreAuthorize("hasPermission(#executionId, 'EXECUTION.ACCESS')")
+    public List<TournamentDto> getClosedTournaments(Principal principal, @PathVariable int executionId) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        checkUserAuth(user);
+
+        return tournamentService.getClosedTournaments(user.getId(), executionId);
+    }
+
     @GetMapping("/executions/{executionId}/tournaments/running")
     @PreAuthorize("hasPermission(#executionId, 'EXECUTION.ACCESS')")
     public List<TournamentDto> findRunningTournaments(@PathVariable int executionId) {

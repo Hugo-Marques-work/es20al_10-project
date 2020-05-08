@@ -151,7 +151,7 @@ public class TournamentService {
         }
     }
 
-    private void generateQuiz(Tournament tournament) {
+    public void generateQuiz(Tournament tournament) {
         // check if quiz was already generated
         if (!tournament.needsQuiz()) {
             return;
@@ -276,6 +276,17 @@ public class TournamentService {
             throw new TutorException(TOURNAMENT_QUIZ_COMPLETED);
         }
         return statement;
+    }
+
+    public List<TournamentDto> getClosedTournaments(int userId, int courseExecutionId) {
+        CourseExecution courseExecution = getCourseExecution(courseExecutionId);
+        User user = getUser(userId);
+
+        getUpdatedTournaments(courseExecution);
+
+        return user.getClosedTournaments(courseExecutionId).stream()
+                .map(tournament -> new TournamentDto(tournament, true)).sorted(Comparator
+                .comparing(TournamentDto::getStartingDateDate)).collect(Collectors.toList());
     }
 
     public String getTournamentPrivacyPreference(int userId) {

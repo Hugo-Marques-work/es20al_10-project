@@ -26,7 +26,7 @@ public class Topic implements DomainEntity {
     @Column(nullable = false)
     private String name;
 
-    @ManyToMany
+    @ManyToMany( fetch=FetchType.EAGER )
     private final Set<Question> questions = new HashSet<>();
 
     @ManyToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
