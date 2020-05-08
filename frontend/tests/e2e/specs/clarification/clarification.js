@@ -1,6 +1,7 @@
 describe('Clarifications creating, answering and viewing', () => {
   const clarificationTitle = 'Clarification test for viewing';
   const clarificationAnswer = 'Clarification Answer test for viewing';
+  const clarificationHash = '2aae55f0ade2ce79cd0fde26761451fb';
 
   afterEach(() => {
     cy.logout();
@@ -46,5 +47,52 @@ describe('Clarifications creating, answering and viewing', () => {
     cy.clarificationList();
     cy.checkClarificationAnswered(clarificationTitle, true);
     cy.checkForClarificationAnswer(clarificationTitle, clarificationAnswer);
+  });
+
+  it('login and asks for another clarification', () => {
+    cy.demoStudentLogin();
+    cy.clarificationList();
+    cy.createClarificationAnswer(clarificationTitle, clarificationAnswer);
+    cy.closeSuccessMessage('Answer sent');
+    cy.contains(clarificationAnswer);
+  });
+
+  it('login and asks for another clarification without waiting for an answer', () => {
+    cy.demoStudentLogin();
+    cy.clarificationList();
+    cy.createClarificationAnswer(clarificationTitle, clarificationAnswer);
+    cy.closeErrorMessage();
+  });
+  
+  it('login, goes to dashboard and checks credited clarifications', () => {
+    cy.demoStudentLogin();
+    cy.clarificationDashboard();
+    cy.openCreditedClarifications();
+  });
+
+  it('login, goes to dashboard and checks clarification list', () => {
+    cy.demoStudentLogin();
+    cy.clarificationDashboard();
+    cy.openClarificationList();
+  });
+  
+  it('login and changes clarification dashboard availability', () => {
+    cy.demoStudentLogin();
+    cy.clarificationDashboard();
+    cy.toggleDashboardAvailability();
+    cy.closeSuccessMessage('Dashboard availability changed to: ');
+  
+  it('create clarification with another student, login, teacher makes clarification available', () => {
+    cy.addClarificationToDB(clarificationHash);
+    cy.demoTeacherLogin();
+    cy.clarificationList();
+    cy.makeClarificationAvailable(clarificationHash);
+    cy.closeSuccessMessage('Clarification is now available in anonymity');
+  });
+
+  it('login, student sees last clarification available', () => {
+    cy.demoStudentLogin();
+    cy.availableClarificationsList();
+    cy.checkClarification(clarificationHash);
   });
 });

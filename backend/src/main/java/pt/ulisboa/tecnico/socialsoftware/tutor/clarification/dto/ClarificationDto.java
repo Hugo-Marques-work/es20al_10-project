@@ -14,25 +14,39 @@ public class ClarificationDto implements Serializable {
     private UserDto user;
     private QuestionDto question;
     private boolean isAnswered;
+    private boolean isAvailableByTeacher;
+    private boolean isAvailableByStudent;
 
     public ClarificationDto() {}
 
     public ClarificationDto(Clarification clarification) {
+        this(clarification, false);
+    }
+
+    public ClarificationDto(Clarification clarification, boolean checkAvailability) {
         this.id = clarification.getId();
         this.isAnswered = clarification.isAnswered();
+        this.isAvailableByTeacher = (clarification.getAvailability() == Clarification.Availability.TEACHER ||
+                clarification.getAvailability() == Clarification.Availability.BOTH );
+        this.isAvailableByStudent = (clarification.getAvailability() == Clarification.Availability.STUDENT ||
+                clarification.getAvailability() == Clarification.Availability.BOTH );
 
         if (clarification.getContent() == null || clarification.getContent().isEmpty() || clarification.getContent().isBlank())
             throw new TutorException(ErrorMessage.CLARIFICATION_IS_EMPTY);
         else
             this.content = clarification.getContent();
 
-        if (clarification.getUser() != null)
+
+        if (!isAvailableByStudent && checkAvailability) {
+            this.user = null;
+        }
+        else if (clarification.getUser() != null)
             this.user = new UserDto(clarification.getUser());
-        else throw new TutorException(ErrorMessage.USER_NOT_FOUND, clarification.getUser().getId());
+        else throw new TutorException(ErrorMessage.USER_NOT_FOUND);
 
         if (clarification.getQuestion() != null)
             this.question = new QuestionDto(clarification.getQuestion());
-        else throw new TutorException(ErrorMessage.QUESTION_NOT_FOUND, clarification.getQuestion().getId());
+        else throw new TutorException(ErrorMessage.QUESTION_NOT_FOUND);
     }
 
     public Integer getId() { return id; }
@@ -62,6 +76,22 @@ public class ClarificationDto implements Serializable {
     }
 
     public void setAnswered(boolean answered) { this.isAnswered = answered; }
+
+    public boolean isAvailableByTeacher() {
+        return isAvailableByTeacher;
+    }
+
+    public void setAvailableByTeacher(boolean availableByTeacher) {
+        isAvailableByTeacher = availableByTeacher;
+    }
+
+    public boolean isAvailableByStudent() {
+        return isAvailableByStudent;
+    }
+
+    public void setAvailableByStudent(boolean availableByStudent) {
+        isAvailableByStudent = availableByStudent;
+    }
 
     @Override
     public String toString() {

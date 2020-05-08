@@ -5,17 +5,19 @@ interface CourseMap {
 }
 
 export default class User {
-  name!: string;
+  name: string = 'Anonymous';
   username!: string;
   role!: string;
   courses: CourseMap = {};
   coursesNumber: number = 0;
+  dashboardPublic: boolean = false;
 
   constructor(jsonObj?: User) {
     if (jsonObj) {
       this.name = jsonObj.name;
       this.username = jsonObj.username;
       this.role = jsonObj.role;
+      this.dashboardPublic = jsonObj.dashboardPublic;
 
       if (jsonObj.courses != null) {
         for (let [name, courses] of Object.entries(jsonObj.courses)) {

@@ -20,6 +20,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
 import java.util.Comparator;
 import java.util.*;
@@ -67,7 +68,8 @@ public class ClarificationService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public ClarificationAnswerDto createClarificationAnswer(Clarification clarification, User user, String content){
         checkClarification(clarification);
-        checkUser(user, User.Role.TEACHER);
+        checkUser(user, null);
+        checkLastUserToAnswer(clarification, user);
         checkContent(content, ErrorMessage.CLARIFICATION_ANSWER_IS_EMPTY);
 
         ClarificationAnswer clarificationAnswer = new ClarificationAnswer(content, clarification, user);
@@ -100,16 +102,25 @@ public class ClarificationService {
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public List<ClarificationDto> getClarificationsByCourse(int courseId) {
+    public List<ClarificationDto> getClarificationsByCourse(int courseId, User.Role role) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new TutorException(ErrorMessage.COURSE_NOT_FOUND, courseId));
         Set<Clarification> clarifications = new HashSet<>();
         List<Question> questions = new ArrayList<>(course.getQuestions());
         for (Question question : questions) {
-            clarifications.addAll(question.getClarifications());
+            clarifications.addAll(
+                    question.getClarifications()
+                            .stream()
+                            .filter(
+                                    t -> (
+                                            (t.getAvailability() != Clarification.Availability.NONE)) ||
+                                            role.equals(User.Role.TEACHER)
+                            )
+                            .collect(Collectors.toList())
+            );
         }
 
-        return convertClarificationsToList(clarifications);
+        return convertClarificationsToList(clarifications, true);
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
@@ -140,6 +151,51 @@ public class ClarificationService {
 
         clarificationAnswer.setContent(content);
         return new ClarificationAnswerDto(clarificationAnswer);
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public ClarificationDto makeClarificationAvailableByTeacher(int clarificationId) {
+        Clarification clarification = clarificationRepository.findById(clarificationId)
+                .orElseThrow(() -> new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationId));
+
+        clarification.makeAvailableTeacher();
+        return new ClarificationDto(clarification);
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public ClarificationDto setClarificationAvailabilityByStudent(int clarificationId, boolean available, int userId) {
+        Clarification clarification = clarificationRepository.findById(clarificationId)
+                .orElseThrow(() -> new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarificationId));
+
+        if (clarification.getUser().getId() != userId)
+            throw new TutorException(CLARIFICATION_NOT_CREATOR);
+
+        clarification.setAvailabilityStudent(available);
+        return new ClarificationDto(clarification);
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public List<ClarificationDto> getCreditedClarificationsByStudent(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, userId));
+
+        return user.getClarifications().stream()
+                .map(ClarificationDto::new)
+                .filter(ClarificationDto::isAvailableByTeacher)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public boolean getDashboardAvailability(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, userId));
+        return user.getDashboardPublic() == User.DashboardAvailability.PUBLIC;
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public UserDto changeDashboardAvailability(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new TutorException(USER_NOT_FOUND, userId));
+        user.toggleDashboardAvailability();
+
+        return new UserDto(user);
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
@@ -187,6 +243,14 @@ public class ClarificationService {
             throw new TutorException(ErrorMessage.CLARIFICATION_NOT_FOUND, clarification.getId());
     }
 
+    private void checkLastUserToAnswer(Clarification clarification, User user) {
+        Clarification clr = clarificationRepository.findById(clarification.getId()).orElse(null);
+        if (clr != null &&
+                (!clr.getClarificationAnswers().isEmpty() && getLastClarificationAnswer(clr).getUser().getId() == user.getId()
+                || clr.getClarificationAnswers().isEmpty() && clr.getUser().getId() == user.getId()))
+            throw new TutorException(CLARIFICATION_SAME_USER);
+    }
+
     private void checkQuestion(Question question) {
         if (question == null)
             throw new TutorException(QUESTION_NOT_FOUND);
@@ -201,7 +265,7 @@ public class ClarificationService {
             throw new TutorException(ErrorMessage.USER_NOT_FOUND, null);
 
         User usr = userRepository.findById(user.getId()).orElseThrow(() -> new TutorException(ErrorMessage.USER_NOT_FOUND, user.getId()));
-        if (usr.getRole() != role)
+        if (role != null && usr.getRole() != role)
             throw new TutorException(ErrorMessage.CLARIFICATION_WRONG_USER, role.toString());
     }
 
@@ -211,10 +275,27 @@ public class ClarificationService {
     }
 
     private List<ClarificationDto> convertClarificationsToList(Set<Clarification> clarifications) {
+        return convertClarificationsToList(clarifications, false);
+    }
+
+    private List<ClarificationDto> convertClarificationsToList(Set<Clarification> clarifications,
+                                                               boolean checkAvailability) {
         return clarifications.stream()
-                .map(ClarificationDto::new)
+                .map(c -> new ClarificationDto(c, checkAvailability))
                 .sorted(Comparator
                         .comparing(ClarificationDto::getId))
                 .collect(Collectors.toList());
+    }
+
+    private ClarificationAnswer getLastClarificationAnswer(Clarification clarification) {
+        ClarificationAnswer last = null;
+        for (ClarificationAnswer clr: clarification.getClarificationAnswers()) {
+            if (last == null)
+                last = clr;
+            else if (clr.getId() > last.getId())
+                last = clr;
+        }
+
+        return last;
     }
 }

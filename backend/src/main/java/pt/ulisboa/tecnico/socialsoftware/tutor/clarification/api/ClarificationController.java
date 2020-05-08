@@ -9,6 +9,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.ClarificationServic
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.dto.ClarificationDto;
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.dto.UserDto;
 
 import java.security.Principal;
 import java.util.List;
@@ -38,8 +39,12 @@ public class ClarificationController {
 
     @GetMapping("/course/{courseId}/clarifications")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('DEMO_ADMIN') or hasPermission(#courseId, 'COURSE.ACCESS')")
-    public List<ClarificationDto> getClarificationsByCourse(@PathVariable int courseId) {
-        return clarificationService.getClarificationsByCourse(courseId);
+    public List<ClarificationDto> getClarificationsByCourse(@PathVariable int courseId, Principal principal) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        if(user == null){
+            throw new TutorException(AUTHENTICATION_ERROR);
+        }
+        return clarificationService.getClarificationsByCourse(courseId, user.getRole());
     }
 
     @DeleteMapping("/clarification/{clarificationId}")
@@ -47,6 +52,57 @@ public class ClarificationController {
     public ResponseEntity removeClarification(@PathVariable int clarificationId) {
         clarificationService.removeClarification(clarificationId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/clarifications/credited")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public List<ClarificationDto> getCreditedClarificationsByStudent(Principal principal) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        if(user == null){
+            throw new TutorException(AUTHENTICATION_ERROR);
+        }
+
+        return clarificationService.getCreditedClarificationsByStudent(user.getId());
+    }
+
+    @GetMapping("/clarification/dashboard")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public boolean getDashboardAvailability(Principal principal) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        if(user == null){
+            throw new TutorException(AUTHENTICATION_ERROR);
+        }
+
+        return clarificationService.getDashboardAvailability(user.getId());
+    }
+
+    @PostMapping("/clarification/dashboard")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public UserDto changeDashboardAvailability(Principal principal) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        if(user == null){
+            throw new TutorException(AUTHENTICATION_ERROR);
+        }
+
+        return clarificationService.changeDashboardAvailability(user.getId());
+    }
+
+    @PutMapping("/clarifications/{clarificationId}/teacher/available")
+    @PreAuthorize("hasRole('ROLE_TEACHER') and hasPermission(#clarificationId, 'CLARIFICATION.ACCESS')")
+    public ClarificationDto makeClarificationAvailableTeacher(@PathVariable int clarificationId) {
+        return clarificationService.makeClarificationAvailableByTeacher(clarificationId);
+    }
+
+    @PutMapping("/clarifications/{clarificationId}/student/available")
+    @PreAuthorize("hasRole('ROLE_STUDENT') and hasPermission(#clarificationId, 'CLARIFICATION.ACCESS')")
+    public ClarificationDto makeClarificationAvailableStudent(@PathVariable int clarificationId,
+                                                            @RequestBody boolean available,
+                                                            Principal principal) {
+        User user = (User) ((Authentication) principal).getPrincipal();
+        if(user == null){
+            throw new TutorException(AUTHENTICATION_ERROR);
+        }
+        return clarificationService.setClarificationAvailabilityByStudent(clarificationId, available, user.getId());
     }
 
     @PutMapping("/clarifications/{clarificationId}")

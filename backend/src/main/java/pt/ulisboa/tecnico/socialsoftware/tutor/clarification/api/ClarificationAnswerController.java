@@ -34,7 +34,7 @@ public class ClarificationAnswerController {
     }
 
     @PostMapping("/clarification/{clarificationId}/answer")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_DEMO_ADMIN') or (hasRole('ROLE_TEACHER') and hasPermission(#clarificationId, 'CLARIFICATION.ACCESS'))")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_DEMO_ADMIN') or hasPermission(#clarificationId, 'CLARIFICATION.ACCESS')")
     public ClarificationAnswerDto addClarificationAnswer(@PathVariable int clarificationId,
                                                          @Valid @RequestBody String content,
                                                          Principal principal) {

@@ -6,14 +6,17 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 
 import javax.persistence.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.CLARIFICATION_IS_EMPTY;
 
 @Entity
 @Table(name = "clarifications")
 public class Clarification {
+    public enum Availability {NONE, TEACHER, STUDENT, BOTH}
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -24,6 +27,9 @@ public class Clarification {
     @Column(nullable = false)
     private boolean isAnswered;
 
+    @Column
+    private Availability availability;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -33,7 +39,7 @@ public class Clarification {
     private Question question;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "clarification")
-    private Set<ClarificationAnswer> clarificationAnswers = new HashSet<>();
+    private List<ClarificationAnswer> clarificationAnswers = new ArrayList<>();
 
     public Clarification() {}
 
@@ -41,6 +47,7 @@ public class Clarification {
         this.user = user;
         this.question = question;
         this.isAnswered = false;
+        this.availability = Availability.NONE;
 
         if (content == null || content.isEmpty() || content.isBlank())
             throw new TutorException(CLARIFICATION_IS_EMPTY);
@@ -66,15 +73,47 @@ public class Clarification {
 
     public void setUser(User user) { this.user = user; }
 
-    public Set<ClarificationAnswer> getClarificationAnswers() { return clarificationAnswers; }
+    public List<ClarificationAnswer> getClarificationAnswers() { return clarificationAnswers; }
 
-    public void setClarificationAnswers(Set<ClarificationAnswer> clarificationAnswers) { this.clarificationAnswers = clarificationAnswers; }
+    public void setClarificationAnswers(List<ClarificationAnswer> clarificationAnswers) { this.clarificationAnswers = clarificationAnswers; }
 
     public void setIsAnswered(boolean status) { this.isAnswered = status; }
 
+    public Availability getAvailability() {
+        if (this.availability == null) this.availability = Availability.NONE;
+        return availability;
+    }
+
+    public void setAvailability(Availability availability) {
+        this.availability = availability;
+    }
+
+    public void makeAvailableTeacher() {
+        if (this.availability == null)
+            this.availability = Availability.NONE;
+        if (this.availability == Availability.NONE)
+            this.availability = Availability.TEACHER;
+        else if (this.availability == Availability.STUDENT)
+            this.availability = Availability.BOTH;
+    }
+
+    public void setAvailabilityStudent(boolean available) {
+        if (this.availability == null)
+            this.availability = Availability.NONE;
+        if (this.availability == Availability.NONE && available)
+            this.availability = Availability.STUDENT;
+        else if (this.availability == Availability.TEACHER && available)
+            this.availability = Availability.BOTH;
+        else if (this.availability == Availability.STUDENT && !available)
+            this.availability = Availability.NONE;
+        else if (this.availability == Availability.BOTH && !available)
+            this.availability = Availability.TEACHER;
+    }
+
     public void addClarificationAnswer(ClarificationAnswer clarificationAnswer) {
-        if (!isAnswered) isAnswered = true;
-        this.clarificationAnswers.add(clarificationAnswer);
+        if (!isAnswered && clarificationAnswer.getUser().getId() != this.user.getId()) isAnswered = true;
+        else if (isAnswered && clarificationAnswer.getUser().getId() == this.user.getId()) isAnswered = false;
+        this.clarificationAnswers.add(0, clarificationAnswer);
     }
 
     public void remove() {
