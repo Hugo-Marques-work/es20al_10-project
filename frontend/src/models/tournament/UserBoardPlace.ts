@@ -4,7 +4,7 @@ import { ISOtoString } from '@/services/ConvertDateService';
 
 export class UserBoardPlace {
   id!: number;
-  correctAnswers!:number;
+  correctAnswers!: number;
   place!: number;
   user!: User;
 

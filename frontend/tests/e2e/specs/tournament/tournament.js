@@ -120,7 +120,7 @@ describe('Tournament walkthrough', () => {
     cy.closeErrorMessage();
   });
 
-  it.only('create running tournament, participate in it and visit leaderboard', () => {
+  it('create running tournament, participate in it and visit leaderboard', () => {
     let name = Math.random().toString(36);
     cy.createTournament(name, 12, 13);
     cy.signUpForTournament(name);
@@ -162,6 +162,6 @@ describe('Tournament walkthrough', () => {
   it('user changes his privacy preference', () => {
     cy.get('[data-cy="tournamentsButton"]').click();
     cy.get('[data-cy="finishedTournaments"]').click();
-    cy.get('[data-cy="privacyToggle"]').click();
+    cy.get('[data-cy="privacyToggle"]').click({ force: true });
   });
 });
