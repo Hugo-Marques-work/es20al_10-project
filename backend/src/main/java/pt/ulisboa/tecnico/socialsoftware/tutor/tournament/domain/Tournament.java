@@ -12,6 +12,7 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.*;
 
@@ -122,7 +123,7 @@ public class Tournament {
         Set<Topic> validTopics = courseExecution.getCourse().getTopics();
 
         if (!validTopics.contains(topic)) {
-            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, " topic" + topic
+            throw new TutorException(TOURNAMENT_NOT_CONSISTENT, "topic " + topic
                     + " is invalid for this course execution");
         }
         topics.add(topic);
@@ -274,7 +275,11 @@ public class Tournament {
         int place = 1;
         int nextPlace = 1;
         int lastCorrectAnswer = -1;
-        for(UserBoardPlace ubp : this.leaderboard) {
+        List<UserBoardPlace> userBoardPlaces = this.leaderboard.stream()
+                .sorted(Comparator.comparing(UserBoardPlace::getCorrectAnswers).reversed())
+                .collect(Collectors.toList());
+
+        for (UserBoardPlace ubp: userBoardPlaces) {
             if(lastCorrectAnswer != ubp.getCorrectAnswers()) {
                 place = nextPlace;
             }

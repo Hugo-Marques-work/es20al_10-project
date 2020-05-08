@@ -46,6 +46,10 @@ public class UserBoardPlace {
         return correctAnswers;
     }
 
+    public Integer getId() {
+        return this.id;
+    }
+
     public void setCorrectAnswers(int correctAnswers) {
         this.correctAnswers = correctAnswers;
     }

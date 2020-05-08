@@ -42,7 +42,7 @@ export default class RemoteServicesStub {
           user: {
             id: 1,
             username: 'Demo-sdsadsa',
-            name: 'sadasdadsadsa Student',
+            name: 'João Smurf Account',
             role: 'STUDENT',
             creationDate: null
           },
@@ -53,7 +53,7 @@ export default class RemoteServicesStub {
           user: {
             id: 1,
             username: '21211-sdsadsa',
-            name: '12121 Student',
+            name: 'Hugo',
             role: 'STUDENT',
             creationDate: null
           },
@@ -64,7 +64,7 @@ export default class RemoteServicesStub {
           user: {
             id: 1,
             username: 'alibaba-sdsadsa',
-            name: '12121 Student',
+            name: 'Bernardo',
             role: 'STUDENT',
             creationDate: null
           },
@@ -74,8 +74,8 @@ export default class RemoteServicesStub {
         {
           user: {
             id: 1,
-            username: 'alololo-sdsadsa',
-            name: '12121 Student',
+            username: 'Zé Maria',
+            name: 'Zé Maria',
             role: 'STUDENT',
             creationDate: null
           },
@@ -85,8 +85,8 @@ export default class RemoteServicesStub {
         {
           user: {
             id: 1,
-            username: 'stitch-sdsadsa',
-            name: '12121 Student',
+            username: 'Antoniette',
+            name: 'Antoniette',
             role: 'STUDENT',
             creationDate: null
           },

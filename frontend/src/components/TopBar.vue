@@ -226,7 +226,7 @@
               data-cy="finishedTournaments"
             >
               <v-list-item-action>
-                <v-icon>assignment</v-icon>
+                <v-icon>done</v-icon>
               </v-list-item-action>
               <v-list-item-content>
                 <v-list-item-title>Finished</v-list-item-title>
@@ -462,7 +462,7 @@
           </v-list-item>
           <v-list-item to="/student/finishedTournaments">
             <v-list-item-action>
-              <v-icon>assignment</v-icon>
+              <v-icon>done</v-icon>
             </v-list-item-action>
             <v-list-item-content>
               <v-list-item-title data-cy="finishedTournaments"

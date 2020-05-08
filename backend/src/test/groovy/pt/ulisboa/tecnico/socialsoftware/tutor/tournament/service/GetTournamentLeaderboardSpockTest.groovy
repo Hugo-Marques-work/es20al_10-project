@@ -41,6 +41,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 
 import java.time.LocalDateTime
+import java.util.stream.Collectors
 
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.COURSE_EXECUTION_NOT_FOUND
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.USER_NOT_FOUND
@@ -57,8 +58,8 @@ class GetTournamentLeaderboardSpockTest extends Specification {
     static final Integer NUMBER_QUESTIONS = 5
 
     static final String TITLE = "TESTNAME";
-    static final String NAME1 = "TestName3";
-    static final String NAME2 = "TestName3";
+    static final String NAME1 = "TestName1";
+    static final String NAME2 = "TestName2";
     static final String NAME3 = "TestName3";
     static final String NAME4 = "TestName4";
     static final String USERNAME1 = "TestUsername1";
@@ -144,10 +145,12 @@ class GetTournamentLeaderboardSpockTest extends Specification {
         if(nCorrect >= 1) {
             questionAnswer1.setQuizAnswer(quizAnswer)
             optionOK1.addQuestionAnswer(questionAnswer1)
+            questionAnswer1.setOption(optionOK1)
         }
-        else if(nCorrect >= 2) {
+        if(nCorrect >= 2) {
             questionAnswer2.setQuizAnswer(quizAnswer)
             optionOK2.addQuestionAnswer(questionAnswer2)
+            questionAnswer2.setOption(optionOK2)
         }
 
         quizAnswerRepository.save(quizAnswer)
@@ -192,22 +195,7 @@ class GetTournamentLeaderboardSpockTest extends Specification {
         }
     }
 
-    def setup() {
-        course = new Course(COURSE_NAME, Course.Type.TECNICO)
-        courseRepository.save(course)
-
-        courseExecution = new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
-        courseExecutionRepository.save(courseExecution)
-
-        otherCourseExecution = new CourseExecution(course, ACRONYM2, ACADEMIC_TERM, Course.Type.TECNICO)
-        courseExecutionRepository.save(courseExecution)
-
-        setupUsers()
-
-        topicDto = new TopicDto()
-        topicDto.setName(TOPIC_NAME)
-        topicDto = topicService.createTopic(course.getId(), topicDto)
-
+    def setupQuiz() {
         question1 = new Question()
         question1.setKey(1)
         question1.setTitle("Question Title1")
@@ -238,6 +226,25 @@ class GetTournamentLeaderboardSpockTest extends Specification {
         optionRepository.save(optionOK2)
     }
 
+    def setup() {
+        course = new Course(COURSE_NAME, Course.Type.TECNICO)
+        courseRepository.save(course)
+
+        courseExecution = new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
+        courseExecutionRepository.save(courseExecution)
+
+        otherCourseExecution = new CourseExecution(course, ACRONYM2, ACADEMIC_TERM, Course.Type.TECNICO)
+        courseExecutionRepository.save(courseExecution)
+
+        setupUsers()
+
+        topicDto = new TopicDto()
+        topicDto.setName(TOPIC_NAME)
+        topicDto = topicService.createTopic(course.getId(), topicDto)
+
+        setupQuiz()
+    }
+
     def setupSpec() {
         START_DATE = DateHandler.toISOString(LocalDateTime.now().plusDays(1))
         CONCLUSION_DATE = DateHandler.toISOString(LocalDateTime.now().plusDays(2))
@@ -246,7 +253,7 @@ class GetTournamentLeaderboardSpockTest extends Specification {
     }
 
 
-    def "Leaderboard OK after quizz generation"() {
+    def "Leaderboard OK after quiz generation"() {
         def tournamentSet = new HashSet<Tournament>()
         given: "a valid tournament dto"
         def tournament = createValidTournament()
@@ -268,7 +275,7 @@ class GetTournamentLeaderboardSpockTest extends Specification {
             for(User student : studentSet) {
                 if(ubp.getUser().getId() == student.getId()) {
                     foundOne = true
-                    ubp.getPlace() == 0
+                    assert ubp.getPlace() == 1
                 }
             }
         }
@@ -302,23 +309,39 @@ class GetTournamentLeaderboardSpockTest extends Specification {
         def firstTournament = result[0]
         def leaderboard = firstTournament.getLeaderboard();
         leaderboard.size() == studentSet.size()
-        for(UserBoardPlaceDto ubp : leaderboard) {
-            for(int i =0; i < studentSet.size(); i++) {
+
+        List<UserBoardPlaceDto> userBoardPlaces = leaderboard.stream()
+                .sorted(new UBPComparator())
+                .collect(Collectors.toList());
+        for(UserBoardPlaceDto ubp : userBoardPlaces) {
+            for(int i = 0; i < studentSet.size(); i++) {
                 User student = studentSet[i];
-                if(ubp.getUser().getId() == student.getId()) {
-                    ubp.getPlace() == 0
+                if (student != ubp.user) {
+                    continue;
                 }
                 if(i == 0)
-                    ubp.getPlace() == 2;
+                    assert ubp.getPlace() == 2;
                 else if(i == 1)
-                    ubp.getPlace() == 1;
+                    assert ubp.getPlace() == 1;
                 else if(i == 2)
-                    ubp.getPlace() == 4;
+                    assert ubp.getPlace() == 4;
                 else
-                    ubp.getPlace() == 2;
+                    assert ubp.getPlace() == 2;
             }
         }
     }
+
+    class UBPComparator implements Comparator<UserBoardPlaceDto> {
+        @Override
+        int compare(UserBoardPlaceDto userBoardPlaceDto, UserBoardPlaceDto t1) {
+            int placeDiff = userBoardPlaceDto.place - t1.place
+            if (placeDiff == 0) {
+                return userBoardPlaceDto.user.name.compareTo(t1.user.name)
+            }
+            return placeDiff
+        }
+    }
+
     @TestConfiguration
     static class ServiceImplTestContextConfiguration {
         @Bean

@@ -75,9 +75,6 @@ import { Component, Vue, Watch } from 'vue-property-decorator';
 import RemoteServices from '@/services/RemoteServices';
 import { Tournament, TournamentStatus } from '@/models/tournament/Tournament';
 import Topic from '@/models/management/Topic';
-import SignUpForTournamentDialog from '@/views/student/tournament/SignUpForTournamentDialog.vue';
-import CreateTournamentDialog from '@/views/student/tournament/CreateTournamentDialog.vue';
-import CancelTournamentDialog from '@/views/student/tournament/CancelTournamentDialog.vue';
 import { UserBoardPlace } from '@/models/tournament/UserBoardPlace';
 import TournamentLeaderboardDialog from '@/views/student/tournament/TournamentLeaderboardDialog.vue';
 import RemoteServicesStub from '@/services/RemoteServicesStub';
@@ -142,10 +139,14 @@ export default class FinishedTournamentsView extends Vue {
 
   async created() {
     await this.$store.dispatch('loading');
-    await this.$store.dispatch('clearLoading');
-    let preference = await RemoteServices.getUserTournamentPrivacyPreference();
-    this.setPrivacyPreference(preference);
+    try {
+      let preference = await RemoteServices.getUserTournamentPrivacyPreference();
+      this.setPrivacyPreference(preference);
+    } catch (error) {
+      await this.$store.dispatch('error', error);
+    }
     await this.getTournaments();
+    await this.$store.dispatch('clearLoading');
   }
 
   setPrivacyPreference(preference: string): void {
@@ -169,11 +170,11 @@ export default class FinishedTournamentsView extends Vue {
     }
     return result;
   }
+
   async getTournaments() {
     await this.$store.dispatch('loading');
     try {
       let tournaments: Tournament[] = await RemoteServices.getUserClosedTournaments();
-
       this.tournaments = tournaments;
     } catch (error) {
       await this.$store.dispatch('error', error);

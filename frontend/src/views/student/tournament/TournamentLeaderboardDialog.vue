@@ -117,13 +117,13 @@ export default class TournamentLeaderboard extends Vue {
 
   async created() {
     await this.$store.dispatch('loading');
-    await this.$store.dispatch('clearLoading');
     this.tournament.leaderboard.sort(function(ubp1, ubp2): number {
       if (ubp1.place == ubp2.place) {
         return ubp1.user.name > ubp2.user.name ? 1 : -1;
       }
       return ubp1.place - ubp2.place;
     });
+    await this.$store.dispatch('clearLoading');
   }
 
   firstPlaceNames(): String {

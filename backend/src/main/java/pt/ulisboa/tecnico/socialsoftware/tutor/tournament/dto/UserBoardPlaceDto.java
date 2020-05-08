@@ -13,6 +13,7 @@ public class UserBoardPlaceDto {
         this(ubp,true);
     }
     public UserBoardPlaceDto(UserBoardPlace ubp, boolean deepCopy) {
+        this.id = ubp.getId();
         this.correctAnswers = ubp.getCorrectAnswers();
         this.place = ubp.getPlace();
 
@@ -27,6 +28,10 @@ public class UserBoardPlaceDto {
 
     public void setUser(UserDto user) {
         this.user = user;
+    }
+
+    public Integer getId() {
+        return this.id;
     }
 
     public int getPlace() {
