@@ -44,7 +44,7 @@ class toggleDashboardAvailabilitySpockTest extends Specification {
         clarificationService.changeDashboardAvailability(user.getId())
 
         then: "dashboard availability should be public"
-        user.getDashboardPublic() == User.DashboardAvailability.PUBLIC
+        user.getDashboardPublic() == User.ClarificationDashboardAvailability.PUBLIC
     }
 
     def "change dashboard availability twice" () {
@@ -55,7 +55,7 @@ class toggleDashboardAvailabilitySpockTest extends Specification {
         clarificationService.changeDashboardAvailability(user.getId())
 
         then: "dashboard availability should be public"
-        user.getDashboardPublic() == User.DashboardAvailability.PRIVATE
+        user.getDashboardPublic() == User.ClarificationDashboardAvailability.PRIVATE
     }
 
     def "check dashboard availability when its private" () {

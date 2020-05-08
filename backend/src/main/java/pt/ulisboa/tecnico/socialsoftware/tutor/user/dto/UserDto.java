@@ -11,7 +11,7 @@ public class UserDto implements Serializable {
     private String name;
     private User.Role role;
     private String creationDate;
-    public boolean dashboardPublic;
+    public boolean clarificationDashboardPublic;
 
     public UserDto(User user) {
         this.id = user.getId();
@@ -19,9 +19,9 @@ public class UserDto implements Serializable {
         this.name = user.getName();
         this.role = user.getRole();
         this.creationDate = DateHandler.toISOString(user.getCreationDate());
-        if (user.getDashboardPublic() == User.DashboardAvailability.PRIVATE)
-            this.dashboardPublic = false;
-        else this.dashboardPublic = true;
+        if (user.getDashboardPublic() == User.ClarificationDashboardAvailability.PRIVATE)
+            this.clarificationDashboardPublic = false;
+        else this.clarificationDashboardPublic = true;
     }
 
     public int getId() {
@@ -58,6 +58,14 @@ public class UserDto implements Serializable {
 
     public void setCreationDate(String creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public boolean getClarificationDashboardPublic() {
+        return clarificationDashboardPublic;
+    }
+
+    public void setClarificationDashboardPublic(boolean clarificationDashboardPublic) {
+        this.clarificationDashboardPublic = clarificationDashboardPublic;
     }
 
     @Override

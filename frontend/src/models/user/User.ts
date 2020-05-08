@@ -10,14 +10,14 @@ export default class User {
   role!: string;
   courses: CourseMap = {};
   coursesNumber: number = 0;
-  dashboardPublic: boolean = false;
+  clarificationDashboardPublic: boolean = false;
 
   constructor(jsonObj?: User) {
     if (jsonObj) {
       this.name = jsonObj.name;
       this.username = jsonObj.username;
       this.role = jsonObj.role;
-      this.dashboardPublic = jsonObj.dashboardPublic;
+      this.clarificationDashboardPublic = jsonObj.clarificationDashboardPublic;
 
       if (jsonObj.courses != null) {
         for (let [name, courses] of Object.entries(jsonObj.courses)) {

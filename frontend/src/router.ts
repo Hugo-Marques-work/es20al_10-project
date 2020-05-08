@@ -242,7 +242,7 @@ let router = new Router({
           props: { onlyAvailable: false },
           meta: {
             title: process.env.VUE_APP_NAME + ' - List Clarifications',
-            requiredAuth: 'Student Teacher'
+            requiredAuth: 'Student'
           }
         },
         {
@@ -270,7 +270,7 @@ let router = new Router({
           props: { onlyAvailable: true },
           meta: {
             title: process.env.VUE_APP_NAME + ' - Available Clarifications',
-            requiredAuth: 'Student'
+            requiredAuth: 'Student Teacher'
           }
         }
       ]
