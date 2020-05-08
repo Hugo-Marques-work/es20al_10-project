@@ -28,7 +28,7 @@ import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.US
 public class User implements UserDetails, DomainEntity {
     public enum Role {STUDENT, TEACHER, ADMIN, DEMO_ADMIN}
 
-    public enum DashboardAvailability {PRIVATE, PUBLIC}
+    public enum ClarificationDashboardAvailability {PRIVATE, PUBLIC}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,7 +38,7 @@ public class User implements UserDetails, DomainEntity {
     private Integer key;
 
     @Column
-    private DashboardAvailability dashboardAvailability;
+    private ClarificationDashboardAvailability clarificationDashboardAvailability;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -101,7 +101,7 @@ public class User implements UserDetails, DomainEntity {
         this.numberOfCorrectTeacherAnswers = 0;
         this.numberOfCorrectInClassAnswers = 0;
         this.numberOfCorrectStudentAnswers = 0;
-        this.dashboardAvailability = DashboardAvailability.PRIVATE;
+        this.clarificationDashboardAvailability = ClarificationDashboardAvailability.PRIVATE;
     }
 
     @Override
@@ -332,19 +332,19 @@ public class User implements UserDetails, DomainEntity {
 
     public void addClarificationAnswer(ClarificationAnswer clarificationAnswer) {this.clarificationAnswers.add(clarificationAnswer);}
 
-    public DashboardAvailability getDashboardPublic() {
-        if (this.dashboardAvailability == null) this.dashboardAvailability = DashboardAvailability.PRIVATE;
-        return this.dashboardAvailability;
+    public ClarificationDashboardAvailability getDashboardPublic() {
+        if (this.clarificationDashboardAvailability == null) this.clarificationDashboardAvailability = ClarificationDashboardAvailability.PRIVATE;
+        return this.clarificationDashboardAvailability;
     }
 
-    public void setDashboardPublic(DashboardAvailability dashboardAvailability) {
-        this.dashboardAvailability = dashboardAvailability;
+    public void setDashboardPublic(ClarificationDashboardAvailability dashboardAvailability) {
+        this.clarificationDashboardAvailability = dashboardAvailability;
     }
 
     public void toggleDashboardAvailability() {
-        if (this.dashboardAvailability == null || this.dashboardAvailability == DashboardAvailability.PRIVATE)
-            this.dashboardAvailability = DashboardAvailability.PUBLIC;
-        else this.dashboardAvailability = DashboardAvailability.PRIVATE;
+        if (this.clarificationDashboardAvailability == null || this.clarificationDashboardAvailability == ClarificationDashboardAvailability.PRIVATE)
+            this.clarificationDashboardAvailability = ClarificationDashboardAvailability.PUBLIC;
+        else this.clarificationDashboardAvailability = ClarificationDashboardAvailability.PRIVATE;
     }
 
 
