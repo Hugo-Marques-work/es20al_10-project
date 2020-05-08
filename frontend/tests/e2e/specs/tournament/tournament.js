@@ -120,7 +120,7 @@ describe('Tournament walkthrough', () => {
     cy.closeErrorMessage();
   });
 
-  it.only('create running tournament, participate in it and visit leaderboard', () => {
+  it('create running tournament, participate in it and visit leaderboard', () => {
     let name = Math.random().toString(36);
     cy.createTournament(name, 12, 13);
     cy.signUpForTournament(name);
@@ -131,6 +131,9 @@ describe('Tournament walkthrough', () => {
     cy.enterTournament(name);
 
     for (let i = 0; i < 4; i++) {
+      cy.get('.option-content')
+        .eq(0)
+        .click();
       cy.get('[data-cy="confirmAnswer"]')
         .eq(0)
         .click();
@@ -139,6 +142,9 @@ describe('Tournament walkthrough', () => {
         .click();
     }
 
+    cy.get('.option-content')
+      .eq(0)
+      .click();
     cy.get('[data-cy="confirmFinish"]')
       .eq(0)
       .click();
