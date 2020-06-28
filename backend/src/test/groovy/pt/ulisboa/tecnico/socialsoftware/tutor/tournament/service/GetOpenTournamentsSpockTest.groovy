@@ -10,8 +10,10 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseService
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.AnswersXmlImport
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.AssessmentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto
@@ -91,7 +93,7 @@ class GetOpenTournamentsSpockTest extends Specification {
         courseExecution = new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
         courseExecutionRepository.save(courseExecution)
 
-        student = new User("Joao", "joao", 1, User.Role.STUDENT)
+        student = new User("Joao", "joao", User.Role.STUDENT)
         userRepository.save(student)
 
         topicDto = new TopicDto()
@@ -145,6 +147,7 @@ class GetOpenTournamentsSpockTest extends Specification {
     @TestConfiguration
     static class ServiceImplTestContextConfiguration {
 
+
         @Bean
         TournamentService tournamentService() {
             return new TournamentService()
@@ -158,6 +161,11 @@ class GetOpenTournamentsSpockTest extends Specification {
         @Bean
         QuestionService questionService() {
             return new QuestionService()
+        }
+
+        @Bean
+        CourseService courseService() {
+            return new CourseService()
         }
 
         @Bean
@@ -178,6 +186,11 @@ class GetOpenTournamentsSpockTest extends Specification {
         @Bean
         AnswersXmlImport answersXmlImport() {
             return new AnswersXmlImport()
+        }
+
+        @Bean
+        AssessmentService assessmentService() {
+            return new AssessmentService()
         }
     }
 }

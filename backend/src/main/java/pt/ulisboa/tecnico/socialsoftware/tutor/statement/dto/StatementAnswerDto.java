@@ -7,25 +7,22 @@ import java.io.Serializable;
 public class StatementAnswerDto implements Serializable {
     private Integer timeTaken;
     private Integer sequence;
+    private Integer questionAnswerId;
     private Integer optionId;
+    private Integer quizQuestionId;
+    private Integer timeToSubmission;
 
     public StatementAnswerDto() {}
 
     public StatementAnswerDto(QuestionAnswer questionAnswer) {
         this.timeTaken = questionAnswer.getTimeTaken();
         this.sequence = questionAnswer.getSequence();
+        this.questionAnswerId = questionAnswer.getId();
+        this.quizQuestionId = questionAnswer.getQuizQuestion().getId();
 
         if (questionAnswer.getOption() != null) {
             this.optionId = questionAnswer.getOption().getId();
         }
-    }
-
-    public Integer getOptionId() {
-        return optionId;
-    }
-
-    public void setOptionId(Integer optionId) {
-        this.optionId = optionId;
     }
 
     public Integer getTimeTaken() {
@@ -44,12 +41,45 @@ public class StatementAnswerDto implements Serializable {
         this.sequence = sequence;
     }
 
+    public Integer getQuestionAnswerId() {
+        return questionAnswerId;
+    }
+
+    public void setQuestionAnswerId(Integer questionAnswerId) {
+        this.questionAnswerId = questionAnswerId;
+    }
+
+    public Integer getOptionId() {
+        return optionId;
+    }
+
+    public void setOptionId(Integer optionId) {
+        this.optionId = optionId;
+    }
+
+    public Integer getQuizQuestionId() {
+        return quizQuestionId;
+    }
+
+    public void setQuizQuestionId(Integer quizQuestionId) {
+        this.quizQuestionId = quizQuestionId;
+    }
+
+    public Integer getTimeToSubmission() {
+        return timeToSubmission;
+    }
+
+    public void setTimeToSubmission(Integer timeToSubmission) {
+        this.timeToSubmission = timeToSubmission;
+    }
+
     @Override
     public String toString() {
         return "StatementAnswerDto{" +
-                ", optionId=" + optionId +
-                ", timeTaken=" + timeTaken +
+                "timeTaken=" + timeTaken +
                 ", sequence=" + sequence +
+                ", questionAnswerId=" + questionAnswerId +
+                ", optionId=" + optionId +
                 '}';
     }
 }

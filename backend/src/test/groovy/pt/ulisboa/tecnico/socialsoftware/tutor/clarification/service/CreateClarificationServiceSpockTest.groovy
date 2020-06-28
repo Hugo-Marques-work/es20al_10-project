@@ -3,15 +3,25 @@ package pt.ulisboa.tecnico.socialsoftware.tutor.clarification.service
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Bean
+import pt.ulisboa.tecnico.socialsoftware.tutor.answer.AnswerService;
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.ClarificationService
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.repository.ClarificationRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseService
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
+import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.AnswersXmlImport
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.AssessmentService
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository;
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserService
 import spock.lang.Specification
 import spock.lang.Unroll;
 
@@ -21,7 +31,6 @@ class CreateClarificationServiceSpockTest extends Specification {
     static final String USERNAME = "test_user"
     static final String USERNAME2 = "test_user_2"
     static final Integer KEY = 1
-    static final Integer KEY2 = 2
     static final User.Role ROLE = User.Role.STUDENT
     static final String CONTENT = "I want a clarification in this question."
 
@@ -35,16 +44,21 @@ class CreateClarificationServiceSpockTest extends Specification {
     QuestionRepository questionRepository
 
     @Autowired
+    CourseRepository courseRepository
+
+    @Autowired
     ClarificationRepository clarificationRepository
 
     def user
     def question
 
     def setup() {
-        user = new User(NAME, USERNAME, KEY, ROLE)
+        user = new User(NAME, USERNAME, ROLE)
         userRepository.save(user)
         question = new Question()
-        question.setKey(KEY)
+        def course = new Course("teste", Course.Type.TECNICO)
+        courseRepository.save(course)
+        question.setCourse(course)
         question.setTitle("Title")
         questionRepository.save(question)
     }
@@ -74,7 +88,7 @@ class CreateClarificationServiceSpockTest extends Specification {
     @Unroll("invalid arguments: #userRole | #content || #errorMessage")
     def "invalid inputs for user roles and content"() {
         given: "a user"
-        def genericUser = new User(NAME, USERNAME2, KEY2, userRole)
+        def genericUser = new User(NAME, USERNAME2, userRole)
         userRepository.save(genericUser)
 
         when:
@@ -96,6 +110,9 @@ class CreateClarificationServiceSpockTest extends Specification {
     def "question is not saved in the database" () {
         given: "a question not saved"
         def questionNotSaved = new Question()
+        def course = new Course("teste", Course.Type.TECNICO)
+        courseRepository.save(course)
+        questionNotSaved.setCourse(course)
         questionNotSaved.setTitle("Title")
         questionRepository.save(questionNotSaved)
         questionRepository.delete(questionNotSaved)
@@ -120,7 +137,6 @@ class CreateClarificationServiceSpockTest extends Specification {
     def "user is not saved in the database" () {
         given: "a user not saved"
         def userNotSaved = new User()
-        userNotSaved.setKey(userRepository.getMaxUserNumber()+1)
         userRepository.save(userNotSaved)
         userRepository.delete(userNotSaved)
 
@@ -146,6 +162,46 @@ class CreateClarificationServiceSpockTest extends Specification {
         @Bean
         ClarificationService clarificationService() {
             return new ClarificationService()
+        }
+
+        @Bean
+        UserService userService() {
+            return new UserService()
+        }
+
+        @Bean
+        CourseService courseService() {
+            return new CourseService()
+        }
+
+        @Bean
+        AnswerService answerService() {
+            return new AnswerService()
+        }
+
+        @Bean
+        AnswersXmlImport answersXmlImport() {
+            return new AnswersXmlImport()
+        }
+
+        @Bean
+        QuizService quizService() {
+            return new QuizService()
+        }
+
+        @Bean
+        QuestionService questionService() {
+            return new QuestionService()
+        }
+
+        @Bean
+        TopicService topicService() {
+            return new TopicService()
+        }
+
+        @Bean
+        AssessmentService assessmentService() {
+            return new AssessmentService()
         }
     }
 }

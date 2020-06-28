@@ -16,11 +16,11 @@ public class StatementQuizDto implements Serializable {
     private Integer quizAnswerId;
     private String title;
     private boolean oneWay;
+    private boolean timed;
     private String availableDate;
     private String conclusionDate;
     private Long timeToAvailability;
     private Long timeToSubmission;
-    private Long timeToResults;
     private List<StatementQuestionDto> questions = new ArrayList<>();
     private List<StatementAnswerDto> answers = new ArrayList<>();
 
@@ -31,19 +31,12 @@ public class StatementQuizDto implements Serializable {
         this.quizAnswerId = quizAnswer.getId();
         this.title = quizAnswer.getQuiz().getTitle();
         this.oneWay = quizAnswer.getQuiz().isOneWay();
+        this.timed = quizAnswer.getQuiz().getType().equals(Quiz.QuizType.IN_CLASS);
         this.availableDate = DateHandler.toISOString(quizAnswer.getQuiz().getAvailableDate());
         this.conclusionDate = DateHandler.toISOString(quizAnswer.getQuiz().getConclusionDate());
 
         if (quizAnswer.getQuiz().getConclusionDate() != null && quizAnswer.getQuiz().getType().equals(Quiz.QuizType.IN_CLASS)) {
             this.timeToSubmission = ChronoUnit.MILLIS.between(DateHandler.now(), quizAnswer.getQuiz().getConclusionDate());
-        }
-
-        if (quizAnswer.getQuiz().getConclusionDate() != null && quizAnswer.getQuiz().getType().equals(Quiz.QuizType.TOURNAMENT)) {
-            this.timeToSubmission = ChronoUnit.MILLIS.between(DateHandler.now(), quizAnswer.getQuiz().getConclusionDate());
-        }
-
-        if (quizAnswer.getQuiz().getResultsDate() != null && quizAnswer.getQuiz().getType().equals(Quiz.QuizType.IN_CLASS)) {
-            this.timeToResults = ChronoUnit.MILLIS.between(DateHandler.now(), quizAnswer.getQuiz().getResultsDate());
         }
 
         this.questions = quizAnswer.getQuestionAnswers().stream()
@@ -85,6 +78,14 @@ public class StatementQuizDto implements Serializable {
         this.oneWay = oneWay;
     }
 
+    public boolean isTimed() {
+        return timed;
+    }
+
+    public void setTimed(boolean timed) {
+        this.timed = timed;
+    }
+
     public String getAvailableDate() {
         return availableDate;
     }
@@ -117,14 +118,6 @@ public class StatementQuizDto implements Serializable {
         this.timeToSubmission = timeToSubmission;
     }
 
-    public Long getTimeToResults() {
-        return timeToResults;
-    }
-
-    public void setTimeToResults(Long timeToResults) {
-        this.timeToResults = timeToResults;
-    }
-
     public List<StatementQuestionDto> getQuestions() {
         return questions;
     }
@@ -152,7 +145,6 @@ public class StatementQuizDto implements Serializable {
                 ", conclusionDate='" + conclusionDate + '\'' +
                 ", timeToAvailability=" + timeToAvailability +
                 ", timeToSubmission=" + timeToSubmission +
-                ", timeToResults=" + timeToResults +
                 ", questions=" + questions +
                 ", answers=" + answers +
                 '}';

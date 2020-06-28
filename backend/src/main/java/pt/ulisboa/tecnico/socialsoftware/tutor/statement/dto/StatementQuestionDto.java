@@ -14,6 +14,8 @@ public class StatementQuestionDto implements Serializable {
     private Integer sequence;
     private Integer quizQuestionId;
 
+    public StatementQuestionDto() {}
+
     public StatementQuestionDto(QuestionAnswer questionAnswer) {
         this.content = questionAnswer.getQuizQuestion().getQuestion().getContent();
         if (questionAnswer.getQuizQuestion().getQuestion().getImage() != null) {

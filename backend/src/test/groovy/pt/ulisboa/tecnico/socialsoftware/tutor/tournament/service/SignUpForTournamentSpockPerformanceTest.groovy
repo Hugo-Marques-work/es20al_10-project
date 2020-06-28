@@ -6,16 +6,22 @@ import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.AnswerService
 import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseService
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.AnswersXmlImport
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.AssessmentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.domain.Tournament
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.repository.TournamentRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserService
 import spock.lang.Specification
 
 @DataJpaTest
@@ -36,18 +42,23 @@ class SignUpForTournamentSpockPerformanceTest extends Specification{
     AnswersXmlImport answersXmlImport
     @Autowired
     QuestionService questionService
+    @Autowired
+    CourseRepository courseRepository
 
     User creator
     User user
 
     def setup() {
-        creator = new User("host", "chost", 1, User.Role.STUDENT)
+        creator = new User("host", "chost", User.Role.STUDENT)
         userRepository.save(creator)
 
         CourseExecution courseExe = new CourseExecution();
+        def course = new Course("teste", Course.Type.TECNICO)
+        courseRepository.save(course)
+        courseExe.setCourse(course)
         courseExecutionRepository.save(courseExe)
 
-        user = new User("pessoa","pessoa1337",3, User.Role.STUDENT)
+        user = new User("pessoa","pessoa1337", User.Role.STUDENT)
         user.addCourse(courseExe)
         HashSet<CourseExecution> courseExes = new HashSet<CourseExecution>(1)
         courseExes.add(courseExe)
@@ -102,6 +113,26 @@ class SignUpForTournamentSpockPerformanceTest extends Specification{
         @Bean
         QuestionService questionService() {
             return new QuestionService()
+        }
+
+        @Bean
+        UserService userService() {
+            return new UserService()
+        }
+
+        @Bean
+        CourseService courseService() {
+            return new CourseService()
+        }
+
+        @Bean
+        TopicService topicService() {
+            return new TopicService()
+        }
+
+        @Bean
+        AssessmentService assessmentService() {
+            return new AssessmentService()
         }
     }
 }

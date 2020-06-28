@@ -1,74 +1,27 @@
 package pt.ulisboa.tecnico.socialsoftware.tutor.answer.service
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.context.annotation.Bean
-import pt.ulisboa.tecnico.socialsoftware.tutor.answer.AnswerService
+import pt.ulisboa.tecnico.socialsoftware.tutor.BeanConfiguration
+import pt.ulisboa.tecnico.socialsoftware.tutor.SpockTest
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuizAnswer
-import pt.ulisboa.tecnico.socialsoftware.tutor.answer.repository.QuestionAnswerRepository
-import pt.ulisboa.tecnico.socialsoftware.tutor.answer.repository.QuizAnswerRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
-import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
-import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
-import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
-import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
-import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.AnswersXmlImport
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Option
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.OptionRepository
-import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.QuizQuestion
-import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizQuestionRepository
-import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.statement.dto.StatementAnswerDto
+import pt.ulisboa.tecnico.socialsoftware.tutor.statement.dto.StatementQuizDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
-import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
-import spock.lang.Specification
 
-import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.QUIZ_NOT_FOUND
 import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.QUIZ_NOT_YET_AVAILABLE
+import static pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage.QUIZ_ANSWER_NOT_FOUND
 
 @DataJpaTest
-class ConcludeQuizTest extends Specification {
-    public static final String COURSE_NAME = "Software Architecture"
-    public static final String ACRONYM = "AS1"
-    public static final String ACADEMIC_TERM = "1 SEM"
-
-    @Autowired
-    AnswerService answerService
-
-    @Autowired
-    UserRepository userRepository
-
-    @Autowired
-    CourseRepository courseRepository
-
-    @Autowired
-    CourseExecutionRepository courseExecutionRepository
-
-    @Autowired
-    QuizRepository quizRepository
-
-    @Autowired
-    QuizQuestionRepository quizQuestionRepository
-
-    @Autowired
-    QuizAnswerRepository quizAnswerRepository
-
-    @Autowired
-    QuestionRepository questionRepository
-
-    @Autowired
-    OptionRepository optionRepository
-
-    @Autowired
-    QuestionAnswerRepository questionAnswerRepository
+class ConcludeQuizTest extends SpockTest {
 
     def user
-    def courseExecution
     def quizQuestion
     def optionOk
     def optionKO
@@ -77,56 +30,62 @@ class ConcludeQuizTest extends Specification {
     def quiz
 
     def setup() {
-        def course = new Course(COURSE_NAME, Course.Type.TECNICO)
-        courseRepository.save(course)
-
-        courseExecution = new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
-        courseExecutionRepository.save(courseExecution)
-
-        user = new User('name', "username", 1, User.Role.STUDENT)
-        user.getCourseExecutions().add(courseExecution)
-        courseExecution.getUsers().add(user)
+        user = new User(USER_1_NAME, USER_1_USERNAME, User.Role.STUDENT)
+        user.addCourse(courseExecution)
+        userRepository.save(user)
+        user.setKey(user.getId())
 
         quiz = new Quiz()
         quiz.setKey(1)
+        quiz.setTitle("Quiz Title")
         quiz.setType(Quiz.QuizType.GENERATED.toString())
         quiz.setCourseExecution(courseExecution)
         quiz.setAvailableDate(DateHandler.now())
-        courseExecution.addQuiz(quiz)
-
+        quizRepository.save(quiz)
 
         def question = new Question()
         question.setKey(1)
         question.setTitle("Question Title")
         question.setCourse(course)
+        questionRepository.save(question)
 
         quizQuestion = new QuizQuestion(quiz, question, 0)
+        quizQuestionRepository.save(quizQuestion)
+
         optionKO = new Option()
         optionKO.setContent("Option Content")
         optionKO.setCorrect(false)
         optionKO.setSequence(0)
         optionKO.setQuestion(question)
+        optionRepository.save(optionKO)
+
         optionOk = new Option()
         optionOk.setContent("Option Content")
         optionOk.setCorrect(true)
         optionOk.setSequence(1)
         optionOk.setQuestion(question)
+        optionRepository.save(optionOk)
 
         date = DateHandler.now()
 
         quizAnswer = new QuizAnswer(user, quiz)
-        userRepository.save(user)
-        quizRepository.save(quiz)
-        questionRepository.save(question)
-        quizQuestionRepository.save(quizQuestion)
         quizAnswerRepository.save(quizAnswer)
-        optionRepository.save(optionOk)
-        optionRepository.save(optionKO)
     }
 
     def 'conclude quiz without conclusionDate, without answering'() {
+        given: 'an empty answer'
+        def statementQuizDto = new StatementQuizDto()
+        statementQuizDto.id = quiz.getId()
+        statementQuizDto.quizAnswerId = quizAnswer.getId()
+        def statementAnswerDto = new StatementAnswerDto()
+        statementAnswerDto.setOptionId(null)
+        statementAnswerDto.setSequence(0)
+        statementAnswerDto.setTimeTaken(100)
+        statementAnswerDto.setQuestionAnswerId(quizAnswer.getQuestionAnswers().get(0).getId())
+        statementQuizDto.getAnswers().add(statementAnswerDto)
+
         when:
-        def correctAnswers = answerService.concludeQuiz(user, quiz.getId())
+        def correctAnswers = answerService.concludeQuiz(statementQuizDto)
 
         then: 'the value is createQuestion and persistent'
         quizAnswer.isCompleted()
@@ -149,20 +108,33 @@ class ConcludeQuizTest extends Specification {
         given: 'an IN_CLASS quiz with future conclusionDate'
         quiz.setConclusionDate(DateHandler.now().plusDays(2))
         quiz.setType(Quiz.QuizType.IN_CLASS.toString())
+        and: 'an empty answer'
+        def statementQuizDto = new StatementQuizDto()
+        statementQuizDto.id = quiz.getId()
+        statementQuizDto.quizAnswerId = quizAnswer.getId()
+        def statementAnswerDto = new StatementAnswerDto()
+        statementAnswerDto.setOptionId(null)
+        statementAnswerDto.setSequence(0)
+        statementAnswerDto.setTimeTaken(100)
+        statementAnswerDto.setQuestionAnswerId(quizAnswer.getQuestionAnswers().get(0).getId())
+        statementQuizDto.getAnswers().add(statementAnswerDto)
 
         when:
-        def correctAnswers = answerService.concludeQuiz(user, quiz.getId())
+        def correctAnswers = answerService.concludeQuiz(statementQuizDto)
 
         then: 'the value is createQuestion and persistent'
         quizAnswer.isCompleted()
-        quizAnswer.getAnswerDate() != null
-        questionAnswerRepository.findAll().size() == 1
-        def questionAnswer = questionAnswerRepository.findAll().get(0)
-        questionAnswer.getQuizAnswer() == quizAnswer
-        quizAnswer.getQuestionAnswers().contains(questionAnswer)
-        questionAnswer.getQuizQuestion() == quizQuestion
-        quizQuestion.getQuestionAnswers().contains(questionAnswer)
-        questionAnswer.getOption() == null
+        quizAnswer.getAnswerDate() == null
+        quizAnswerItemRepository.findAll().size() == 1
+        def quizAnswerItem = quizAnswerItemRepository.findAll().get(0)
+        quizAnswerItem.getQuizId() == quiz.getId()
+        quizAnswerItem.getQuizAnswerId() == quizAnswer.getId()
+        quizAnswerItem.getAnswerDate() != null
+        quizAnswerItem.getAnswersList().size() == 1
+        def resStatementAnswerDto = quizAnswerItem.getAnswersList().get(0)
+        resStatementAnswerDto.getOptionId() == null
+        resStatementAnswerDto.getSequence() == 0
+        resStatementAnswerDto.getTimeTaken() == 100
         and: 'does not return answers'
         correctAnswers == []
     }
@@ -171,14 +143,18 @@ class ConcludeQuizTest extends Specification {
         given: 'a quiz with future conclusionDate'
         quiz.setConclusionDate(DateHandler.now().plusDays(2))
         and: 'an answer'
+        def statementQuizDto = new StatementQuizDto()
+        statementQuizDto.id = quiz.getId()
+        statementQuizDto.quizAnswerId = quizAnswer.getId()
         def statementAnswerDto = new StatementAnswerDto()
         statementAnswerDto.setOptionId(optionOk.getId())
         statementAnswerDto.setSequence(0)
         statementAnswerDto.setTimeTaken(100)
-        answerService.submitAnswer(user, quiz.getId(), statementAnswerDto)
+        statementAnswerDto.setQuestionAnswerId(quizAnswer.getQuestionAnswers().get(0).getId())
+        statementQuizDto.getAnswers().add(statementAnswerDto)
 
         when:
-        def correctAnswers = answerService.concludeQuiz(user, quiz.getId())
+        def correctAnswers = answerService.concludeQuiz(statementQuizDto)
 
         then: 'the value is createQuestion and persistent'
         quizAnswer.isCompleted()
@@ -200,40 +176,19 @@ class ConcludeQuizTest extends Specification {
     def 'conclude quiz without answering, before availableDate'() {
         given: 'a quiz with future availableDate'
         quiz.setAvailableDate(DateHandler.now().plusDays(2))
+        and: 'an empty answer'
+        def statementQuizDto = new StatementQuizDto()
+        statementQuizDto.id = quiz.getId()
+        statementQuizDto.quizAnswerId = quizAnswer.getId()
 
         when:
-        answerService.concludeQuiz(user, quiz.getId())
+        answerService.concludeQuiz(statementQuizDto)
 
         then:
         TutorException exception = thrown()
         exception.getErrorMessage() == QUIZ_NOT_YET_AVAILABLE
     }
 
-    def 'user not consistent'() {
-        given: 'another user'
-        def otherUser = new User('name', "username2", 2, User.Role.STUDENT)
-        user.getCourseExecutions().add(courseExecution)
-        courseExecution.getUsers().add(user)
-        userRepository.save(otherUser)
-
-        when:
-        answerService.concludeQuiz(otherUser, quiz.getId())
-
-        then:
-        TutorException exception = thrown()
-        exception.getErrorMessage() == QUIZ_NOT_FOUND
-    }
-
     @TestConfiguration
-    static class AnswerServiceImplTestContextConfiguration {
-
-        @Bean
-        AnswerService answerService() {
-            return new AnswerService()
-        }
-        @Bean
-        AnswersXmlImport answersXmlImport() {
-            return new AnswersXmlImport()
-        }
-    }
+    static class LocalBeanConfiguration extends BeanConfiguration {}
 }

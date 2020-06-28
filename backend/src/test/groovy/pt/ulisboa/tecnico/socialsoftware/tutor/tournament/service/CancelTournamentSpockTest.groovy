@@ -6,9 +6,14 @@ import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.AnswerService
 import pt.ulisboa.tecnico.socialsoftware.tutor.config.DateHandler
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseService
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.AnswersXmlImport
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.AssessmentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserService
 import spock.lang.Unroll
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
@@ -66,7 +71,7 @@ class CancelTournamentSpockTest extends Specification{
     Tournament tournament
 
     def setup(){
-        creator = new User(USER_NAME, USER_UNAME, USER_KEY, User.Role.STUDENT)
+        creator = new User(USER_NAME, USER_UNAME, User.Role.STUDENT)
         userRepository.save(creator)
 
         tournament = new Tournament(creator, "TEST", GOOD_START_DATE, CONCLUSION_DATE, NUMBER_QUESTIONS)
@@ -120,7 +125,7 @@ class CancelTournamentSpockTest extends Specification{
         given: "a running tournament"
         tournament.setStartingDate(BAD_START_DATE)
         tournament.setConclusionDate(CONCLUSION_DATE)
-        def randomUser = new User("ze", "zepedro", 2, User.Role.STUDENT)
+        def randomUser = new User("ze", "zepedro", User.Role.STUDENT)
         userRepository.save(randomUser)
         tournament.addSignUp(creator)
         tournament.addSignUp(randomUser)
@@ -159,6 +164,26 @@ class CancelTournamentSpockTest extends Specification{
         @Bean
         AnswersXmlImport answersXmlImport() {
             return new AnswersXmlImport()
+        }
+
+        @Bean
+        UserService userService() {
+            return new UserService()
+        }
+
+        @Bean
+        CourseService courseService() {
+            return new CourseService()
+        }
+
+        @Bean
+        TopicService topicService() {
+            return new TopicService()
+        }
+
+        @Bean
+        AssessmentService assessmentService() {
+            return new AssessmentService()
         }
     }
 }

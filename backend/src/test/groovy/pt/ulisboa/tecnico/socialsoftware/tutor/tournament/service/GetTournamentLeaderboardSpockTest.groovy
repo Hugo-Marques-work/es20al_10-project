@@ -13,8 +13,10 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseService
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.AnswersXmlImport
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.AssessmentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Option
@@ -166,19 +168,19 @@ class GetTournamentLeaderboardSpockTest extends Specification {
     }
 
     def setupUsers() {
-        def student1 = new User(NAME1, USERNAME1, 1, User.Role.STUDENT)
+        def student1 = new User(NAME1, USERNAME1, User.Role.STUDENT)
         userRepository.save(student1)
         userService.addCourseExecution(student1.getId(),courseExecution.getId());
 
-        def student2 = new User(NAME2, USERNAME2, 2, User.Role.STUDENT)
+        def student2 = new User(NAME2, USERNAME2, User.Role.STUDENT)
         userRepository.save(student2)
         userService.addCourseExecution(student2.getId(),courseExecution.getId());
 
-        def student3 = new User(NAME3, USERNAME3, 3, User.Role.STUDENT)
+        def student3 = new User(NAME3, USERNAME3, User.Role.STUDENT)
         userRepository.save(student3)
         userService.addCourseExecution(student3.getId(),courseExecution.getId());
 
-        def student4 = new User(NAME4, USERNAME4, 4, User.Role.STUDENT)
+        def student4 = new User(NAME4, USERNAME4, User.Role.STUDENT)
         userRepository.save(student4)
         userService.addCourseExecution(student4.getId(),courseExecution.getId());
 
@@ -377,6 +379,16 @@ class GetTournamentLeaderboardSpockTest extends Specification {
         @Bean
         UserService userService() {
             return new UserService()
+        }
+
+        @Bean
+        CourseService courseService() {
+            return new CourseService()
+        }
+
+        @Bean
+        AssessmentService assessmentService() {
+            return new AssessmentService()
         }
     }
 }

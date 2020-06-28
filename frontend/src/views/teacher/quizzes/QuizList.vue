@@ -27,11 +27,7 @@
       <template v-slot:item.action="{ item }">
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-            <v-icon
-              large
-              class="mr-2"
-              v-on="on"
-              @click="showQuizDialog(item.id)"
+            <v-icon class="mr-2" v-on="on" @click="showQuizDialog(item.id)"
               >visibility</v-icon
             >
           </template>
@@ -39,11 +35,7 @@
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-            <v-icon
-              large
-              class="mr-2"
-              v-on="on"
-              @click="showQuizAnswers(item.id)"
+            <v-icon class="mr-2" v-on="on" @click="showQuizAnswers(item)"
               >mdi-table</v-icon
             >
           </template>
@@ -51,7 +43,7 @@
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-            <v-icon large class="mr-2" v-on="on" @click="exportQuiz(item.id)"
+            <v-icon class="mr-2" v-on="on" @click="exportQuiz(item.id)"
               >fas fa-download</v-icon
             >
           </template>
@@ -59,7 +51,7 @@
         </v-tooltip>
         <v-tooltip bottom v-if="item.qrCodeOnly">
           <template v-slot:activator="{ on }">
-            <v-icon large class="mr-2" v-on="on" @click="showQrCode(item.id)"
+            <v-icon class="mr-2" v-on="on" @click="showQrCode(item.id)"
               >fas fa-qrcode</v-icon
             >
           </template>
@@ -67,16 +59,35 @@
         </v-tooltip>
         <v-tooltip bottom v-if="item.numberOfAnswers === 0">
           <template v-slot:activator="{ on }">
-            <v-icon large class="mr-2" v-on="on" @click="editQuiz(item)"
-              >edit</v-icon
-            >
+            <v-icon class="mr-2" v-on="on" @click="editQuiz(item)">edit</v-icon>
           </template>
           <span>Edit Quiz</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-icon
+              class="mr-2"
+              v-on="on"
+              @click="populateWithQuizAnswers(item.id)"
+              >people</v-icon
+            >
+          </template>
+          <span>Populate with answers</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-icon
+              class="mr-2"
+              v-on="on"
+              @click="removeNonAnsweredQuizAnswers(item.id)"
+              >people_outline</v-icon
+            >
+          </template>
+          <span>Remove non answered</span>
         </v-tooltip>
         <v-tooltip bottom v-if="item.numberOfAnswers === 0">
           <template v-slot:activator="{ on }">
             <v-icon
-              large
               class="mr-2"
               v-on="on"
               @click="deleteQuiz(item.id)"
@@ -89,13 +100,13 @@
       </template>
 
       <template v-slot:item.title="{ item }">
-        <p
+        <div
           @click="showQuizDialog(item.id)"
           @contextmenu="editQuiz(item, $event)"
-          style="cursor: pointer"
+          class="clickableTitle"
         >
           {{ item.title }}
-        </p>
+        </div>
       </template>
 
       <template v-slot:item.options="{ item }">
@@ -127,11 +138,10 @@
     <show-quiz-dialog v-if="quiz" v-model="quizDialog" :quiz="quiz" />
 
     <show-quiz-answers-dialog
-      v-if="quizAnswers"
+      v-if="quizAnswers && quiz"
       v-model="quizAnswersDialog"
-      :quiz-answers="quizAnswers"
-      :correct-sequence="correctSequence"
-      :timeToSubmission="timeToSubmission"
+      :conclusion-date="quiz.conclusionDate"
+      :quizAnswers="quizAnswers"
     />
 
     <v-dialog
@@ -159,7 +169,6 @@ import RemoteServices from '@/services/RemoteServices';
 import ShowQuizDialog from '@/views/teacher/quizzes/ShowQuizDialog.vue';
 import ShowQuizAnswersDialog from '@/views/teacher/quizzes/ShowQuizAnswersDialog.vue';
 import VueQrcode from 'vue-qrcode';
-import { QuizAnswer } from '@/models/management/QuizAnswer';
 import { QuizAnswers } from '@/models/management/QuizAnswers';
 
 @Component({
@@ -172,7 +181,7 @@ import { QuizAnswers } from '@/models/management/QuizAnswers';
 export default class QuizList extends Vue {
   @Prop({ type: Array, required: true }) readonly quizzes!: Quiz[];
   quiz: Quiz | null = null;
-  quizAnswers: QuizAnswer[] = [];
+  quizAnswers: QuizAnswers | null = null;
   correctSequence: number[] = [];
   timeToSubmission: number = 0;
   search: string = '';
@@ -187,46 +196,46 @@ export default class QuizList extends Vue {
       text: 'Actions',
       value: 'action',
       align: 'left',
-      width: '310px',
+      width: '150px',
       sortable: false
     },
-    { text: 'Title', value: 'title', align: 'left', width: '20%' },
+    { text: 'Title', value: 'title', align: 'left', width: '30%' },
     {
       text: 'Available Date',
       value: 'availableDate',
       align: 'center',
-      width: '10%'
+      width: '150px'
     },
     {
       text: 'Conclusion Date',
       value: 'conclusionDate',
       align: 'center',
-      width: '10%'
+      width: '150px'
     },
     {
       text: 'Results Date',
       value: 'resultsDate',
       align: 'center',
-      width: '10%'
+      width: '150px'
     },
     { text: 'Options', value: 'options', align: 'center', width: '150px' },
     {
       text: 'Questions',
       value: 'numberOfQuestions',
-      align: 'center',
-      width: '5%'
+      width: '5px',
+      align: 'center'
     },
     {
       text: 'Answers',
       value: 'numberOfAnswers',
-      align: 'center',
-      width: '5%'
+      width: '5px',
+      align: 'center'
     },
     {
       text: 'Creation Date',
       value: 'creationDate',
-      align: 'center',
-      width: '10%'
+      width: '150px',
+      align: 'center'
     }
   ];
 
@@ -239,15 +248,11 @@ export default class QuizList extends Vue {
     }
   }
 
-  async showQuizAnswers(quizId: number) {
+  async showQuizAnswers(quiz: Quiz) {
     try {
-      let quizAnswers: QuizAnswers = await RemoteServices.getQuizAnswers(
-        quizId
-      );
+      this.quizAnswers = await RemoteServices.getQuizAnswers(quiz.id);
 
-      this.quizAnswers = quizAnswers.quizAnswers;
-      this.correctSequence = quizAnswers.correctSequence;
-      this.timeToSubmission = quizAnswers.timeToSubmission;
+      this.quiz = quiz;
       this.quizAnswersDialog = true;
     } catch (error) {
       await this.$store.dispatch('error', error);
@@ -288,6 +293,26 @@ export default class QuizList extends Vue {
       } catch (error) {
         await this.$store.dispatch('error', error);
       }
+    }
+  }
+
+  async populateWithQuizAnswers(quizId: number) {
+    try {
+      let quiz: Quiz = await RemoteServices.populateWithQuizAnswers(quizId);
+      this.$emit('updateQuiz', quiz);
+    } catch (error) {
+      await this.$store.dispatch('error', error);
+    }
+  }
+
+  async removeNonAnsweredQuizAnswers(quizId: number) {
+    try {
+      let quiz: Quiz = await RemoteServices.removeNonAnsweredQuizAnswers(
+        quizId
+      );
+      this.$emit('updateQuiz', quiz);
+    } catch (error) {
+      await this.$store.dispatch('error', error);
     }
   }
 }

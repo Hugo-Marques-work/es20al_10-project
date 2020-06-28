@@ -7,7 +7,9 @@ import org.springframework.context.annotation.Bean
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.AnswerService
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseService
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.AnswersXmlImport
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.AssessmentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository
@@ -60,7 +62,7 @@ class SetAndGetTournamentPrivacyPreferenceSpockTest extends Specification {
 
     def "get the tournament privacy preference of an user"() {
         given: "one user"
-        def user = new User("User", "user", 1, User.Role.STUDENT)
+        def user = new User("User", "user", User.Role.STUDENT)
         userRepository.save(user)
 
         when: "the tournament privacy preference is requested"
@@ -72,7 +74,7 @@ class SetAndGetTournamentPrivacyPreferenceSpockTest extends Specification {
 
     def "set the tournament privacy preference of an user to PUBLIC"() {
         given: "one user"
-        def user = new User("User", "user", 1, User.Role.STUDENT)
+        def user = new User("User", "user", User.Role.STUDENT)
         userRepository.save(user)
 
         when: "the tournament privacy preference is set to PUBLIC "
@@ -118,6 +120,16 @@ class SetAndGetTournamentPrivacyPreferenceSpockTest extends Specification {
         @Bean
         AnswersXmlImport answersXmlImport() {
             return new AnswersXmlImport()
+        }
+
+        @Bean
+        CourseService courseService() {
+            return new CourseService()
+        }
+
+        @Bean
+        AssessmentService assessmentService() {
+            return new AssessmentService()
         }
     }
 }

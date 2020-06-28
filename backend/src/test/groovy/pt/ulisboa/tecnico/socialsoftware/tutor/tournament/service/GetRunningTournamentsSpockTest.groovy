@@ -10,8 +10,10 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseService
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.AnswersXmlImport
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.AssessmentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question
@@ -86,8 +88,9 @@ class GetRunningTournamentsSpockTest extends Specification {
         tournament.setStartingDate(DateHandler.now())
         tournament.setConclusionDate(DateHandler.now().plusDays(2))
         tournament.setNumberOfQuestions(NUMBER_QUESTIONS)
-        tournament.addTopic(topicRepository.findAll().getAt(0))
-        def randomUser = new User("Zé", "zepedro", 2, User.Role.STUDENT)
+        topic.setCourse(course)
+        tournament.addTopic(topic)
+        def randomUser = new User("Zé", "zepedro", User.Role.STUDENT)
         userRepository.save(randomUser)
         tournament.addSignUp(student)
         tournament.addSignUp(randomUser)
@@ -112,11 +115,14 @@ class GetRunningTournamentsSpockTest extends Specification {
         courseExecution = new CourseExecution(course, ACRONYM, ACADEMIC_TERM, Course.Type.TECNICO)
         courseExecutionRepository.save(courseExecution)
 
-        student = new User("Joao", "joao", 1, User.Role.STUDENT)
+        student = new User("Joao", "joao", User.Role.STUDENT)
         userRepository.save(student)
 
         topic = new Topic()
         topic.setName(TOPIC_NAME)
+        def course = new Course("teste", Course.Type.TECNICO)
+        courseRepository.save(course)
+        topic.setCourse(course)
         topicRepository.save(topic)
         course.addTopic(topic)
 
@@ -196,6 +202,16 @@ class GetRunningTournamentsSpockTest extends Specification {
         @Bean
         AnswersXmlImport answersXmlImport() {
             return new AnswersXmlImport()
+        }
+
+        @Bean
+        CourseService courseService() {
+            return new CourseService()
+        }
+
+        @Bean
+        AssessmentService assessmentService() {
+            return new AssessmentService()
         }
     }
 }

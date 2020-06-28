@@ -19,8 +19,9 @@ import User from '@/models/user/User';
 import ClarificationAnswer from '@/models/clarification/ClarificationAnswer';
 
 const httpClient = axios.create();
-httpClient.defaults.timeout = 10000;
-httpClient.defaults.baseURL = process.env.VUE_APP_ROOT_API;
+httpClient.defaults.timeout = 100000;
+httpClient.defaults.baseURL =
+  process.env.VUE_APP_ROOT_API || 'http://localhost:8080';
 httpClient.defaults.headers.post['Content-Type'] = 'application/json';
 httpClient.interceptors.request.use(
   config => {
@@ -312,15 +313,12 @@ export default class RemoteServices {
       });
   }
 
-  static async startQuiz(quizId: number) {
-    return httpClient.get(`/quizzes/${quizId}/start`).catch(async error => {
-      throw Error(await this.errorMessage(error));
-    });
-  }
-
-  static async submitAnswer(quizId: number, answer: StatementAnswer) {
+  static async startQuiz(quizId: number): Promise<StatementQuiz> {
     return httpClient
-      .post(`/quizzes/${quizId}/submit`, answer)
+      .get(`/quizzes/${quizId}/start`)
+      .then(response => {
+        return new StatementQuiz(response.data);
+      })
       .catch(async error => {
         throw Error(await this.errorMessage(error));
       });
@@ -340,11 +338,18 @@ export default class RemoteServices {
       });
   }
 
+  static submitAnswer(quizId: number, answer: StatementAnswer) {
+    httpClient.post(`/quizzes/${quizId}/submit`, answer).catch(error => {
+      console.debug(error);
+    });
+  }
+
   static async concludeQuiz(
-    quizId: number
-  ): Promise<StatementCorrectAnswer[] | void> {
+    statementQuiz: StatementQuiz
+  ): Promise<StatementCorrectAnswer[]> {
+    let sendStatement = { ...statementQuiz, questions: [] };
     return httpClient
-      .get(`/quizzes/${quizId}/conclude`)
+      .post(`/quizzes/${statementQuiz.id}/conclude`, sendStatement)
       .then(response => {
         if (response.data) {
           return response.data.map((answer: any) => {
@@ -454,6 +459,28 @@ export default class RemoteServices {
           throw Error(await this.errorMessage(error));
         });
     }
+  }
+
+  static async removeNonAnsweredQuizAnswers(quizId: number): Promise<Quiz> {
+    return httpClient
+      .post(`/quizzes/${quizId}/unpopulate`)
+      .then(response => {
+        return new Quiz(response.data);
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
+  }
+
+  static async populateWithQuizAnswers(quizId: number): Promise<Quiz> {
+    return httpClient
+      .post(`/quizzes/${quizId}/populate`)
+      .then(response => {
+        return new Quiz(response.data);
+      })
+      .catch(async error => {
+        throw Error(await this.errorMessage(error));
+      });
   }
 
   static async getCourseStudents(course: Course) {

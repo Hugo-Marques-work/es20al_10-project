@@ -12,7 +12,14 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService;
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService;
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question;
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Topic;
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.AssessmentRepository;
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.QuestionRepository;
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.repository.TopicRepository;
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.repository.QuizRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository;
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserService;
 
 import java.io.Serializable;
@@ -20,22 +27,25 @@ import java.io.Serializable;
 @Component
 public class TutorPermissionEvaluator implements PermissionEvaluator {
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private QuestionRepository questionRepository;
+
+    @Autowired
+    private TopicRepository topicRepository;
+
+    @Autowired
+    private AssessmentRepository assessmentRepository;
+
+    @Autowired
+    private QuizRepository quizRepository;
+
+    @Autowired
     private CourseService courseService;
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private QuestionService questionService;
-
-    @Autowired
-    private TopicService topicService;
-
-    @Autowired
-    private AssessmentService assessmentService;
-
-    @Autowired
-    private QuizService quizService;
 
     @Autowired
     private ClarificationService clarificationService;
@@ -68,17 +78,33 @@ public class TutorPermissionEvaluator implements PermissionEvaluator {
                     CourseDto courseDto = courseService.getCourseExecutionById(id);
                     return courseDto.getName().equals("Demo Course");
                 case "COURSE.ACCESS":
-                    return userHasAnExecutionOfTheCourse(userId, id);
+                    return userService.userHasAnExecutionOfCourse(userId, id);
                 case "EXECUTION.ACCESS":
                     return userHasThisExecution(userId, id);
                 case "QUESTION.ACCESS":
-                    return userHasAnExecutionOfTheCourse(userId, questionService.findQuestionCourse(id).getCourseId());
+                    Question question = questionRepository.findQuestionWithCourseById(id).orElse(null);
+                    if (question != null) {
+                        return userService.userHasAnExecutionOfCourse(userId, question.getCourse().getId());
+                    }
+                    return false;
                 case "TOPIC.ACCESS":
-                    return userHasAnExecutionOfTheCourse(userId, topicService.findTopicCourse(id).getCourseId());
+                    Topic topic = topicRepository.findTopicWithCourseById(id).orElse(null);
+                    if (topic != null) {
+                        return userService.userHasAnExecutionOfCourse(userId, topic.getCourse().getId());
+                    }
+                    return false;
                 case "ASSESSMENT.ACCESS":
-                    return userHasThisExecution(userId, assessmentService.findAssessmentCourseExecution(id).getCourseExecutionId());
+                    Integer courseExecutionId = assessmentRepository.findCourseExecutionIdById(id).orElse(null);
+                    if (courseExecutionId != null) {
+                        return userHasThisExecution(userId, courseExecutionId);
+                    }
+                    return false;
                 case "QUIZ.ACCESS":
-                    return userHasThisExecution(userId, quizService.findQuizCourseExecution(id).getCourseExecutionId());
+                    courseExecutionId = quizRepository.findCourseExecutionIdById(id).orElse(null);
+                    if (courseExecutionId != null) {
+                        return userHasThisExecution(userId, courseExecutionId);
+                    }
+                    return false;
                 case "CLARIFICATION.ACCESS":
                     return userHasAnExecutionOfTheCourse(userId, clarificationService.findClarificationCourseById(id).getCourseId());
                 case "CLARIFICATION_ANSWER.ACCESS":
@@ -99,13 +125,11 @@ public class TutorPermissionEvaluator implements PermissionEvaluator {
     }
 
     private boolean userHasAnExecutionOfTheCourse(int userId, int courseId) {
-        return userService.getCourseExecutions(userId).stream()
-                .anyMatch(course -> course.getCourseId() == courseId);
+        return userService.userHasAnExecutionOfCourse(userId, courseId);
     }
 
     private boolean userHasThisExecution(int userId, int courseExecutionId) {
-        return userService.getCourseExecutions(userId).stream()
-                .anyMatch(course -> course.getCourseExecutionId() == courseExecutionId);
+        return userRepository.countUserCourseExecutionsPairById(userId, courseExecutionId) == 1;
     }
 
     private boolean userSignedUpTournament(int userId, int tournamentId) {

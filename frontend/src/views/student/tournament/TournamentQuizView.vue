@@ -267,10 +267,7 @@ export default class TournamentQuizView extends Vue {
       this.confirmed = true;
       await this.statementManager.concludeQuiz();
 
-      if (
-        !this.statementQuiz?.timeToResults &&
-        this.statementManager.correctAnswers.length !== 0
-      ) {
+      if (this.statementManager.correctAnswers.length !== 0) {
         await this.$router.push({ name: 'quiz-results' });
       }
     } catch (error) {

@@ -10,9 +10,12 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseService
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.AnswersXmlImport
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.AssessmentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Assessment
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
@@ -76,7 +79,7 @@ class CancelTournamentSpockPerformanceTest extends Specification{
 
     def "cancel tournament performance test"() {
         given: "a student"
-        def student = new User("Bernardo", "berna", 1, User.Role.STUDENT)
+        def student = new User("Bernardo", "berna", User.Role.STUDENT)
         userRepository.save(student)
         and: "a course execution"
         def course = new Course(COURSE_NAME, Course.Type.TECNICO)
@@ -120,6 +123,11 @@ class CancelTournamentSpockPerformanceTest extends Specification{
         }
 
         @Bean
+        CourseService courseService() {
+            return new CourseService()
+        }
+
+        @Bean
         TopicService topicService() {
             return new TopicService()
         }
@@ -147,6 +155,11 @@ class CancelTournamentSpockPerformanceTest extends Specification{
         @Bean
         AnswersXmlImport answersXmlImport() {
             return new AnswersXmlImport()
+        }
+
+        @Bean
+        AssessmentService assessmentService() {
+            return new AssessmentService()
         }
     }
 }

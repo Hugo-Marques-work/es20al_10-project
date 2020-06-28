@@ -35,7 +35,7 @@ public class Topic implements DomainEntity {
     @ManyToMany(cascade = CascadeType.ALL, mappedBy = "topics")
     private Set<Tournament> tournaments = new HashSet<>();
 
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.EAGER, optional=false)
     @JoinColumn(name = "course_id")
     private Course course;
 

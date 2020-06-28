@@ -8,14 +8,18 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.AssessmentService;
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService;
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService;
 import pt.ulisboa.tecnico.socialsoftware.tutor.statement.StatementService;
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserService;
 
 @Component
 public class ScheduledTasks {
 	@Autowired
 	private ImpExpService impExpService;
 
-    @Autowired
-    private QuizService quizService;
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private QuizService quizService;
 
 	@Autowired
 	private StatementService statementService;
@@ -26,18 +30,21 @@ public class ScheduledTasks {
     @Autowired
     private AssessmentService assessmentService;
 
-	@Scheduled(cron = "0 0 1,13 * * *")
+	@Scheduled(cron = "0 0 3,13 * * *")
 	public void exportAll() {
 		impExpService.exportAll();
 	}
 
-	@Scheduled(cron = "0 0/15 * * * *")
-	public void completeOpenQuizAnswers() {
-		statementService.completeOpenQuizAnswers();
+	@Scheduled(cron = "0 0 2 * * *")
+	public void writeQuizAnswersAndCalculateStatistics() {
+		statementService.writeQuizAnswersAndCalculateStatistics();
 	}
 
     @Scheduled(cron = "0 0 1 * * *")
     public void resetDemoInfo() {
-	    quizService.resetDemoQuizzes();
+		userService.resetDemoStudents();
+		quizService.resetDemoQuizzes();
+	    topicService.resetDemoTopics();
+	    assessmentService.resetDemoAssessments();
     }
 }

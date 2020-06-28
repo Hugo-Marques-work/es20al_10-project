@@ -27,7 +27,6 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
             <v-icon
-              large
               class="mr-2"
               v-on="on"
               @click="createFromCourse(item)"
@@ -40,7 +39,6 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
             <v-icon
-              large
               class="mr-2"
               v-on="on"
               @click="deleteCourse(item)"
@@ -86,7 +84,7 @@ export default class CoursesView extends Vue {
       value: 'action',
       align: 'left',
       sortable: false,
-      width: '15%'
+      width: '5px'
     },
     {
       text: 'Course Type',
@@ -110,6 +108,30 @@ export default class CoursesView extends Vue {
     {
       text: 'Academic Term',
       value: 'academicTerm',
+      align: 'center',
+      width: '10%'
+    },
+    {
+      text: 'Number of Teachers',
+      value: 'numberOfTeachers',
+      align: 'center',
+      width: '10%'
+    },
+    {
+      text: 'Number of Students',
+      value: 'numberOfStudents',
+      align: 'center',
+      width: '10%'
+    },
+    {
+      text: 'Number of Questions',
+      value: 'numberOfQuestions',
+      align: 'center',
+      width: '10%'
+    },
+    {
+      text: 'Number of Quizzes',
+      value: 'numberOfQuizzes',
       align: 'center',
       width: '10%'
     },

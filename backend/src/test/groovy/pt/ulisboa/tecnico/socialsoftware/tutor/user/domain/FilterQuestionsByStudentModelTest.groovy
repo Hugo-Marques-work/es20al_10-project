@@ -1,5 +1,9 @@
-package pt.ulisboa.tecnico.socialsoftware.tutor.user.domain.user
+package pt.ulisboa.tecnico.socialsoftware.tutor.user.domain
 
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.boot.test.context.TestConfiguration
+import pt.ulisboa.tecnico.socialsoftware.tutor.BeanConfiguration
+import pt.ulisboa.tecnico.socialsoftware.tutor.SpockTest
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuestionAnswer
 import pt.ulisboa.tecnico.socialsoftware.tutor.answer.domain.QuizAnswer
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Option
@@ -7,9 +11,9 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.Quiz
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.domain.QuizQuestion
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
-import spock.lang.Specification
 
-class FilterQuestionsByStudentModelTest extends Specification {
+@DataJpaTest
+class FilterQuestionsByStudentModelTest extends SpockTest {
     def availableQuestions
     def user
     def quiz
@@ -38,8 +42,9 @@ class FilterQuestionsByStudentModelTest extends Specification {
         quizQuestionFive = new QuizQuestion(quiz, questionFive, 4)
         quizQuestionSix = new QuizQuestion(quiz, questionSix, 5)
 
-        user = new User()
-        user.setKey(1)
+        user = new User(USER_1_NAME, USER_1_USERNAME, User.Role.STUDENT)
+        userRepository.save(user)
+        user.setKey(user.getId())
 
         availableQuestions = [questionOne, questionTwo, questionThree, questionFour, questionFive, questionSix]
     }
@@ -55,7 +60,7 @@ class FilterQuestionsByStudentModelTest extends Specification {
     def 'the user answered 1 question' () {
         given:
         def quizAnswer = new QuizAnswer(user, quiz)
-        def option = new Option()
+        Option option = new Option()
         option.setContent("Option Content")
         option.setCorrect(true)
         option.setSequence(0)
@@ -73,7 +78,7 @@ class FilterQuestionsByStudentModelTest extends Specification {
     def 'the user answered 4 questions' () {
         given:
         def quizAnswer = new QuizAnswer(user, quiz)
-        def option = new Option()
+        Option option = new Option()
         option.setContent("Option Content")
         option.setCorrect(true)
         option.setSequence(0)
@@ -95,7 +100,7 @@ class FilterQuestionsByStudentModelTest extends Specification {
     def 'the user answered 5 questions' () {
         given:
         def quizAnswer = new QuizAnswer(user, quiz)
-        def option = new Option()
+        Option option = new Option()
         option.setContent("Option Content")
         option.setCorrect(true)
         option.setSequence(0)
@@ -113,4 +118,7 @@ class FilterQuestionsByStudentModelTest extends Specification {
         and: 'it contains the not answered question'
         result.contains(questionOne)
     }
+
+    @TestConfiguration
+    static class LocalBeanConfiguration extends BeanConfiguration {}
 }

@@ -4,15 +4,23 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import pt.ulisboa.tecnico.socialsoftware.tutor.answer.AnswerService
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.ClarificationService
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.domain.Clarification
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.domain.ClarificationAnswer
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.repository.ClarificationAnswerRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.clarification.repository.ClarificationRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseService
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.ErrorMessage
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
+import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.AnswersXmlImport
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.AssessmentService
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
+import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.User
 import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.user.UserService
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -21,8 +29,6 @@ class GetClarificationAnswerSpockTest extends Specification {
     static final String NAME = "test user"
     static final String USERNAME = "test_user"
     static final String USERNAME2 = "test_user2"
-    static final Integer USER_KEY = 1
-    static final Integer USER_KEY2 = 12
     static final User.Role ROLE = User.Role.TEACHER
     static final String CONTENT = "I explain your clarification."
 
@@ -45,7 +51,7 @@ class GetClarificationAnswerSpockTest extends Specification {
     User user
 
     def setup(){
-        def student = new User(NAME, USERNAME2, USER_KEY2, User.Role.STUDENT);
+        def student = new User(NAME, USERNAME2, User.Role.STUDENT);
         userRepository.save(student);
 
         clarification = new Clarification()
@@ -53,7 +59,7 @@ class GetClarificationAnswerSpockTest extends Specification {
         clarification.setUser(student)
         clarificationRepository.save(clarification)
 
-        user = new User(NAME, USERNAME, USER_KEY, ROLE)
+        user = new User(NAME, USERNAME, ROLE)
         userRepository.save(user)
     }
 
@@ -105,6 +111,46 @@ class GetClarificationAnswerSpockTest extends Specification {
         @Bean
         ClarificationService clarificationService() {
             return new ClarificationService()
+        }
+
+        @Bean
+        UserService userService() {
+            return new UserService()
+        }
+
+        @Bean
+        CourseService courseService() {
+            return new CourseService()
+        }
+
+        @Bean
+        AnswerService answerService() {
+            return new AnswerService()
+        }
+
+        @Bean
+        AnswersXmlImport answersXmlImport() {
+            return new AnswersXmlImport()
+        }
+
+        @Bean
+        QuizService quizService() {
+            return new QuizService()
+        }
+
+        @Bean
+        QuestionService questionService() {
+            return new QuestionService()
+        }
+
+        @Bean
+        TopicService topicService() {
+            return new TopicService()
+        }
+
+        @Bean
+        AssessmentService assessmentService() {
+            return new AssessmentService()
         }
     }
 }

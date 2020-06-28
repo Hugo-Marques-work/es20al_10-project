@@ -10,8 +10,10 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseService
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.AnswersXmlImport
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.AssessmentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Question
@@ -89,11 +91,13 @@ class GetStatementSpockTest extends Specification {
         def tournament = new Tournament()
         tournament.setTitle("TEST")
         tournament.setCreator(student)
+        courseExecution.setCourse(course)
         tournament.setCourseExecution(courseExecution)
         tournament.setStartingDate(STARTING_DATE)
         tournament.setConclusionDate(CONCLUSION_DATE)
         tournament.setNumberOfQuestions(NUMBER_QUESTIONS)
-        tournament.addTopic(topicRepository.findAll().getAt(0))
+        topic.setCourse(course)
+        tournament.addTopic(topic)
         tournament.setStatus(Tournament.Status.OPEN)
         tournamentRepository.save(tournament)
         courseExecution.addTournament(tournament);
@@ -102,9 +106,9 @@ class GetStatementSpockTest extends Specification {
     }
 
     def setup() {
-        student = new User("User", "user", 1, User.Role.STUDENT)
+        student = new User("User", "user", User.Role.STUDENT)
         userRepository.save(student)
-        randomUser = new User("User2", "user2", 2, User.Role.STUDENT)
+        randomUser = new User("User2", "user2", User.Role.STUDENT)
         userRepository.save(randomUser)
 
         course = new Course(COURSE_NAME, Course.Type.TECNICO)
@@ -114,6 +118,9 @@ class GetStatementSpockTest extends Specification {
         courseExecutionRepository.save(courseExecution)
 
         topic = new Topic()
+        def course = new Course("teste", Course.Type.TECNICO)
+        courseRepository.save(course)
+        topic.setCourse(course)
         topic.setName(TOPIC_NAME)
         topicRepository.save(topic)
         course.addTopic(topic)
@@ -213,6 +220,16 @@ class GetStatementSpockTest extends Specification {
         @Bean
         AnswersXmlImport answersXmlImport() {
             return new AnswersXmlImport()
+        }
+
+        @Bean
+        CourseService courseService() {
+            return new CourseService()
+        }
+
+        @Bean
+        AssessmentService assessmentService() {
+            return new AssessmentService()
         }
     }
 }

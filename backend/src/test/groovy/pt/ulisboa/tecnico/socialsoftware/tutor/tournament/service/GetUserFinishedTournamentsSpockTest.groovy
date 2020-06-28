@@ -10,10 +10,13 @@ import pt.ulisboa.tecnico.socialsoftware.tutor.course.Course
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecution
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseExecutionRepository
 import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseRepository
+import pt.ulisboa.tecnico.socialsoftware.tutor.course.CourseService
 import pt.ulisboa.tecnico.socialsoftware.tutor.exceptions.TutorException
 import pt.ulisboa.tecnico.socialsoftware.tutor.impexp.domain.AnswersXmlImport
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.AssessmentService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.QuestionService
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.TopicService
+import pt.ulisboa.tecnico.socialsoftware.tutor.question.domain.Assessment
 import pt.ulisboa.tecnico.socialsoftware.tutor.question.dto.TopicDto
 import pt.ulisboa.tecnico.socialsoftware.tutor.quiz.QuizService
 import pt.ulisboa.tecnico.socialsoftware.tutor.tournament.TournamentService
@@ -112,11 +115,11 @@ class GetUserFinishedTournamentsSpockTest extends Specification {
         otherCourseExecution = new CourseExecution(course, ACRONYM2, ACADEMIC_TERM, Course.Type.TECNICO)
         courseExecutionRepository.save(courseExecution)
 
-        student = new User("Joao", "joao", 1, User.Role.STUDENT)
+        student = new User("Joao", "joao", User.Role.STUDENT)
         userRepository.save(student)
         userService.addCourseExecution(student.getId(),courseExecution.getId());
 
-        student2 = new User("Joaquina", "joaquina", 2, User.Role.STUDENT)
+        student2 = new User("Joaquina", "joaquina",User.Role.STUDENT)
         userRepository.save(student2)
         userService.addCourseExecution(student2.getId(),courseExecution.getId());
 
@@ -232,6 +235,16 @@ class GetUserFinishedTournamentsSpockTest extends Specification {
         @Bean
         UserService userService() {
             return new UserService()
+        }
+
+        @Bean
+        CourseService courseService() {
+            return new CourseService()
+        }
+
+        @Bean
+        AssessmentService assessmentService() {
+            return new AssessmentService()
         }
     }
 }
